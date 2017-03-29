@@ -1,0 +1,80 @@
+\hypertarget{class_parameter_base}{\section{Referência da Classe Parameter\-Base}
+\label{class_parameter_base}\index{Parameter\-Base@{Parameter\-Base}}
+}
+
+
+{\ttfamily \#include $<$Parameters.\-h$>$}
+
+Diagrama de Hierarquia para Parameter\-Base\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_parameter_base}
+\end{center}
+\end{figure}
+\subsection*{Métodos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+virtual std\-::string \hyperlink{class_parameter_base_a98af4bed3a47e680e51b6219b744e68b}{to\-String} ()=0
+\item 
+virtual void \hyperlink{class_parameter_base_a949c6d70ed8893e577f492810f388073}{from\-String} (std\-::string \&line)=0
+\end{DoxyCompactItemize}
+\subsection*{Atributos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+std\-::string \hyperlink{class_parameter_base_a3e2e2ad34b89eabb0484b3a338133614}{name}
+\item 
+std\-::string \hyperlink{class_parameter_base_a6947177ee16a3821c8541635247188c5}{description}
+\end{DoxyCompactItemize}
+
+
+\subsection{Descrição Detalhada}
+Classe base para um parâmetro \begin{DoxyAuthor}{Autor}
+Hansenclever Bassani 
+\end{DoxyAuthor}
+
+
+\subsection{Métodos}
+\hypertarget{class_parameter_base_a949c6d70ed8893e577f492810f388073}{\index{Parameter\-Base@{Parameter\-Base}!from\-String@{from\-String}}
+\index{from\-String@{from\-String}!ParameterBase@{Parameter\-Base}}
+\subsubsection[{from\-String}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Parameter\-Base\-::from\-String (
+\begin{DoxyParamCaption}
+\item[{std\-::string \&}]{line}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}}\label{class_parameter_base_a949c6d70ed8893e577f492810f388073}
+Método virtual nulo que lê um parâmetro a partir de uma string. 
+\begin{DoxyParams}{Parâmetros}
+{\em A} & string contendo um parâmetro \\
+\hline
+\end{DoxyParams}
+
+
+Implementado por \hyperlink{class_parameter_ab8b07f5fd7288b6803eae054f4586c32}{Parameter$<$ T $>$}.
+
+\hypertarget{class_parameter_base_a98af4bed3a47e680e51b6219b744e68b}{\index{Parameter\-Base@{Parameter\-Base}!to\-String@{to\-String}}
+\index{to\-String@{to\-String}!ParameterBase@{Parameter\-Base}}
+\subsubsection[{to\-String}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\-::string Parameter\-Base\-::to\-String (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}}\label{class_parameter_base_a98af4bed3a47e680e51b6219b744e68b}
+Método virtual nulo que converte o parâmetro para uma string. \begin{DoxyReturn}{Retorna}
+converte este parâmetro para uma representação de string. 
+\end{DoxyReturn}
+
+
+Implementado por \hyperlink{class_parameter_ad9328613b3f031c33ebc89e0a78356c6}{Parameter$<$ T $>$}.
+
+
+
+\subsection{Atributos}
+\hypertarget{class_parameter_base_a6947177ee16a3821c8541635247188c5}{\index{Parameter\-Base@{Parameter\-Base}!description@{description}}
+\index{description@{description}!ParameterBase@{Parameter\-Base}}
+\subsubsection[{description}]{\setlength{\rightskip}{0pt plus 5cm}std\-::string Parameter\-Base\-::description}}\label{class_parameter_base_a6947177ee16a3821c8541635247188c5}
+Valor do parâmetro. \hypertarget{class_parameter_base_a3e2e2ad34b89eabb0484b3a338133614}{\index{Parameter\-Base@{Parameter\-Base}!name@{name}}
+\index{name@{name}!ParameterBase@{Parameter\-Base}}
+\subsubsection[{name}]{\setlength{\rightskip}{0pt plus 5cm}std\-::string Parameter\-Base\-::name}}\label{class_parameter_base_a3e2e2ad34b89eabb0484b3a338133614}
+Nome do parâmetro. 
+
+A documentação para esta classe foi gerada a partir do seguinte arquivo\-:\begin{DoxyCompactItemize}
+\item 
+Parameters.\-h\end{DoxyCompactItemize}

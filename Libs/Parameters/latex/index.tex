@@ -1,0 +1,79 @@
+\begin{DoxyAuthor}{Autor}
+Hansenclever Bassani
+\end{DoxyAuthor}
+As três classes principais são\-:
+
+\hyperlink{class_parameters}{Parameters}\-: define um conjunto de parâmetros
+
+\hyperlink{class_parameter}{Parameter}\-: define um parâmetro
+
+\hyperlink{class_c_f_g_file}{C\-F\-G\-File}\-: define um arquivo onde os parâmetros serão armazenados.
+
+Exemplo de utilização\-: 
+\begin{DoxyCode}
+\textcolor{comment}{//Primeiramente é necessário definir uma classe derivada de Parameters que irá conter os parâmetros:}
+ 
+\textcolor{keyword}{class }MyParameters: \textcolor{keyword}{public} \hyperlink{class_parameters}{Parameters} \{
+
+\textcolor{keyword}{public}:
+     \textcolor{comment}{//Esta classe contém três parâmetros:}
+     \hyperlink{class_parameter}{Parameter<double>} p1; \textcolor{comment}{//parametro double}
+     \hyperlink{class_parameter}{Parameter<float>} p2;  \textcolor{comment}{//parametro float}
+     \hyperlink{class_parameter}{Parameter<int>} p3;    \textcolor{comment}{//parametro inteiro}
+
+     \textcolor{comment}{//Em seguida definimos um construtor da seguinte maneira:}
+     MyParameters() \{
+         \textcolor{comment}{//Um nome para este cojunto de parâmetros.}
+         section = \textcolor{stringliteral}{"Meus Parametros"};
+
+         \textcolor{comment}{//Uma descrição mais detalhada para este conjunto de parâmetros.}
+         comments = \textcolor{stringliteral}{"Parametros do meu sistema p1 p2 e p3"};
+
+         \textcolor{comment}{//Indica quais parâmetros serão salvos em arquivo e um comentário }
+         \textcolor{comment}{//explicativo para cada parâmetro que será incluído no arquivo.}
+         addParameterD(p1, \textcolor{stringliteral}{"Este parametro controla 1"});
+         addParameterD(p2, \textcolor{stringliteral}{"Este parametro controla 2"});
+         addParameterD(p3, \textcolor{stringliteral}{"Este parametro controla 3"});
+
+         \textcolor{comment}{//Define valores padrão para os parâmetros}
+         p1 = 10.0;
+         p2 = 100.;
+         p3 = 1000;
+     \}
+\};
+
+ \textcolor{comment}{//Agora podemos utilizar nossos parâmetros e savá-los em arquivo:}
+ \textcolor{keywordtype}{int} main(\textcolor{keywordtype}{void})
+ \{
+     \textcolor{comment}{//Instancia um arquivo de configuração}
+     \hyperlink{class_c_f_g_file}{CFGFile} cfgFile(\textcolor{stringliteral}{"test.cfg"});
+
+     \textcolor{comment}{//Instancia um objeto do tipo MyParameters}
+     MyParameters params;
+
+     \textcolor{comment}{//Se o arquivo já existe}
+     \textcolor{keywordflow}{if} (cfgFile.exists())
+         cfgFile >> params; \textcolor{comment}{//Le os valores atuais}
+     \textcolor{keywordflow}{else} 
+         cfgFile << params; \textcolor{comment}{//Caso contrário, grava um com os valores padrão}
+
+     \textcolor{comment}{//Imprime o arquivo na tela}
+     cout << params;
+
+     \textcolor{comment}{//Imprime apenas alguns parâmetros}
+     cout << params.p1.name << \textcolor{stringliteral}{": "} << params.p1 << \textcolor{stringliteral}{"\(\backslash\)t"} << params.p2.name << \textcolor{stringliteral}{": "} << params.p2 << endl;
+
+     \textcolor{comment}{//Le um valor para um parâmetro}
+     cout << \textcolor{stringliteral}{"Digite um novo valor para p1:"};
+     cin >> params.p1;
+     cout << \textcolor{stringliteral}{"Agora o valor de p1 é:"} << params.p1 << endl;
+
+     \textcolor{comment}{//Modifica o valor de outro parâmetro}
+     params.p2 = params.p2 + 20;
+     cout << \textcolor{stringliteral}{"Agora o valor de p2 é:"} << params.p2 << endl;
+
+     \textcolor{comment}{//Limpa o arquivo e grava os novos parâmetros}
+     cfgFile.erase() << params;
+\}
+\end{DoxyCode}
+ 

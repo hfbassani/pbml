@@ -1,0 +1,171 @@
+\hypertarget{class_c_f_g_file_object}{\section{Referência da Classe C\-F\-G\-File\-Object}
+\label{class_c_f_g_file_object}\index{C\-F\-G\-File\-Object@{C\-F\-G\-File\-Object}}
+}
+
+
+{\ttfamily \#include $<$Parameters.\-h$>$}
+
+Diagrama de Hierarquia para C\-F\-G\-File\-Object\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_c_f_g_file_object}
+\end{center}
+\end{figure}
+\subsection*{Métodos Protegidos}
+\begin{DoxyCompactItemize}
+\item 
+virtual std\-::ostream \& \hyperlink{class_c_f_g_file_object_aac9312bca4de84d2b2330af9857a400c}{to\-Stream} (std\-::ostream \&out)=0
+\item 
+virtual std\-::istream \& \hyperlink{class_c_f_g_file_object_a561dcc20e3c1db7e38868269b464ca86}{from\-Stream} (std\-::istream \&in)=0
+\item 
+bool \hyperlink{class_c_f_g_file_object_a4b417d2e16fc8c2c9fed64546b8b2d86}{find\-Section\-Start} (std\-::istream \&in)
+\item 
+bool \hyperlink{class_c_f_g_file_object_a56a717efd9097cde9bdf029b5c93e9bd}{read\-Section\-Comments} (std\-::istream \&in)
+\end{DoxyCompactItemize}
+\subsection*{Atributos Protegidos}
+\begin{DoxyCompactItemize}
+\item 
+std\-::string \hyperlink{class_c_f_g_file_object_a7d62f5a9b853173c9d36e315c3de21b3}{section}
+\item 
+std\-::string \hyperlink{class_c_f_g_file_object_ad5bd5931f86c7843eeaca0c7a240e647}{comments}
+\end{DoxyCompactItemize}
+\subsection*{Amigas}
+\begin{DoxyCompactItemize}
+\item 
+std\-::ostream \& \hyperlink{class_c_f_g_file_object_aecfe3f419c5a0b9474dfd4618323c587}{operator$<$$<$} (std\-::ostream \&out, \hyperlink{class_c_f_g_file_object}{C\-F\-G\-File\-Object} \&cfg\-File\-Object)
+\item 
+std\-::istream \& \hyperlink{class_c_f_g_file_object_a27640d1aa1cb5605f33a088f636af48f}{operator$>$$>$} (std\-::istream \&in, \hyperlink{class_c_f_g_file_object}{C\-F\-G\-File\-Object} \&cfg\-File\-Object)
+\end{DoxyCompactItemize}
+
+
+\subsection{Descrição Detalhada}
+Classe base que representa uma seção de parâmetros em arquivo que armazena parâmetros. \begin{DoxyAuthor}{Autor}
+Hansenclever Bassani 
+\end{DoxyAuthor}
+
+
+\subsection{Métodos}
+\hypertarget{class_c_f_g_file_object_a4b417d2e16fc8c2c9fed64546b8b2d86}{\index{C\-F\-G\-File\-Object@{C\-F\-G\-File\-Object}!find\-Section\-Start@{find\-Section\-Start}}
+\index{find\-Section\-Start@{find\-Section\-Start}!CFGFileObject@{C\-F\-G\-File\-Object}}
+\subsubsection[{find\-Section\-Start}]{\setlength{\rightskip}{0pt plus 5cm}bool C\-F\-G\-File\-Object\-::find\-Section\-Start (
+\begin{DoxyParamCaption}
+\item[{std\-::istream \&}]{in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}}\label{class_c_f_g_file_object_a4b417d2e16fc8c2c9fed64546b8b2d86}
+Encontra o início de seção em uma stream. 
+\begin{DoxyParams}{Parâmetros}
+{\em in} & Uma stream de entrada. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Retorna}
+Verdadeiro se encontrou o início de seção. 
+\end{DoxyReturn}
+\hypertarget{class_c_f_g_file_object_a561dcc20e3c1db7e38868269b464ca86}{\index{C\-F\-G\-File\-Object@{C\-F\-G\-File\-Object}!from\-Stream@{from\-Stream}}
+\index{from\-Stream@{from\-Stream}!CFGFileObject@{C\-F\-G\-File\-Object}}
+\subsubsection[{from\-Stream}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\-::istream\& C\-F\-G\-File\-Object\-::from\-Stream (
+\begin{DoxyParamCaption}
+\item[{std\-::istream \&}]{in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [pure virtual]}}}\label{class_c_f_g_file_object_a561dcc20e3c1db7e38868269b464ca86}
+Método virtual que deve carregar esta classe de uma stream de parâmetros em texto. 
+\begin{DoxyParams}{Parâmetros}
+{\em in} & Uma stream de entrada. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Retorna}
+A própria stream recebida como entrada. 
+\end{DoxyReturn}
+
+
+Implementado por \hyperlink{class_parameters_a1ca5a29b4ebd5a0c2a959ea28353ce07}{Parameters}.
+
+\hypertarget{class_c_f_g_file_object_a56a717efd9097cde9bdf029b5c93e9bd}{\index{C\-F\-G\-File\-Object@{C\-F\-G\-File\-Object}!read\-Section\-Comments@{read\-Section\-Comments}}
+\index{read\-Section\-Comments@{read\-Section\-Comments}!CFGFileObject@{C\-F\-G\-File\-Object}}
+\subsubsection[{read\-Section\-Comments}]{\setlength{\rightskip}{0pt plus 5cm}bool C\-F\-G\-File\-Object\-::read\-Section\-Comments (
+\begin{DoxyParamCaption}
+\item[{std\-::istream \&}]{in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}}\label{class_c_f_g_file_object_a56a717efd9097cde9bdf029b5c93e9bd}
+Lê a seção de comentários 
+\begin{DoxyParams}{Parâmetros}
+{\em in} & Uma stream de entrada. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Retorna}
+Verdadeiro se encontrou os comentários. 
+\end{DoxyReturn}
+\hypertarget{class_c_f_g_file_object_aac9312bca4de84d2b2330af9857a400c}{\index{C\-F\-G\-File\-Object@{C\-F\-G\-File\-Object}!to\-Stream@{to\-Stream}}
+\index{to\-Stream@{to\-Stream}!CFGFileObject@{C\-F\-G\-File\-Object}}
+\subsubsection[{to\-Stream}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\-::ostream\& C\-F\-G\-File\-Object\-::to\-Stream (
+\begin{DoxyParamCaption}
+\item[{std\-::ostream \&}]{out}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [pure virtual]}}}\label{class_c_f_g_file_object_aac9312bca4de84d2b2330af9857a400c}
+Método virtual que deve converter esta classe para uma stream de parâmetros em texto.
+
+
+\begin{DoxyParams}{Parâmetros}
+{\em out} & Uma stream de saída. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Retorna}
+A própria stream recebida como entrada. 
+\end{DoxyReturn}
+
+
+Implementado por \hyperlink{class_parameters_a236265efb331f30fe0742cb1d12c22ab}{Parameters}.
+
+
+
+\subsection{Amigas e Funções Relacionadas}
+\hypertarget{class_c_f_g_file_object_aecfe3f419c5a0b9474dfd4618323c587}{\index{C\-F\-G\-File\-Object@{C\-F\-G\-File\-Object}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!CFGFileObject@{C\-F\-G\-File\-Object}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}std\-::ostream\& operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{std\-::ostream \&}]{out, }
+\item[{{\bf C\-F\-G\-File\-Object} \&}]{cfg\-File\-Object}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}}\label{class_c_f_g_file_object_aecfe3f419c5a0b9474dfd4618323c587}
+Operador binário que converte um \hyperlink{class_c_f_g_file_object}{C\-F\-G\-File\-Object} em uma stream. 
+\begin{DoxyParams}{Parâmetros}
+{\em out} & Uma stream de saída. \\
+\hline
+{\em cfg\-File\-Object} & Um objeto \hyperlink{class_c_f_g_file_object}{C\-F\-G\-File\-Object}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Retorna}
+A própria stream recebida como entrada. 
+\end{DoxyReturn}
+\hypertarget{class_c_f_g_file_object_a27640d1aa1cb5605f33a088f636af48f}{\index{C\-F\-G\-File\-Object@{C\-F\-G\-File\-Object}!operator$>$$>$@{operator$>$$>$}}
+\index{operator$>$$>$@{operator$>$$>$}!CFGFileObject@{C\-F\-G\-File\-Object}}
+\subsubsection[{operator$>$$>$}]{\setlength{\rightskip}{0pt plus 5cm}std\-::istream\& operator$>$$>$ (
+\begin{DoxyParamCaption}
+\item[{std\-::istream \&}]{in, }
+\item[{{\bf C\-F\-G\-File\-Object} \&}]{cfg\-File\-Object}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [friend]}}}\label{class_c_f_g_file_object_a27640d1aa1cb5605f33a088f636af48f}
+Operador binário que converte uma stream em um \hyperlink{class_c_f_g_file_object}{C\-F\-G\-File\-Object}. 
+\begin{DoxyParams}{Parâmetros}
+{\em in} & Uma stream de entrada. \\
+\hline
+{\em cfg\-File\-Object} & Um objeto \hyperlink{class_c_f_g_file_object}{C\-F\-G\-File\-Object}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Retorna}
+A própria stream recebida. 
+\end{DoxyReturn}
+
+
+\subsection{Atributos}
+\hypertarget{class_c_f_g_file_object_ad5bd5931f86c7843eeaca0c7a240e647}{\index{C\-F\-G\-File\-Object@{C\-F\-G\-File\-Object}!comments@{comments}}
+\index{comments@{comments}!CFGFileObject@{C\-F\-G\-File\-Object}}
+\subsubsection[{comments}]{\setlength{\rightskip}{0pt plus 5cm}std\-::string C\-F\-G\-File\-Object\-::comments\hspace{0.3cm}{\ttfamily [protected]}}}\label{class_c_f_g_file_object_ad5bd5931f86c7843eeaca0c7a240e647}
+Comentários de começo de arquivo. \hypertarget{class_c_f_g_file_object_a7d62f5a9b853173c9d36e315c3de21b3}{\index{C\-F\-G\-File\-Object@{C\-F\-G\-File\-Object}!section@{section}}
+\index{section@{section}!CFGFileObject@{C\-F\-G\-File\-Object}}
+\subsubsection[{section}]{\setlength{\rightskip}{0pt plus 5cm}std\-::string C\-F\-G\-File\-Object\-::section\hspace{0.3cm}{\ttfamily [protected]}}}\label{class_c_f_g_file_object_a7d62f5a9b853173c9d36e315c3de21b3}
+Nome da sessão dos parâmetros no arquivo. 
+
+A documentação para esta classe foi gerada a partir dos seguintes arquivos\-:\begin{DoxyCompactItemize}
+\item 
+Parameters.\-h\item 
+Parameters.\-cpp\end{DoxyCompactItemize}

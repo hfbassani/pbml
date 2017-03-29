@@ -1,0 +1,112 @@
+\hypertarget{class_c_f_g_file}{\section{Referência da Classe C\-F\-G\-File}
+\label{class_c_f_g_file}\index{C\-F\-G\-File@{C\-F\-G\-File}}
+}
+
+
+{\ttfamily \#include $<$Parameters.\-h$>$}
+
+\subsection*{Métodos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+$\ast$string that defines the \\*
+section end delimiter \hyperlink{class_c_f_g_file_aa6bc079ab22f0ba59dc9e66cc411eb4e}{C\-F\-G\-File} (std\-::string file\-Name)
+\item 
+bool \hyperlink{class_c_f_g_file_a4511cba3770e85a6e57aab94a85eb636}{exists} ()
+\item 
+\hyperlink{class_c_f_g_file}{C\-F\-G\-File} \& \hyperlink{class_c_f_g_file_ab1ed4a730353e4cf6fc4d8ad046784e7}{erase} ()
+\item 
+\hyperlink{class_c_f_g_file}{C\-F\-G\-File} \& \hyperlink{class_c_f_g_file_a5c8e2b26555638d9f9aabf15a4b8a4eb}{operator$<$$<$} (\hyperlink{class_c_f_g_file_object}{C\-F\-G\-File\-Object} \&is)
+\item 
+\hyperlink{class_c_f_g_file}{C\-F\-G\-File} \& \hyperlink{class_c_f_g_file_a1280c628bd06d77f70ea1d758326d0fa}{operator$>$$>$} (\hyperlink{class_c_f_g_file_object}{C\-F\-G\-File\-Object} \&os)
+\end{DoxyCompactItemize}
+\subsection*{Atributos Estáticos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_c_f_g_file_afcee852b462b487b7cef10b89f46d312}{static const std\-::string {\bfseries delimiter\-Str} = \char`\"{}=\char`\"{}}\label{class_c_f_g_file_afcee852b462b487b7cef10b89f46d312}
+
+\item 
+\hypertarget{class_c_f_g_file_a95d897cc39db40029d4e1494428fa0be}{$\ast$separator between key and \\*
+static value const std\-::string {\bfseries comment\-Str} = \char`\"{}\#\char`\"{}}\label{class_c_f_g_file_a95d897cc39db40029d4e1494428fa0be}
+
+\item 
+\hypertarget{class_c_f_g_file_ae54f59bdb2c428e54ed52a435cc95a7e}{$\ast$separator between value and \\*
+static comments const \\*
+std\-::string {\bfseries end\-Value\-Str} = \char`\"{}\textbackslash{}t\textbackslash{}t\char`\"{}}\label{class_c_f_g_file_ae54f59bdb2c428e54ed52a435cc95a7e}
+
+\item 
+\hypertarget{class_c_f_g_file_a82bb28404291aec2d67c8ca2a3aeebe4}{$\ast$separator between value and \\*
+static comments const \\*
+std\-::string {\bfseries section\-Start\-Del} = \char`\"{}\mbox{[}\char`\"{}}\label{class_c_f_g_file_a82bb28404291aec2d67c8ca2a3aeebe4}
+
+\item 
+\hypertarget{class_c_f_g_file_a994e75153c582ce158456d5f9a4ce9db}{$\ast$string that defines the first \\*
+string of section static start \\*
+const std\-::string {\bfseries section\-End\-Del} = \char`\"{}\mbox{]}\char`\"{}}\label{class_c_f_g_file_a994e75153c582ce158456d5f9a4ce9db}
+
+\item 
+\hypertarget{class_c_f_g_file_a33375621a07cb3ca70ebb49757377545}{$\ast$string that defines the last \\*
+string of section static start \\*
+const std\-::string {\bfseries section\-End} = \char`\"{}\mbox{[}end\mbox{]}\char`\"{}}\label{class_c_f_g_file_a33375621a07cb3ca70ebb49757377545}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Descrição Detalhada}
+Class que representa um arquivo de configuração. \begin{DoxyAuthor}{Autor}
+Hansenclever Bassani 
+\end{DoxyAuthor}
+
+
+\subsection{Construtores \& Destrutores}
+\hypertarget{class_c_f_g_file_aa6bc079ab22f0ba59dc9e66cc411eb4e}{\index{C\-F\-G\-File@{C\-F\-G\-File}!C\-F\-G\-File@{C\-F\-G\-File}}
+\index{C\-F\-G\-File@{C\-F\-G\-File}!CFGFile@{C\-F\-G\-File}}
+\subsubsection[{C\-F\-G\-File}]{\setlength{\rightskip}{0pt plus 5cm}$\ast$ string that defines the section end delimiter C\-F\-G\-File\-::\-C\-F\-G\-File (
+\begin{DoxyParamCaption}
+\item[{std\-::string}]{file\-Name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_c_f_g_file_aa6bc079ab22f0ba59dc9e66cc411eb4e}
+Construtor 
+\begin{DoxyParams}{Parâmetros}
+{\em nome} & do arquivo onde os parâmetros de serão armazenados \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Métodos}
+\hypertarget{class_c_f_g_file_ab1ed4a730353e4cf6fc4d8ad046784e7}{\index{C\-F\-G\-File@{C\-F\-G\-File}!erase@{erase}}
+\index{erase@{erase}!CFGFile@{C\-F\-G\-File}}
+\subsubsection[{erase}]{\setlength{\rightskip}{0pt plus 5cm}{\bf C\-F\-G\-File}\& C\-F\-G\-File\-::erase (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_c_f_g_file_ab1ed4a730353e4cf6fc4d8ad046784e7}
+Limpa arquivo de configuração \hypertarget{class_c_f_g_file_a4511cba3770e85a6e57aab94a85eb636}{\index{C\-F\-G\-File@{C\-F\-G\-File}!exists@{exists}}
+\index{exists@{exists}!CFGFile@{C\-F\-G\-File}}
+\subsubsection[{exists}]{\setlength{\rightskip}{0pt plus 5cm}bool C\-F\-G\-File\-::exists (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_c_f_g_file_a4511cba3770e85a6e57aab94a85eb636}
+Verifica se o arquivo existe \begin{DoxyReturn}{Retorna}
+verdadeiro se o arquivo existe. 
+\end{DoxyReturn}
+\hypertarget{class_c_f_g_file_a5c8e2b26555638d9f9aabf15a4b8a4eb}{\index{C\-F\-G\-File@{C\-F\-G\-File}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!CFGFile@{C\-F\-G\-File}}
+\subsubsection[{operator$<$$<$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf C\-F\-G\-File}\& C\-F\-G\-File\-::operator$<$$<$ (
+\begin{DoxyParamCaption}
+\item[{{\bf C\-F\-G\-File\-Object} \&}]{is}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_c_f_g_file_a5c8e2b26555638d9f9aabf15a4b8a4eb}
+Grava seção de parâmetros em um arquivo de configuração. \hypertarget{class_c_f_g_file_a1280c628bd06d77f70ea1d758326d0fa}{\index{C\-F\-G\-File@{C\-F\-G\-File}!operator$>$$>$@{operator$>$$>$}}
+\index{operator$>$$>$@{operator$>$$>$}!CFGFile@{C\-F\-G\-File}}
+\subsubsection[{operator$>$$>$}]{\setlength{\rightskip}{0pt plus 5cm}{\bf C\-F\-G\-File}\& C\-F\-G\-File\-::operator$>$$>$ (
+\begin{DoxyParamCaption}
+\item[{{\bf C\-F\-G\-File\-Object} \&}]{os}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_c_f_g_file_a1280c628bd06d77f70ea1d758326d0fa}
+Lê parâmetros de um seção de um arquivo de configuração. 
+
+A documentação para esta classe foi gerada a partir dos seguintes arquivos\-:\begin{DoxyCompactItemize}
+\item 
+Parameters.\-h\item 
+Parameters.\-cpp\end{DoxyCompactItemize}

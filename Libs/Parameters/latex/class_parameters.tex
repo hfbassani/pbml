@@ -1,0 +1,190 @@
+\hypertarget{class_parameters}{\section{Referência da Classe Parameters}
+\label{class_parameters}\index{Parameters@{Parameters}}
+}
+
+
+{\ttfamily \#include $<$Parameters.\-h$>$}
+
+Diagrama de Hierarquia para Parameters\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_parameters}
+\end{center}
+\end{figure}
+\subsection*{Tipos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_parameters_a2c5b67a3fff4009e404524737f52dd33}{typedef std\-::list\\*
+$<$ \hyperlink{class_parameter_base}{Parameter\-Base} $\ast$ $>$ {\bfseries Parameters\-List}}\label{class_parameters_a2c5b67a3fff4009e404524737f52dd33}
+
+\item 
+\hypertarget{class_parameters_a5ef6d0faefce99751244c264f32d2821}{typedef std\-::map$<$ std\-::string, \\*
+\hyperlink{class_parameter_base}{Parameter\-Base} $\ast$ $>$ {\bfseries Parameters\-Map}}\label{class_parameters_a5ef6d0faefce99751244c264f32d2821}
+
+\end{DoxyCompactItemize}
+\subsection*{Métodos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_parameters_af4d94ee360ac0157d9065f78797fe9a1}{Parameters} ()
+\item 
+\hyperlink{class_parameters_aae839af2aa8d237c6b1e319ae183c982}{Parameters} (const std\-::string file\-Name)
+\item 
+\hyperlink{class_parameters_ac1be7d84f9e7420060cd6687c363f2dc}{Parameters} (const std\-::string file\-Name, const std\-::string \hyperlink{class_c_f_g_file_object_a7d62f5a9b853173c9d36e315c3de21b3}{section})
+\item 
+void \hyperlink{class_parameters_aa78d6772157b43e282a55f7e58fe0520}{add\-Parameter\-N} (\hyperlink{class_parameter_base}{Parameter\-Base} \&parameter, std\-::string name)
+\item 
+void \hyperlink{class_parameters_af902e19a21efb49f10287a79b624d562}{add\-Parameter\-N\-D} (\hyperlink{class_parameter_base}{Parameter\-Base} \&parameter, std\-::string name, std\-::string description)
+\item 
+void \hyperlink{class_parameters_a4d75e79740800b08f710657fa0e461a3}{save} (std\-::string file\-Name)
+\item 
+void \hyperlink{class_parameters_af77f073dabbbf334d8cb1a44f777cd73}{load} (std\-::string file\-Name)
+\item 
+std\-::ostream \& \hyperlink{class_parameters_a236265efb331f30fe0742cb1d12c22ab}{to\-Stream} (std\-::ostream \&out)
+\item 
+std\-::istream \& \hyperlink{class_parameters_a1ca5a29b4ebd5a0c2a959ea28353ce07}{from\-Stream} (std\-::istream \&in)
+\end{DoxyCompactItemize}
+\subsection*{Atributos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_parameters_a9d40577daab86250d56cabfda9358e37}{Parameters\-List {\bfseries persistent\-Params}}\label{class_parameters_a9d40577daab86250d56cabfda9358e37}
+
+\item 
+\hypertarget{class_parameters_a77e1c23c11fe877234f6e31eafbd102a}{Parameters\-Map {\bfseries param\-Map}}\label{class_parameters_a77e1c23c11fe877234f6e31eafbd102a}
+
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Descrição Detalhada}
+Classe principal de parâmetros. Esta classe representa um conjunto de parâmetros a ser armazenado em arquivo. Ela deve ser extendida e incluir parâmetros do tipo \char`\"{}\-Parameter\char`\"{} dos tipos desejados. Estes parâmetros devem ser inicializados no construtor da classe. No construtor também devem ser indicados os parâmetros que devem ser armazenados em arquivo através das funções \char`\"{}add\-Parameter\char`\"{} \begin{DoxyAuthor}{Autor}
+Hansenclever Bassani 
+\end{DoxyAuthor}
+
+
+\subsection{Construtores \& Destrutores}
+\hypertarget{class_parameters_af4d94ee360ac0157d9065f78797fe9a1}{\index{Parameters@{Parameters}!Parameters@{Parameters}}
+\index{Parameters@{Parameters}!Parameters@{Parameters}}
+\subsubsection[{Parameters}]{\setlength{\rightskip}{0pt plus 5cm}Parameters\-::\-Parameters (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_parameters_af4d94ee360ac0157d9065f78797fe9a1}
+Construtor padrão \hypertarget{class_parameters_aae839af2aa8d237c6b1e319ae183c982}{\index{Parameters@{Parameters}!Parameters@{Parameters}}
+\index{Parameters@{Parameters}!Parameters@{Parameters}}
+\subsubsection[{Parameters}]{\setlength{\rightskip}{0pt plus 5cm}Parameters\-::\-Parameters (
+\begin{DoxyParamCaption}
+\item[{const std\-::string}]{file\-Name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_parameters_aae839af2aa8d237c6b1e319ae183c982}
+Construtor que carrega parâmetros de um arquivo \hypertarget{class_parameters_ac1be7d84f9e7420060cd6687c363f2dc}{\index{Parameters@{Parameters}!Parameters@{Parameters}}
+\index{Parameters@{Parameters}!Parameters@{Parameters}}
+\subsubsection[{Parameters}]{\setlength{\rightskip}{0pt plus 5cm}Parameters\-::\-Parameters (
+\begin{DoxyParamCaption}
+\item[{const std\-::string}]{file\-Name, }
+\item[{const std\-::string}]{section}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_parameters_ac1be7d84f9e7420060cd6687c363f2dc}
+Construtor que seta a sessão e carrega parâmetros de um arquivo 
+
+\subsection{Métodos}
+\hypertarget{class_parameters_aa78d6772157b43e282a55f7e58fe0520}{\index{Parameters@{Parameters}!add\-Parameter\-N@{add\-Parameter\-N}}
+\index{add\-Parameter\-N@{add\-Parameter\-N}!Parameters@{Parameters}}
+\subsubsection[{add\-Parameter\-N}]{\setlength{\rightskip}{0pt plus 5cm}void Parameters\-::add\-Parameter\-N (
+\begin{DoxyParamCaption}
+\item[{{\bf Parameter\-Base} \&}]{parameter, }
+\item[{std\-::string}]{name}
+\end{DoxyParamCaption}
+)}}\label{class_parameters_aa78d6772157b43e282a55f7e58fe0520}
+Adiciona à lista um parâmetro sem informar sua descrição 
+\begin{DoxyParams}{Parâmetros}
+{\em parameter} & Parametro \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_parameters_af902e19a21efb49f10287a79b624d562}{\index{Parameters@{Parameters}!add\-Parameter\-N\-D@{add\-Parameter\-N\-D}}
+\index{add\-Parameter\-N\-D@{add\-Parameter\-N\-D}!Parameters@{Parameters}}
+\subsubsection[{add\-Parameter\-N\-D}]{\setlength{\rightskip}{0pt plus 5cm}void Parameters\-::add\-Parameter\-N\-D (
+\begin{DoxyParamCaption}
+\item[{{\bf Parameter\-Base} \&}]{parameter, }
+\item[{std\-::string}]{name, }
+\item[{std\-::string}]{description}
+\end{DoxyParamCaption}
+)}}\label{class_parameters_af902e19a21efb49f10287a79b624d562}
+Adiciona à lista um parâmetro setando seu nome e descrição 
+\begin{DoxyParams}{Parâmetros}
+{\em parameter} & Parametro \\
+\hline
+{\em name} & Nome \\
+\hline
+{\em description} & Descrição \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_parameters_a1ca5a29b4ebd5a0c2a959ea28353ce07}{\index{Parameters@{Parameters}!from\-Stream@{from\-Stream}}
+\index{from\-Stream@{from\-Stream}!Parameters@{Parameters}}
+\subsubsection[{from\-Stream}]{\setlength{\rightskip}{0pt plus 5cm}std\-::istream \& Parameters\-::from\-Stream (
+\begin{DoxyParamCaption}
+\item[{std\-::istream \&}]{in}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{class_parameters_a1ca5a29b4ebd5a0c2a959ea28353ce07}
+Método virtual que deve carregar esta classe de uma stream de parâmetros em texto. 
+\begin{DoxyParams}{Parâmetros}
+{\em in} & Uma stream de entrada. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Retorna}
+A própria stream recebida como entrada. 
+\end{DoxyReturn}
+
+
+Implementa \hyperlink{class_c_f_g_file_object_a561dcc20e3c1db7e38868269b464ca86}{C\-F\-G\-File\-Object}.
+
+\hypertarget{class_parameters_af77f073dabbbf334d8cb1a44f777cd73}{\index{Parameters@{Parameters}!load@{load}}
+\index{load@{load}!Parameters@{Parameters}}
+\subsubsection[{load}]{\setlength{\rightskip}{0pt plus 5cm}void Parameters\-::load (
+\begin{DoxyParamCaption}
+\item[{std\-::string}]{file\-Name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_parameters_af77f073dabbbf334d8cb1a44f777cd73}
+Lê os parâmetros de um arquivo 
+\begin{DoxyParams}{Parâmetros}
+{\em file\-Name} & Nome do arquivo \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_parameters_a4d75e79740800b08f710657fa0e461a3}{\index{Parameters@{Parameters}!save@{save}}
+\index{save@{save}!Parameters@{Parameters}}
+\subsubsection[{save}]{\setlength{\rightskip}{0pt plus 5cm}void Parameters\-::save (
+\begin{DoxyParamCaption}
+\item[{std\-::string}]{file\-Name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{class_parameters_a4d75e79740800b08f710657fa0e461a3}
+Salva os parâmetros em um arquivo 
+\begin{DoxyParams}{Parâmetros}
+{\em file\-Name} & Nome do arquivo \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_parameters_a236265efb331f30fe0742cb1d12c22ab}{\index{Parameters@{Parameters}!to\-Stream@{to\-Stream}}
+\index{to\-Stream@{to\-Stream}!Parameters@{Parameters}}
+\subsubsection[{to\-Stream}]{\setlength{\rightskip}{0pt plus 5cm}std\-::ostream \& Parameters\-::to\-Stream (
+\begin{DoxyParamCaption}
+\item[{std\-::ostream \&}]{out}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{class_parameters_a236265efb331f30fe0742cb1d12c22ab}
+Método virtual que deve converter esta classe para uma stream de parâmetros em texto.
+
+
+\begin{DoxyParams}{Parâmetros}
+{\em out} & Uma stream de saída. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Retorna}
+A própria stream recebida como entrada. 
+\end{DoxyReturn}
+
+
+Implementa \hyperlink{class_c_f_g_file_object_aac9312bca4de84d2b2330af9857a400c}{C\-F\-G\-File\-Object}.
+
+
+
+A documentação para esta classe foi gerada a partir dos seguintes arquivos\-:\begin{DoxyCompactItemize}
+\item 
+Parameters.\-h\item 
+Parameters.\-cpp\end{DoxyCompactItemize}

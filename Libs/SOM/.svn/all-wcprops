@@ -1,0 +1,263 @@
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/hans/!svn/ver/677/Projetos/Libs/SOM
+END
+GDSSOMC.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/hans/!svn/ver/705/Projetos/Libs/SOM/GDSSOMC.h
+END
+Mesh.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/hans/!svn/ver/705/Projetos/Libs/SOM/Mesh.h
+END
+Neuron.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/hans/!svn/ver/374/Projetos/Libs/SOM/Neuron.cpp
+END
+GWRSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/hans/!svn/ver/392/Projetos/Libs/SOM/GWRSOM.h
+END
+DSLVQ.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/hans/!svn/ver/705/Projetos/Libs/SOM/DSLVQ.cpp
+END
+MWDSSOM.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/hans/!svn/ver/705/Projetos/Libs/SOM/MWDSSOM.cpp
+END
+Neuron.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/hans/!svn/ver/374/Projetos/Libs/SOM/Neuron.h
+END
+Cluster.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/hans/!svn/ver/374/Projetos/Libs/SOM/Cluster.cpp
+END
+LVQNeuron.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/hans/!svn/ver/673/Projetos/Libs/SOM/LVQNeuron.cpp
+END
+DSLVQ.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/hans/!svn/ver/705/Projetos/Libs/SOM/DSLVQ.h
+END
+MWDSSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/hans/!svn/ver/705/Projetos/Libs/SOM/MWDSSOM.h
+END
+TSOM.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/hans/!svn/ver/374/Projetos/Libs/SOM/TSOM.cpp
+END
+Cluster.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/hans/!svn/ver/374/Projetos/Libs/SOM/Cluster.h
+END
+LVQNeuron.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/hans/!svn/ver/673/Projetos/Libs/SOM/LVQNeuron.h
+END
+GDSSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/hans/!svn/ver/705/Projetos/Libs/SOM/GDSSOM.h
+END
+GDSSOMRBF.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/hans/!svn/ver/705/Projetos/Libs/SOM/GDSSOMRBF.h
+END
+DSNeuron.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/hans/!svn/ver/705/Projetos/Libs/SOM/DSNeuron.cpp
+END
+TSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/hans/!svn/ver/374/Projetos/Libs/SOM/TSOM.h
+END
+GWRDSSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/hans/!svn/ver/412/Projetos/Libs/SOM/GWRDSSOM.h
+END
+GDSSOMMWF.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/hans/!svn/ver/705/Projetos/Libs/SOM/GDSSOMMWF.h
+END
+DSNeuron.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/hans/!svn/ver/673/Projetos/Libs/SOM/DSNeuron.h
+END
+SOMAW.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/hans/!svn/ver/374/Projetos/Libs/SOM/SOMAW.cpp
+END
+SOMAW.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/hans/!svn/ver/374/Projetos/Libs/SOM/SOMAW.h
+END
+LARFSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/hans/!svn/ver/374/Projetos/Libs/SOM/LARFSOM.h
+END
+TDSSOM.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/hans/!svn/ver/624/Projetos/Libs/SOM/TDSSOM.cpp
+END
+DSNode.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/hans/!svn/ver/374/Projetos/Libs/SOM/DSNode.cpp
+END
+TDSSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/hans/!svn/ver/624/Projetos/Libs/SOM/TDSSOM.h
+END
+NodeW.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/hans/!svn/ver/374/Projetos/Libs/SOM/NodeW.cpp
+END
+DSNode.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/hans/!svn/ver/705/Projetos/Libs/SOM/DSNode.h
+END
+GNGSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/hans/!svn/ver/374/Projetos/Libs/SOM/GNGSOM.h
+END
+SOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/hans/!svn/ver/705/Projetos/Libs/SOM/SOM.h
+END
+dsWeightsDims.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/hans/!svn/ver/374/Projetos/Libs/SOM/dsWeightsDims.cpp
+END
+NodeW.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/hans/!svn/ver/374/Projetos/Libs/SOM/NodeW.h
+END
+dsWeightsDims.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/hans/!svn/ver/374/Projetos/Libs/SOM/dsWeightsDims.h
+END
+LARFDSSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/hans/!svn/ver/503/Projetos/Libs/SOM/LARFDSSOM.h
+END
+DSSOMC.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/hans/!svn/ver/643/Projetos/Libs/SOM/DSSOMC.cpp
+END
+DSSOM.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/hans/!svn/ver/374/Projetos/Libs/SOM/DSSOM.cpp
+END
+SOM2D.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/hans/!svn/ver/672/Projetos/Libs/SOM/SOM2D.cpp
+END
+DSSOMC.h
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/hans/!svn/ver/641/Projetos/Libs/SOM/DSSOMC.h
+END
+DSSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/hans/!svn/ver/374/Projetos/Libs/SOM/DSSOM.h
+END
+GNGDSSOM.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/hans/!svn/ver/374/Projetos/Libs/SOM/GNGDSSOM.h
+END
+SOM2D.h
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/hans/!svn/ver/677/Projetos/Libs/SOM/SOM2D.h
+END
+GDSSOMMW.h
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/hans/!svn/ver/705/Projetos/Libs/SOM/GDSSOMMW.h
+END

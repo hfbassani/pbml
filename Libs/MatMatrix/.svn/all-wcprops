@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/hans/!svn/ver/374/Projetos/Libs/MatMatrix
+END
+MatFunctions.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/hans/!svn/ver/374/Projetos/Libs/MatMatrix/MatFunctions.h
+END
+MatUtils.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/hans/!svn/ver/374/Projetos/Libs/MatMatrix/MatUtils.cpp
+END
+MatMatrix.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/hans/!svn/ver/705/Projetos/Libs/MatMatrix/MatMatrix.h
+END
+MatUtils.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/hans/!svn/ver/705/Projetos/Libs/MatMatrix/MatUtils.h
+END
+MatVectorList.h
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/hans/!svn/ver/374/Projetos/Libs/MatMatrix/MatVectorList.h
+END
+MatVector.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/hans/!svn/ver/705/Projetos/Libs/MatMatrix/MatVector.h
+END
+MatAlgorithms.h
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/hans/!svn/ver/705/Projetos/Libs/MatMatrix/MatAlgorithms.h
+END

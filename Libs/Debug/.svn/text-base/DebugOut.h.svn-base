@@ -1,0 +1,51 @@
+/* 
+ * File:   DebugOut.h
+ * Author: hans
+ *
+ * Created on 8 de Setembro de 2010, 15:22
+ */
+
+#ifndef _DEBUGOUT_H
+#define	_DEBUGOUT_H
+#include <iostream>
+#include <ostream>
+
+#define DEFAULT_THRESHOLD 1 //-1 - All messages off
+#define DEFAULT_MSG_LEVEL 1
+
+using std::endl;
+
+extern int debugLevelThreshold;
+
+class DebugOut
+{
+    int msgLevel;
+public:
+
+    DebugOut();
+
+    DebugOut& level(int level);
+    DebugOut& threshlold(int level);
+    static void threshold(int level);
+
+    template <typename T>
+    DebugOut& operator << (const T &stream)
+    {
+       if (msgLevel<=debugLevelThreshold)
+       {
+           std::cout << stream;
+       }
+
+       return *this;
+    }
+
+    DebugOut& operator<<(std::ostream& (*stream)(std::ostream&));
+};
+
+extern DebugOut debugOut;
+
+DebugOut& dbgOut(int level=DEFAULT_THRESHOLD);
+DebugOut& dbgThreshold(int level);
+
+#endif	/* _DEBUGOUT_H */
+

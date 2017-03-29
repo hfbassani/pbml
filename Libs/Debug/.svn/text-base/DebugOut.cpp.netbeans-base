@@ -1,0 +1,48 @@
+/* 
+ * File:   DebugOut.cpp
+ * Author: hans
+ * 
+ * Created on 8 de Setembro de 2010, 15:22
+ */
+
+#include "DebugOut.h"
+DebugOut debugOut;
+int debugLevelThreshold = DEFAULT_THRESHOLD;
+
+
+DebugOut::DebugOut() {
+    msgLevel = DEFAULT_MSG_LEVEL;
+}
+
+DebugOut& DebugOut::level(int level) {
+    msgLevel = level;
+    return *this;
+}
+
+DebugOut& DebugOut::threshlold(int level) {
+    debugLevelThreshold = level;
+    return *this;
+}
+
+void DebugOut::threshold(int level) {
+    debugLevelThreshold = level;
+}
+
+DebugOut& DebugOut::operator<<(std::ostream& (*stream)(std::ostream&))
+{
+   if (msgLevel<=debugLevelThreshold)
+   {
+       std::cout << stream;
+   }
+   return *this;
+}
+    
+DebugOut& dbgOut(int level) {
+    debugOut.level(level);
+    return debugOut;
+}
+
+DebugOut& dbgThreshold(int level) {
+    debugOut.threshlold(level);
+    return debugOut;
+}

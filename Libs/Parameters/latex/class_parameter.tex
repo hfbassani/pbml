@@ -1,0 +1,84 @@
+\hypertarget{class_parameter}{\section{Referência da Template de Classe Parameter$<$ T $>$}
+\label{class_parameter}\index{Parameter$<$ T $>$@{Parameter$<$ T $>$}}
+}
+
+
+{\ttfamily \#include $<$Parameters.\-h$>$}
+
+Diagrama de Hierarquia para Parameter$<$ T $>$\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_parameter}
+\end{center}
+\end{figure}
+\subsection*{Métodos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_parameter_a39b75c306257fc9c27349e0b01a11849}{\hyperlink{class_parameter}{Parameter}$<$ T $>$ \& {\bfseries operator=} (const T \&value)}\label{class_parameter_a39b75c306257fc9c27349e0b01a11849}
+
+\item 
+\hypertarget{class_parameter_a3b15484d6beb0b7379a1c3ae987ecb59}{{\bfseries operator T} () const }\label{class_parameter_a3b15484d6beb0b7379a1c3ae987ecb59}
+
+\item 
+std\-::string \hyperlink{class_parameter_ad9328613b3f031c33ebc89e0a78356c6}{to\-String} ()
+\item 
+void \hyperlink{class_parameter_ab8b07f5fd7288b6803eae054f4586c32}{from\-String} (std\-::string \&str)
+\end{DoxyCompactItemize}
+\subsection*{Atributos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_parameter_a5dcbb3f478f204d7931eec2b3ed66117}{T {\bfseries value}}\label{class_parameter_a5dcbb3f478f204d7931eec2b3ed66117}
+
+\end{DoxyCompactItemize}
+\subsection*{Amigas}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_parameter_a70b1cc1b148265e70223a84281bf0639}{std\-::istream \& {\bfseries operator$>$$>$} (std\-::istream \&in, \hyperlink{class_parameter}{Parameter}$<$ T $>$ \&p)}\label{class_parameter_a70b1cc1b148265e70223a84281bf0639}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Descrição Detalhada}
+\subsubsection*{template$<$class T$>$class Parameter$<$ T $>$}
+
+Classe que representa um parâmetro de tipos básicos implementando os operadores da iostream =, $<$$<$ e $>$$>$ \begin{DoxyAuthor}{Autor}
+Hansenclever Bassani 
+\end{DoxyAuthor}
+
+
+\subsection{Métodos}
+\hypertarget{class_parameter_ab8b07f5fd7288b6803eae054f4586c32}{\index{Parameter@{Parameter}!from\-String@{from\-String}}
+\index{from\-String@{from\-String}!Parameter@{Parameter}}
+\subsubsection[{from\-String}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ void {\bf Parameter}$<$ T $>$\-::from\-String (
+\begin{DoxyParamCaption}
+\item[{std\-::string \&}]{line}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_parameter_ab8b07f5fd7288b6803eae054f4586c32}
+Método virtual nulo que lê um parâmetro a partir de uma string. 
+\begin{DoxyParams}{Parâmetros}
+{\em A} & string contendo um parâmetro \\
+\hline
+\end{DoxyParams}
+
+
+Implementa \hyperlink{class_parameter_base_a949c6d70ed8893e577f492810f388073}{Parameter\-Base}.
+
+\hypertarget{class_parameter_ad9328613b3f031c33ebc89e0a78356c6}{\index{Parameter@{Parameter}!to\-String@{to\-String}}
+\index{to\-String@{to\-String}!Parameter@{Parameter}}
+\subsubsection[{to\-String}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ std\-::string {\bf Parameter}$<$ T $>$\-::to\-String (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}}\label{class_parameter_ad9328613b3f031c33ebc89e0a78356c6}
+Método virtual nulo que converte o parâmetro para uma string. \begin{DoxyReturn}{Retorna}
+converte este parâmetro para uma representação de string. 
+\end{DoxyReturn}
+
+
+Implementa \hyperlink{class_parameter_base_a98af4bed3a47e680e51b6219b744e68b}{Parameter\-Base}.
+
+
+
+A documentação para esta classe foi gerada a partir do seguinte arquivo\-:\begin{DoxyCompactItemize}
+\item 
+Parameters.\-h\end{DoxyCompactItemize}
