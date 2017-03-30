@@ -67,7 +67,7 @@
         <itemPath>../Libs/SOM/DSSOM.cpp</itemPath>
         <itemPath>../Libs/SOM/DSSOM.h</itemPath>
         <itemPath>../Libs/SOM/LARFDSSOM.h</itemPath>
-        <itemPath>../Libs/SOM/LARFDSSOM_REC.h</itemPath>
+        <itemPath>../Libs/SOM/VILARFDSSOM.h</itemPath>
         <itemPath>../Libs/SOM/LARFSOM.h</itemPath>
         <itemPath>../Libs/SOM/Mesh.h</itemPath>
         <itemPath>../Libs/SOM/Neuron.cpp</itemPath>
@@ -209,7 +209,7 @@
       </item>
       <item path="../Libs/SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../Libs/SOM/LARFDSSOM_REC.h" ex="false" tool="3" flavor2="0">
+      <item path="../Libs/SOM/VILARFDSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Libs/SOM/LARFSOM.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -347,7 +347,7 @@
       </item>
       <item path="../Libs/SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../Libs/SOM/LARFDSSOM_REC.h" ex="false" tool="3" flavor2="0">
+      <item path="../Libs/SOM/VILARFDSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Libs/SOM/LARFSOM.h" ex="false" tool="3" flavor2="0">
       </item>

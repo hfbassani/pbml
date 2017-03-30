@@ -19,7 +19,7 @@
 #include "ClusteringMetrics.h"
 #include "ArffData.h"
 #include "ClusteringSOM.h"
-#include "LARFDSSOM_REC.h"
+#include "VILARFDSSOM.h"
 #include "unistd.h"
 #include "TextToPhoneme.h"
 #include "unistd.h"
@@ -205,7 +205,7 @@ int main(int argc, char** argv) {
 
     int seed = 0;
     dbgThreshold(1);
-    LARFDSSOM_REC som(1);
+    VILARFDSSOM som(1);
     SOM<DSNode> *dssom = (SOM<DSNode>*) & som;
     ClusteringMeshSOM clusteringSOM(dssom);
 

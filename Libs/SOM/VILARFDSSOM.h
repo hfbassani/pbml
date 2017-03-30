@@ -1,12 +1,12 @@
 /*
- * LARFDSSOM_REC.h
+ * VILARFDSSOM.h
  *
  *  Created on: 2014
  *      Author: hans
  */
 
-#ifndef LARFDSSOM_REC_H_
-#define LARFDSSOM_REC_H_
+#ifndef VILARFDSSOM_H_
+#define VILARFDSSOM_H_
 
 #include <set>
 #include <map>
@@ -53,7 +53,7 @@ public:
     };
 };
 
-class LARFDSSOM_REC : public SOM<GDSNodeMW> {
+class VILARFDSSOM : public SOM<GDSNodeMW> {
 public:
     uint maxNodeNumber;
     float minwd;
@@ -161,7 +161,7 @@ public:
         node.w = node.w + e * (w - node.w);
     }
 
-    LARFDSSOM_REC& updateConnections(TNode *node) {
+    VILARFDSSOM& updateConnections(TNode *node) {
 
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
 
@@ -180,7 +180,7 @@ public:
         return *this;
     }
 
-    LARFDSSOM_REC& updateAllConnections() {
+    VILARFDSSOM& updateAllConnections() {
 
         //Conecta todos os nodos semelhantes
         TPNodeSet::iterator itMesh1 = meshNodeSet.begin();
@@ -206,7 +206,7 @@ public:
         return *this;
     }
 
-    LARFDSSOM_REC& removeLoosers() {
+    VILARFDSSOM& removeLoosers() {
 
         //enumerateNodes();
 
@@ -231,7 +231,7 @@ public:
 
     //*
 
-    LARFDSSOM_REC& finishMap() {
+    VILARFDSSOM& finishMap() {
 
         dbgOut(1) << "Finishing map..." << endl;
         do {
@@ -266,7 +266,7 @@ public:
 
     /**/
 
-    LARFDSSOM_REC& finishMapFixed() {
+    VILARFDSSOM& finishMapFixed() {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step != 1) { // finish the previous iteration
@@ -308,7 +308,7 @@ public:
     }
 
     /*
-    LARFDSSOM_REC& finishMap() {
+    VILARFDSSOM& finishMap() {
         resetWins();
 
         TVector v;
@@ -331,7 +331,7 @@ public:
         trainning(age_wins);
     }/**/
 
-    LARFDSSOM_REC& resetWins() {
+    VILARFDSSOM& resetWins() {
 
         //Remove os perdedores
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
@@ -382,7 +382,7 @@ public:
 
     }
 
-    LARFDSSOM_REC& updateMap(const TVector &w) {
+    VILARFDSSOM& updateMap(const TVector &w) {
 
         using namespace std;
         TNode *winner1 = 0;
@@ -507,7 +507,7 @@ public:
         return winner;
     }
 
-    inline LARFDSSOM_REC& getWinners(const TVector &w, TNode* &winner1, TNode* &winner2) {
+    inline VILARFDSSOM& getWinners(const TVector &w, TNode* &winner1, TNode* &winner2) {
         TPNodeSet::iterator it = Mesh<TNode>::meshNodeSet.begin();
         TNumber minDist = dist2(*(*it), w);
 
@@ -561,7 +561,7 @@ public:
     }
 
     void resetToDefault(int dimw = 2) {
-        LARFDSSOM_REC::dimw = dimw;
+        VILARFDSSOM::dimw = dimw;
         step = 0;
         nodesLeft = 1;
 
@@ -582,7 +582,7 @@ public:
     }
 
     void reset(int dimw) {
-        LARFDSSOM_REC::dimw = dimw;
+        VILARFDSSOM::dimw = dimw;
         step = 0;
         nodesLeft = 1;
 
@@ -618,14 +618,14 @@ public:
         reset(dimw);
     }
 
-    LARFDSSOM_REC(int dimw) {
+    VILARFDSSOM(int dimw) {
         resetToDefault(dimw);
     };
 
-    ~LARFDSSOM_REC() {
+    ~VILARFDSSOM() {
     }
 
-    template<class Number> LARFDSSOM_REC& outputCentersDs(MatMatrix<Number> &m) {
+    template<class Number> VILARFDSSOM& outputCentersDs(MatMatrix<Number> &m) {
         using namespace std;
 
         uint wSize = (*meshNodeSet.begin())->ds.size();
@@ -674,4 +674,4 @@ public:
     }
 };
 
-#endif /* LARFDSSOM_REC_H_ */
+#endif /* VILARFDSSOM_H_ */

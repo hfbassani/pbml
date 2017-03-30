@@ -781,29 +781,6 @@ has-props
 
 10753
 
-LARFDSSOM_REC.h
-file
-
-
-
-add
-
-a8b5ed2e6b8d501233234f1b73f9328d
-
-
-
-has-props
-
-
-
-
-
-
-
-copied
-http://svn.orivaldo.net/hans/Projetos/Libs/SOM/LARFDSSOM.h
-677
-
 LARFSOM.h
 file
 
@@ -1407,6 +1384,29 @@ has-props
 
 
 2872
+
+VILARFDSSOM.h
+file
+
+
+
+add
+
+a8b5ed2e6b8d501233234f1b73f9328d
+
+
+
+has-props
+
+
+
+
+
+
+
+copied
+http://svn.orivaldo.net/hans/Projetos/Libs/SOM/LARFDSSOM.h
+677
 
 dsWeightsDims.cpp
 file
