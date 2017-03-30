@@ -24,7 +24,7 @@
 #include "TextToPhoneme.h"
 #include "unistd.h"
 #include "LHSParameters.h"
-#include "MyParameters.h"
+#include "MyParameters/MyParameters.h"
 #include <string>
 
 using namespace std;

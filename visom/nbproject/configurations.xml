@@ -4,12 +4,12 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Arquivos de cabeçalho"
                    projectFiles="true">
-      <itemPath>MyParameters.h</itemPath>
+      <itemPath>MyParameters/MyParameters.h</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Arquivos de código-fonte"
                    projectFiles="true">
-      <itemPath>MyParameters.cpp</itemPath>
+      <itemPath>MyParameters/MyParameters.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -241,9 +241,9 @@
       </item>
       <item path="../Libs/SOM/TSOM.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="MyParameters.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MyParameters/MyParameters.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="MyParameters.h" ex="false" tool="3" flavor2="0">
+      <item path="MyParameters/MyParameters.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -379,9 +379,9 @@
       </item>
       <item path="../Libs/SOM/TSOM.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="MyParameters.cpp" ex="false" tool="1" flavor2="0">
+      <item path="MyParameters/MyParameters.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="MyParameters.h" ex="false" tool="3" flavor2="0">
+      <item path="MyParameters/MyParameters.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>

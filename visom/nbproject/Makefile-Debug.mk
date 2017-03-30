@@ -55,7 +55,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/15c88dff/SOMAW.o \
 	${OBJECTDIR}/_ext/15c88dff/TDSSOM.o \
 	${OBJECTDIR}/_ext/15c88dff/TSOM.o \
-	${OBJECTDIR}/MyParameters.o \
+	${OBJECTDIR}/MyParameters/MyParameters.o \
 	${OBJECTDIR}/main.o
 
 
@@ -183,10 +183,10 @@ ${OBJECTDIR}/_ext/15c88dff/TSOM.o: ../Libs/SOM/TSOM.cpp
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/15c88dff/TSOM.o ../Libs/SOM/TSOM.cpp
 
-${OBJECTDIR}/MyParameters.o: MyParameters.cpp
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/MyParameters/MyParameters.o: MyParameters/MyParameters.cpp
+	${MKDIR} -p ${OBJECTDIR}/MyParameters
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/MyParameters.o MyParameters.cpp
+	$(COMPILE.cc) -g -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/MyParameters/MyParameters.o MyParameters/MyParameters.cpp
 
 ${OBJECTDIR}/main.o: main.cpp
 	${MKDIR} -p ${OBJECTDIR}
