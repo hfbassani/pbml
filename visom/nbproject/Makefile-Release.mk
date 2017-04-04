@@ -56,7 +56,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/15c88dff/TDSSOM.o \
 	${OBJECTDIR}/_ext/15c88dff/TSOM.o \
 	${OBJECTDIR}/MyParameters/MyParameters.o \
-	${OBJECTDIR}/OutputMetrics.o \
+	${OBJECTDIR}/OutputMetrics/OutputMetrics.o \
 	${OBJECTDIR}/main.o
 
 
@@ -189,10 +189,10 @@ ${OBJECTDIR}/MyParameters/MyParameters.o: MyParameters/MyParameters.cpp
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/MyParameters/MyParameters.o MyParameters/MyParameters.cpp
 
-${OBJECTDIR}/OutputMetrics.o: OutputMetrics.cpp
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/OutputMetrics/OutputMetrics.o: OutputMetrics/OutputMetrics.cpp
+	${MKDIR} -p ${OBJECTDIR}/OutputMetrics
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/OutputMetrics.o OutputMetrics.cpp
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/OutputMetrics/OutputMetrics.o OutputMetrics/OutputMetrics.cpp
 
 ${OBJECTDIR}/main.o: main.cpp
 	${MKDIR} -p ${OBJECTDIR}
