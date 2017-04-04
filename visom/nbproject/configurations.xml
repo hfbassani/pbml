@@ -5,11 +5,13 @@
                    displayName="Arquivos de cabeçalho"
                    projectFiles="true">
       <itemPath>MyParameters/MyParameters.h</itemPath>
+      <itemPath>OutputMetrics.h</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Arquivos de código-fonte"
                    projectFiles="true">
       <itemPath>MyParameters/MyParameters.cpp</itemPath>
+      <itemPath>OutputMetrics.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -67,7 +69,6 @@
         <itemPath>../Libs/SOM/DSSOM.cpp</itemPath>
         <itemPath>../Libs/SOM/DSSOM.h</itemPath>
         <itemPath>../Libs/SOM/LARFDSSOM.h</itemPath>
-        <itemPath>../Libs/SOM/VILARFDSSOM.h</itemPath>
         <itemPath>../Libs/SOM/LARFSOM.h</itemPath>
         <itemPath>../Libs/SOM/Mesh.h</itemPath>
         <itemPath>../Libs/SOM/Neuron.cpp</itemPath>
@@ -83,6 +84,7 @@
         <itemPath>../Libs/SOM/TDSSOM.h</itemPath>
         <itemPath>../Libs/SOM/TSOM.cpp</itemPath>
         <itemPath>../Libs/SOM/TSOM.h</itemPath>
+        <itemPath>../Libs/SOM/VILARFDSSOM.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -209,8 +211,6 @@
       </item>
       <item path="../Libs/SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../Libs/SOM/VILARFDSSOM.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="../Libs/SOM/LARFSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Libs/SOM/Mesh.h" ex="false" tool="3" flavor2="0">
@@ -241,9 +241,15 @@
       </item>
       <item path="../Libs/SOM/TSOM.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../Libs/SOM/VILARFDSSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="MyParameters/MyParameters.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="MyParameters/MyParameters.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="OutputMetrics.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="OutputMetrics.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -347,8 +353,6 @@
       </item>
       <item path="../Libs/SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../Libs/SOM/VILARFDSSOM.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="../Libs/SOM/LARFSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Libs/SOM/Mesh.h" ex="false" tool="3" flavor2="0">
@@ -379,9 +383,15 @@
       </item>
       <item path="../Libs/SOM/TSOM.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../Libs/SOM/VILARFDSSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="MyParameters/MyParameters.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="MyParameters/MyParameters.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="OutputMetrics.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="OutputMetrics.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
