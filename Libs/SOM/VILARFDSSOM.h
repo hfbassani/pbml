@@ -346,7 +346,6 @@ public:
     }
 
     inline SOM& trainning(int N = 1) {
-        for (int i = 0; i < N; i++) {
             TVector v(data.cols());
             for (uint l = 0; l < data.rows(); l++) {
                 for (uint c = 0; c < data.cols(); c++) {
@@ -354,7 +353,6 @@ public:
                 }
                 updateMap(v);
             }
-        }
         return *this;
     }
 

@@ -188,10 +188,10 @@ public:
 
     MatVector<int> writeClusterResultsReadable(const std::string &filename, MatMatrix<float> &data, std::string &featuresDict,
             SOM<DSNode> *som, float at_min) {
-        ///*
+#ifdef PRINT_CLUSTER
         std::ofstream file;
         file.open(filename.c_str());
-        //*/
+#endif
         int somTam = som->size();
         float a;
         int at_know = 0, at_all = 0, at_Unknown = 0;
@@ -202,12 +202,12 @@ public:
         Features features(12);
         MatVector<float> colOfData;
         data.getCol(0, colOfData);
-        ///*
+#ifdef PRINT_CLUSTER
         if (!file.is_open()) {
             dbgOut(0) << "Error openning output file" << endl;
             return activations;
         }
-        //*/
+#endif
         //Salva todos os protótipos da rede em um MatVector
         DSNode* nodoNow;
         MatVector<std::string> output_indice;
@@ -306,7 +306,7 @@ public:
         activations.append(at_all);
         activations.append(at_know);
         activations.append(at_Unknown);
-        ///*
+#ifdef PRINT_CLUSTER
         //Ordena a matriz de saída -> InsertionSort
         int i, j;
         std::string aux, aux1;
@@ -353,7 +353,8 @@ public:
         dbgOut(1) << endl;
 
         file.close();
-        //*/
+#endif
+        dbgOut(1) << endl;
         return activations;
     }
 

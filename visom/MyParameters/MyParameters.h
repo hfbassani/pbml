@@ -44,7 +44,7 @@ public:
 
         //Set default ranges and values
         N = 100;
-        a_t.setRange(0.75, 0.965) = 0.95;
+        a_t.setRange(0.70, 0.99) = 0.7;
         lp.setRange(0.001, 0.1) = 0.01;
         dsbeta.setRange(0.001, 0.1) = 0.01;
         e_b.setRange(0.001, 0.1) = 0.01;

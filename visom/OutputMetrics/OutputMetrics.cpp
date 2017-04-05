@@ -12,13 +12,3 @@
  */
 
 #include "OutputMetrics.h"
-
-OutputMetrics::OutputMetrics() {
-}
-
-OutputMetrics::OutputMetrics(const OutputMetrics& orig) {
-}
-
-OutputMetrics::~OutputMetrics() {
-}
-
