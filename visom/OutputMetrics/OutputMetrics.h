@@ -28,10 +28,10 @@ using namespace std;
 
 class OutputMetrics {
 public:
-
+    std::string PATH = "output/";
     void output(VILARFDSSOM *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse) {
         std::ofstream file1;
-        std::string name = "output/metrics.txt";
+        std::string name = PATH + "metrics.txt";
         file1.open(name.c_str(), std::ios_base::app);
 
         file1 << "Params:" << endl;
@@ -45,7 +45,7 @@ public:
         file1 << "Experimento = " << experiment;
 
         std::ofstream file2;
-        std::string name2 = "output/metrics_read.txt";
+        std::string name2 = PATH + "metrics_read.txt";
         file2.open(name2.c_str(), std::ios_base::app);
 
         file2 << "\n\nParams:" << endl;
@@ -90,9 +90,9 @@ public:
         file2.close();
     }
 
-    void outputWithParamsFiles(VILARFDSSOM *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse, MyParameters params, int fileNumber) {
+    void outputWithParamsFiles(VILARFDSSOM *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse,  int fileNumber) {
         std::ofstream file1;
-        std::string name = "output/metrics.txt";
+        std::string name = PATH + "metrics.txt";
         file1.open(name.c_str(), std::ios_base::app);
 
         file1 << "Params:" << endl;
@@ -106,7 +106,7 @@ public:
         file1 << "Experimento = " << experiment;
 
         std::ofstream file2;
-        std::string name2 = "output/metrics_read.txt";
+        std::string name2 = PATH + "metrics_read.txt";
         file2.open(name2.c_str(), std::ios_base::app);
 
         file2 << "\n\nParams:" << endl;
@@ -121,45 +121,45 @@ public:
 
         //Params files
         std::ofstream file3;
-        std::string name3 = "output/" + params.a_t.name + ".txt";
+        std::string name3 = PATH + "a_t" + ".txt";
         file3.open(name3.c_str(), std::ios_base::app);
-        file3 << "---------------------- " << params.a_t.name << " = " << som->a_t << " ----------------------" << endl;
+        file3 << "---------------------- " << "a_t" << " = " << som->a_t << " ----------------------" << endl;
         file3 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
         std::ofstream file4;
-        std::string name4 = "output/" + params.dsbeta.name + ".txt";
+        std::string name4 = PATH + "dsbeta" + ".txt";
         file4.open(name4.c_str(), std::ios_base::app);
-        file4 << "---------------------- " << params.dsbeta.name << " = " << som->a_t << " ----------------------" << endl;
+        file4 << "---------------------- " << "dsbeta" << " = " << som->a_t << " ----------------------" << endl;
         file4 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
         std::ofstream file5;
-        std::string name5 = "output/" + params.e_b.name + ".txt";
+        std::string name5 = PATH + "e_b" + ".txt";
         file5.open(name5.c_str(), std::ios_base::app);
-        file5 << "---------------------- " << params.e_b.name << " = " << som->a_t << " ----------------------" << endl;
+        file5 << "---------------------- " << "e_b" << " = " << som->a_t << " ----------------------" << endl;
         file5 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
         std::ofstream file6;
-        std::string name6 = "output/" + params.e_n.name + ".txt";
+        std::string name6 = PATH+ "e_n" + ".txt";
         file6.open(name6.c_str(), std::ios_base::app);
-        file6 << "---------------------- " << params.e_n.name << " = " << som->a_t << " ----------------------" << endl;
+        file6 << "---------------------- " << "e_n" << " = " << som->a_t << " ----------------------" << endl;
         file6 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
         std::ofstream file7;
-        std::string name7 = "output/" + params.epsilon_ds.name + ".txt";
+        std::string name7 = PATH + "epsilon_ds" + ".txt";
         file7.open(name7.c_str(), std::ios_base::app);
-        file7 << "---------------------- " << params.epsilon_ds.name << " = " << som->a_t << " ----------------------" << endl;
+        file7 << "---------------------- " << "epsilon_ds" << " = " << som->a_t << " ----------------------" << endl;
         file7 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
         std::ofstream file8;
-        std::string name8 = "output/" + params.lp.name + ".txt";
+        std::string name8 = PATH+ "lp" + ".txt";
         file8.open(name8.c_str(), std::ios_base::app);
-        file8 << "---------------------- " << params.lp.name << " = " << som->a_t << " ----------------------" << endl;
+        file8 << "---------------------- " << "lp" << " = " << som->a_t << " ----------------------" << endl;
         file8 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
         std::ofstream file9;
-        std::string name9 = "output/" + params.minwd.name + ".txt";
+        std::string name9 = PATH+ "minwd" + ".txt";
         file9.open(name9.c_str(), std::ios_base::app);
-        file9 << "---------------------- " << params.minwd.name << " = " << som->a_t << " ----------------------" << endl;
+        file9 << "---------------------- " << "minwd" << " = " << som->a_t << " ----------------------" << endl;
         file9 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
 
