@@ -29,7 +29,8 @@ using namespace std;
 class OutputMetrics {
 public:
     std::string PATH = "output/";
-    void output(VILARFDSSOM *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse) {
+
+    void output(VILARFDSSOM *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse, int fileNumber) {
         std::ofstream file1;
         std::string name = PATH + "metrics.txt";
         file1.open(name.c_str(), std::ios_base::app);
@@ -42,7 +43,8 @@ public:
         file1 << "epsilon_ds " << " = " << som->epsilon_ds << "  ";
         file1 << "lp " << " = " << som->lp << "  ";
         file1 << "minwd " << " = " << som->minwd << endl;
-        file1 << "Experimento = " << experiment;
+        file1 << "Experimento = " << experiment<< "  ";
+        file1 << "Arquivo = " << fileNumber;
 
         std::ofstream file2;
         std::string name2 = PATH + "metrics_read.txt";
@@ -56,7 +58,8 @@ public:
         file2 << "epsilon_ds " << " = " << som->epsilon_ds << "  ";
         file2 << "lp " << " = " << som->lp << "  ";
         file2 << "minwd " << " = " << som->minwd << endl;
-        file2 << "Experimento = " << experiment;
+        file2 << "Experimento = " << experiment<< "  ";
+        file2 << "Arquivo = " << fileNumber;
 
         for (int row = 0, d = som->d_min; row < taxaTrue.rows(); row++, d++) {
 
@@ -90,7 +93,7 @@ public:
         file2.close();
     }
 
-    void outputWithParamsFiles(VILARFDSSOM *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse,  int fileNumber) {
+    void outputWithParamsFiles(VILARFDSSOM *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse, int fileNumber) {
         std::ofstream file1;
         std::string name = PATH + "metrics.txt";
         file1.open(name.c_str(), std::ios_base::app);
@@ -103,7 +106,8 @@ public:
         file1 << "epsilon_ds " << " = " << som->epsilon_ds << "  ";
         file1 << "lp " << " = " << som->lp << "  ";
         file1 << "minwd " << " = " << som->minwd << endl;
-        file1 << "Experimento = " << experiment;
+        file1 << "Experimento = " << experiment<< "  ";
+        file1 << "Arquivo = " << fileNumber;
 
         std::ofstream file2;
         std::string name2 = PATH + "metrics_read.txt";
@@ -117,7 +121,8 @@ public:
         file2 << "epsilon_ds " << " = " << som->epsilon_ds << "  ";
         file2 << "lp " << " = " << som->lp << "  ";
         file2 << "minwd " << " = " << som->minwd << endl;
-        file2 << "Experimento = " << experiment;
+        file2 << "Experimento = " << experiment<< "  ";
+        file2 << "Arquivo = " << fileNumber;
 
         //Params files
         std::ofstream file3;
@@ -139,7 +144,7 @@ public:
         file5 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
         std::ofstream file6;
-        std::string name6 = PATH+ "e_n" + ".txt";
+        std::string name6 = PATH + "e_n" + ".txt";
         file6.open(name6.c_str(), std::ios_base::app);
         file6 << "---------------------- " << "e_n" << " = " << som->a_t << " ----------------------" << endl;
         file6 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
@@ -151,13 +156,13 @@ public:
         file7 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
         std::ofstream file8;
-        std::string name8 = PATH+ "lp" + ".txt";
+        std::string name8 = PATH + "lp" + ".txt";
         file8.open(name8.c_str(), std::ios_base::app);
         file8 << "---------------------- " << "lp" << " = " << som->a_t << " ----------------------" << endl;
         file8 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;
 
         std::ofstream file9;
-        std::string name9 = PATH+ "minwd" + ".txt";
+        std::string name9 = PATH + "minwd" + ".txt";
         file9.open(name9.c_str(), std::ios_base::app);
         file9 << "---------------------- " << "minwd" << " = " << som->a_t << " ----------------------" << endl;
         file9 << "Arquivo = " << fileNumber << " | Experimento = " << experiment << endl;

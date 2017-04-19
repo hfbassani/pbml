@@ -1,6 +1,5 @@
 dist
 build
-output
-output1
+output*
 networks
 input

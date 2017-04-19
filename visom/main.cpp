@@ -52,8 +52,8 @@ void loadTrueDataInMemory();
 
 void loadFalseDataInMemory();
 
-std::vector<MatMatrix<float> > v_false[100];
-std::vector<MatMatrix<float> > v_true[100];
+std::vector<MatMatrix<float> > v_false[100]; //Vector of true data
+std::vector<MatMatrix<float> > v_true[100]; //Vector of false data
 
 int main(int argc, char** argv) {
 
@@ -166,16 +166,15 @@ int main(int argc, char** argv) {
 
     srand(time(0));
     srand(seed);
-    cout << "Loading False data in Memory..." << endl;
-    loadFalseDataInMemory(); //[i][j] i - fileNumber // j - InputSize
-    cout << "Loading True data in Memory..." << endl;
-    loadTrueDataInMemory();
+    //cout << "Loading False data in Memory..." << endl;
+    //loadFalseDataInMemory(); //[i][j] i - fileNumber // j - InputSize
+    //cout << "Loading True data in Memory..." << endl;
+    //loadTrueDataInMemory();
     cout << "Running test" << endl;
-    //createParametersFile(&params);
-    //createTrainingTestFiles(som.d_min, som.d_max, file, dictionary, featuresDict, "phonemes_" + filename);
+    //createParametersFile(&params);    //createTrainingTestFiles(som.d_min, som.d_max, file, dictionary, featuresDict, "phonemes_" + filename);
 
-    runCompleteTest(&som, clusteringSOM, dssom, epocs, dictionary, featuresDict, outputM);
-    //runTestAfterTraining(&som, clusteringSOM, dssom, epocs, dictionary, featuresDict, outputM);
+    //runCompleteTest(&som, clusteringSOM, dssom, epocs, dictionary, featuresDict, outputM);
+    runTestAfterTraining(&som, clusteringSOM, dssom, epocs, dictionary, featuresDict, outputM);
 
     dbgOut(1) << "Done." << endl;
 }
@@ -517,7 +516,7 @@ void runCompleteTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNo
         som->e_n = params[i + 4];
         som->epsilon_ds = params[i + 5];
         som->minwd = params[i + 6];
-        experiment = (i / 7)  + ((paramsNumber - 1) * 15);
+        experiment = (i / 7) + ((paramsNumber - 1) * 15);
 
         for (fileNumber = 0; fileNumber < 100; fileNumber++) {
             filename = "input/sentences_" + std::to_string(fileNumber) + ".txt";
@@ -554,37 +553,69 @@ void runTestAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM
     som->d_max = 6;
     som->d_min = 2;
     int fileNumber = 0;
-    for (fileNumber = 0; fileNumber <= 100; fileNumber++) {
-        MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
-        int experiment = fileNumber + 1;
+    int tam, experiment, init;
+    switch (paramsNumber) {
+        case 1:
+            init = 0;
+            tam = 15;
+            break;
+        case 2:
+            init = 16;
+            tam = 31;
+            break;
+        case 3:
+            init = 32;
+            tam = 47;
+            break;
+        case 4:
+            init = 48;
+            tam = 64;
+            break;
+        case 5:
+            init = 65;
+            tam = 81;
+            break;
+        case 6:
+            init = 82;
+            tam = 99;
+            break;
+    }
+    for (fileNumber = 0; fileNumber < 100; fileNumber++) { // For para arquivos
+        for (experiment = init; experiment <= tam; experiment++) { // For para experimentos
+            MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
+            //Testa com todos os arquivos de entrada depois que arede já foi treinada
+            som->readSOM("networks/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
+            clock_t begin = clock();
 
-        //Faz o treinamento e teste para a quantidade de dimensões solicitadas com taxas
-        som->readSOM("networks/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
-        for (int i = som->d_min; i <= som->d_max; i++) {
+            for (int i = som->d_min; i <= som->d_max; i++) { // For para tamanhos de entrada
 
-            //Taxa de true positive
-            MatMatrix<float> data = loadTrueData(i, fileNumber);
-            clusteringSOM.setData(data);
-            taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("output/result_" + std::to_string(i) + "_" + testname, data, featuresDict, dssom, som->a_t));
+                //Taxa de true positive
+                MatMatrix<float> data = loadTrueData(i, fileNumber);
+                clusteringSOM.setData(data);
+                taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("output/result_" + std::to_string(i) + "_" + testname, data, featuresDict, dssom, som->a_t));
 
-            //Taxa de false negative
-            MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
-            clusteringSOM.setData(dataFalse);
-            taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + testname, dataFalse, featuresDict, dssom, som->a_t));
+                //Taxa de false negative
+                MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
+                clusteringSOM.setData(dataFalse);
+                taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + testname, dataFalse, featuresDict, dssom, som->a_t));
+
+            }
+
+            outputM.PATH = "output" + std::to_string(paramsNumber + 10) + "/";
+            outputM.output(som, experiment, taxaTrue, taxaFalse, fileNumber);
+            dbgOut(1) << std::to_string(experiment) << "% Concluido do arquivo " << fileNumber << endl;
+            clock_t end = clock();
+            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+            cout << "Duration = " << elapsed_secs;
 
         }
-        outputM.PATH = "output" + std::to_string(paramsNumber) + "/";
-        outputM.output(som, experiment, taxaTrue, taxaFalse);
-
-
-        dbgOut(1) << std::to_string(fileNumber) << "% Concluido do arquivo " << fileNumber << endl;
 
     }
 }
 
 void loadFalseDataInMemory() {
     for (int inputSize = 2; inputSize <= 6; ++inputSize) {
-        for (int fileNumber = 0; fileNumber <= 99; ++fileNumber) {
+        for (int fileNumber = 0; fileNumber < 100; ++fileNumber) {
             v_false[fileNumber].push_back(loadFalseData(inputSize, fileNumber));
         }
     }
@@ -592,7 +623,7 @@ void loadFalseDataInMemory() {
 
 void loadTrueDataInMemory() {
     for (int inputSize = 2; inputSize <= 6; ++inputSize) {
-        for (int fileNumber = 0; fileNumber <=99; ++fileNumber) {
+        for (int fileNumber = 0; fileNumber < 100; ++fileNumber) {
             v_true[fileNumber].push_back(loadTrueData(inputSize, fileNumber));
         }
     }
