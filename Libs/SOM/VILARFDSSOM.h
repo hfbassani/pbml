@@ -596,6 +596,9 @@ public:
         TVector wNew(v);
         createNode(nodeID++, wNew);
     }
+    void resetSize(int dimw) {
+        VILARFDSSOM::dimw = dimw;
+    }
 
     void binarizeRelevances() {
 
