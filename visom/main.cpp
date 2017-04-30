@@ -5,7 +5,7 @@
  * Created on 11 de Outubro de 2010, 07:25
  */
 #define NO_INVALID_DIMENSION_SIZE
-#define PRINT_CLUSTER
+//#define PRINT_CLUSTER
 
 #include <stdlib.h>
 #include <fstream>
@@ -28,33 +28,27 @@
 using namespace std;
 
 void createTrainingTestFiles(int d_min, int d_max, std::ifstream &file, std::string &dictionary, std::string &featuresDict, const std::string &filename);
-
-int loadTrueFeatureMatrix(std::ifstream &file, std::string &dictionary, std::string &featuresDict, std::vector<FeaturesVector> &data, const std::string &filename);
-
-void loadFalseFeatureMatrix(std::string &featuresDict, std::vector<FeaturesVector> &data, const std::string &filename, int phonemesNum);
-
 void createInputData(std::vector<FeaturesVector> &data, int inputCount, MatMatrix<float> &mdata, std::map<int, int> &groupLabels, std::vector<int> &groups);
-
 void createPhonemaData(std::string &featuresDict, MatMatrix<float> &data);
 
-MatMatrix<float> loadFalseData(int tam, int fileNumber);
+int loadTrueFeatureMatrix(std::ifstream &file, std::string &dictionary, std::string &featuresDict, std::vector<FeaturesVector> &data, const std::string &filename);
+void loadFalseFeatureMatrix(std::string &featuresDict, std::vector<FeaturesVector> &data, const std::string &filename, int phonemesNum);
 
+MatMatrix<float> loadFalseData(int tam, int fileNumber);
 MatMatrix<float> loadTrueData(int tam, int fileNumber);
 
 void runCompleteTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
-
 void runTestAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
-
 void runStudyOfCase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM);
-
 void runStudyOfCaseTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM);
 
 void createParametersFile(MyParameters *params);
+void createParametersFiles(MyParameters *params);
 
 std::vector<float> loadParametersFile(int number);
+std::vector<float> loadParametersFile();
 
 void loadTrueDataInMemory();
-
 void loadFalseDataInMemory();
 
 std::vector<MatMatrix<float> > v_false[100]; //Vector of true data
@@ -176,11 +170,11 @@ int main(int argc, char** argv) {
     //cout << "Loading True data in Memory..." << endl;
     //loadTrueDataInMemory();
     cout << "Running test" << endl;
-    //createParametersFile(&params);    //createTrainingTestFiles(som.d_min, som.d_max, file, dictionary, featuresDict, "phonemes_" + filename);
+    //createParametersFile(&params); //createTrainingTestFiles(som.d_min, som.d_max, file, dictionary, featuresDict, "phonemes_" + filename);
 
-    //runCompleteTest(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    runCompleteTest(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
     //runTestAfterTraining(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
-    runStudyOfCaseTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
+    //runStudyOfCaseTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
 
     dbgOut(1) << "Done." << endl;
 }
@@ -408,7 +402,19 @@ std::vector<float> loadParametersFile(int number) {
     return params;
 }
 
-void createParametersFile(MyParameters * params) {
+std::vector<float> loadParametersFile() {
+    string name1 = "input/MyParametersFile.txt";
+    std::ifstream file(name1.c_str());
+    std::string text;
+    std::vector<float> params;
+    while (!file.eof()) {
+        getline(file, text);
+        params.push_back(std::atof(text.c_str()));
+    }
+    return params;
+}
+
+void createParametersFiles(MyParameters * params) {
     string name1 = "input/MyParameters1";
     std::ofstream file1;
     file1.open(name1.c_str());
@@ -436,7 +442,7 @@ void createParametersFile(MyParameters * params) {
     int i = 0;
     int experiment;
     for (params->initLHS(params->N), experiment = 1; !params->finished(); params->setNextValues(), experiment++) {
-        if (i >= 0 && i < 15) {
+        if (i >= 0 && i < 17) {
 
             file1 << params->a_t << "\n";
             file1 << params->lp << "\n";
@@ -446,7 +452,7 @@ void createParametersFile(MyParameters * params) {
             file1 << params->epsilon_ds << "\n";
             file1 << params->minwd << "\n";
 
-        } else if (i >= 15 && i < 30) {
+        } else if (i >= 17 && i < 34) {
 
             file2 << params->a_t << "\n";
             file2 << params->lp << "\n";
@@ -456,7 +462,7 @@ void createParametersFile(MyParameters * params) {
             file2 << params->epsilon_ds << "\n";
             file2 << params->minwd << "\n";
 
-        } else if (i >= 30 && i < 45) {
+        } else if (i >= 34 && i < 51) {
 
             file3 << params->a_t << "\n";
             file3 << params->lp << "\n";
@@ -466,7 +472,7 @@ void createParametersFile(MyParameters * params) {
             file3 << params->epsilon_ds << "\n";
             file3 << params->minwd << "\n";
 
-        } else if (i >= 45 && i < 60) {
+        } else if (i >= 51 && i < 68) {
 
             file4 << params->a_t << "\n";
             file4 << params->lp << "\n";
@@ -476,7 +482,7 @@ void createParametersFile(MyParameters * params) {
             file4 << params->epsilon_ds << "\n";
             file4 << params->minwd << "\n";
 
-        } else if (i >= 60 && i < 75) {
+        } else if (i >= 68 && i < 85) {
 
             file5 << params->a_t << "\n";
             file5 << params->lp << "\n";
@@ -486,7 +492,7 @@ void createParametersFile(MyParameters * params) {
             file5 << params->epsilon_ds << "\n";
             file5 << params->minwd << "\n";
 
-        } else if (i >= 75 && i < 100) {
+        } else if (i >= 85 && i < 100) {
 
             file6 << params->a_t << "\n";
             file6 << params->lp << "\n";
@@ -508,49 +514,70 @@ void createParametersFile(MyParameters * params) {
     file6.close();
 }
 
+void createParametersFile(MyParameters * params) {
+    string name1 = "input/MyParametersFile.txt";
+    std::ofstream file1;
+    file1.open(name1.c_str());
+    cout << *params;
+    int experiment;
+    for (params->initLHS(params->N), experiment = 1; !params->finished(); params->setNextValues(), experiment++) {
+
+        file1 << params->a_t << "\n";
+        file1 << params->lp << "\n";
+        file1 << params->dsbeta << "\n";
+        file1 << params->e_b << "\n";
+        file1 << params->e_n << "\n";
+        file1 << params->epsilon_ds << "\n";
+        file1 << params->minwd << "\n";
+
+    }
+    file1.close();
+}
+
 void runCompleteTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
     int experiment = 1;
     int fileNumber = 0;
     string filename = "";
-    std::vector<float> params = loadParametersFile(paramsNumber);
-
-    for (int i = 0; i < params.size(); i += 7) {
-        som->a_t = params[i];
-        som->lp = params[i + 1];
-        som->dsbeta = params[i + 2];
-        som->e_b = params[i + 3];
-        som->e_n = params[i + 4];
-        som->epsilon_ds = params[i + 5];
-        som->minwd = params[i + 6];
-        experiment = (i / 7) + ((paramsNumber - 1) * 15);
-
-        for (fileNumber = 0; fileNumber < 100; fileNumber++) {
-            filename = "input/sentences_" + std::to_string(fileNumber) + ".txt";
-
+    std::vector<float> params = loadParametersFile();
+    paramsNumber = 1;
+    for (fileNumber = 0; fileNumber < 10; fileNumber++) {
+        filename = "input/sentences_" + std::to_string(fileNumber) + ".txt";
+        for (int i = 0; i < params.size(); i += 7) {
+            som->a_t = params[i];
+            som->lp = params[i + 1];
+            som->dsbeta = params[i + 2];
+            som->e_b = params[i + 3];
+            som->e_n = params[i + 4];
+            som->epsilon_ds = params[i + 5];
+            som->minwd = params[i + 6];
+            experiment = (i / 7) + ((paramsNumber - 1) * 17);
             MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
-
+            cout << "f-" << fileNumber << " e-" << i;
             //Faz o treinamento e teste para a quantidade de dimensões solicitadas com taxas
             som->d_max = 6;
             for (int i = som->d_min; i <= som->d_max; i++) {
                 //Taxa de true positive
-                MatMatrix<float> data = v_true[fileNumber][i - 2];
+                MatMatrix<float> data = loadTrueData(i, fileNumber);
                 clusteringSOM.setData(data);
                 som->resetSize(clusteringSOM.getInputSize());
                 clusteringSOM.trainSOM(1); // 1 - Epocs
                 taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("output/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, som->a_t));
 
                 //Taxa de false negative
-                MatMatrix<float> dataFalse = v_false[fileNumber][i - 2];
+                MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
                 clusteringSOM.setData(dataFalse);
                 taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + filename, dataFalse, featuresDict, dssom, som->a_t));
-                som->saveSOM("networks/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(i));
+                if (i == som->d_max) {
+                    som->saveSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(i));
+                }
+
             }
 
             outputM.PATH = "output" + std::to_string(paramsNumber) + "/";
             outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
-
+            dbgOut(1) << std::to_string(fileNumber + 1) << "% " << endl;
         }
-        dbgOut(1) << std::to_string(i / 7) << "% Concluido do arquivo " << fileNumber << endl;
+        
     }
 }
 
