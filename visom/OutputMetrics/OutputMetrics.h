@@ -200,17 +200,18 @@ public:
             file1 << "Recall = ";
             file1 << recall << endl;
             file1 << "F-measure = ";
-            file1 << (2 * precision * recall) / (precision + recall + 0.0000000001) << endl;
+            float f = (2 * precision * recall) / (precision + recall + 0.0000000001);
+            file1 << f << endl;
 
-            file2 << precision << "  " << recall << "  " << (2 * precision * recall) / (precision + recall + 0.00000000001);
+            file2 << precision << "  " << recall << "  " << f;
             //Params files
-            file3 << precision << "  " << recall << "  " << (2 * precision * recall) / (precision + recall + 0.00000000001) << endl;
-            file4 << precision << "  " << recall << "  " << (2 * precision * recall) / (precision + recall + 0.00000000001) << endl;
-            file5 << precision << "  " << recall << "  " << (2 * precision * recall) / (precision + recall + 0.00000000001) << endl;
-            file6 << precision << "  " << recall << "  " << (2 * precision * recall) / (precision + recall + 0.00000000001) << endl;
-            file7 << precision << "  " << recall << "  " << (2 * precision * recall) / (precision + recall + 0.00000000001) << endl;
-            file8 << precision << "  " << recall << "  " << (2 * precision * recall) / (precision + recall + 0.00000000001) << endl;
-            file9 << precision << "  " << recall << "  " << (2 * precision * recall) / (precision + recall + 0.00000000001) << endl;
+            file3 << precision << "  " << recall << "  " << f << endl;
+            file4 << precision << "  " << recall << "  " << f << endl;
+            file5 << precision << "  " << recall << "  " << f << endl;
+            file6 << precision << "  " << recall << "  " << f << endl;
+            file7 << precision << "  " << recall << "  " << f << endl;
+            file8 << precision << "  " << recall << "  " << f << endl;
+            file9 << precision << "  " << recall << "  " << f << endl;
 
 
         }
