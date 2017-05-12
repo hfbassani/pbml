@@ -19,6 +19,7 @@
 #include "DSNode.h"
 #include "ClusteringMetrics.h"
 #include "TextToPhoneme.h"
+#include <math.h>
 
 template <class SOMType>
 class ClusteringSOM {
@@ -178,10 +179,22 @@ public:
 
     float activation(DSNode* node, MatVector<float> &w) {
         float distance = 0;
-        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
-        for (uint i = 0; i < node->w.size(); i++) {
-            distance += node->ds[i] * qrt((w[i] - node->w[i]));
+        int end = 0;
+        if (node->w.size() < w.size()){
+            end = node->w.size();
+        }else{
+            end = w.size();
         }
+        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
+        for (int i = 0; i < end; i++) {
+            distance += node->ds[i] * qrt((w[i] - node->w[i]));
+            if (std::isnan(w[i])||std::isnan(distance)) {
+                std::cout << i << endl;
+            }
+        }
+        //for (int count = 0; count < node->ds.size(); count++) {
+        //  std::cout << node->w[count] << " - ";
+        //}
         float sum = node->ds.sum();
         return (sum / (sum + distance + 0.0000001));
     }
@@ -266,6 +279,7 @@ public:
             DSNode* winner = som->getWinner(sample);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
+                        
             a = activation(winner, sample);
             if (a >= at_min) {
                 at_know++;

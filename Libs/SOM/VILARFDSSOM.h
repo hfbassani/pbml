@@ -66,18 +66,25 @@ public:
     float age_wins; //period to remove nodes
     float lp; //remove percentage threshold
     float a_t;
-    int d_min;//dimensão inicial
-    int d_max;//dimensão máxima
-    float at_min;//limiar de ativação
+    int d_min; //dimensão inicial
+    int d_max; //dimensão máxima
     int nodesLeft;
     int nodeID;
 
     inline float activation(const TNode &node, const TVector &w) {
-
+        int end = 0;
+        if (node.w.size() < w.size()) {
+            end = node.w.size();
+        } else {
+            end = w.size();
+        }
         float distance = 0;
         //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
-        for (uint i = 0; i < node.w.size(); i++) {
+        for (uint i = 0; i < end; i++) {
             distance += node.ds[i] * qrt((w[i] - node.w[i]));
+            if (std::isnan(w[i]) || std::isnan(distance)) {
+                std::cout << i << endl;
+            }
         }
         float sum = node.ds.sum();
         return (sum / (sum + distance + 0.0000001));
@@ -125,12 +132,19 @@ public:
     }
 
     inline void updateNode(TNode &node, const TVector &w, TNumber e) {
-
+        int end = 0;
+        if (node.w.size() < w.size()){
+            end = node.w.size();
+        }else{
+            end = w.size();
+        }
         //update averages
-        for (uint i = 0; i < node.a.size(); i++) {
+        for (uint i = 0; i < end; i++) {
             //update neuron weights
             float distance = fabs(w[i] - node.w[i]);
-
+            if (std::isnan(distance)) {
+                distance = 1;
+            }
             node.a[i] = e * dsbeta * distance + (1 - e * dsbeta) * node.a[i];
         }
 
@@ -138,13 +152,21 @@ public:
         float min = node.a.min();
         float average = node.a.mean();
         //float dsa = node.ds.mean();
+        if (std::isnan(average)) {
+            cout << "average" << endl;
+            for (int cont = 0; cont < node.a.size(); cont++) {
+                if (std::isnan(node.a[cont])) {
+                    cout << cont << endl;
+                }
 
+            }
+        }
 
         //update neuron ds weights
         for (uint i = 0; i < node.a.size(); i++) {
             if ((max - min) != 0) {
                 //node.ds[i] = 1 - (node.a[i] - min) / (max - min);
-                node.ds[i] = 1 / (1 + exp((node.a[i] - average) / ((max - min) * epsilon_ds)));
+                node.ds[i] = 1 / (1 + exp((node.a[i] - average) / (((max - min) * epsilon_ds) + 0.000001)));
             } else
                 node.ds[i] = 1;
 
@@ -159,6 +181,7 @@ public:
         //Passo 6.1: Atualiza o peso do vencedor
         //Atualiza o nó vencedor
         node.w = node.w + e * (w - node.w);
+
     }
 
     VILARFDSSOM& updateConnections(TNode *node) {
@@ -346,13 +369,13 @@ public:
     }
 
     inline SOM& trainning(int N = 1) {
-            TVector v(data.cols());
-            for (uint l = 0; l < data.rows(); l++) {
-                for (uint c = 0; c < data.cols(); c++) {
-                    v[c] = data[l][c];
-                }
-                updateMap(v);
+        TVector v(data.cols());
+        for (uint l = 0; l < data.rows(); l++) {
+            for (uint c = 0; c < data.cols(); c++) {
+                v[c] = data[l][c];
             }
+            updateMap(v);
+        }
         return *this;
     }
 
@@ -365,7 +388,7 @@ public:
         tempVector_ds.size(sizeTemp);
         tempVector_a.size(sizeTemp);
         tempVector_w.size(sizeTemp);
-        tempVector_ds.fill(0);
+        tempVector_ds.fill(0.0);
 
         for (int i = 0, j = winner1->w.size(); i < sizeTemp; i++, j++) {
             tempVector_w[i] = w[j];
@@ -373,11 +396,22 @@ public:
 
         winner1->w.concat(tempVector_w); //Aumentando o vetor de prototipos preenchendo com 0
         winner1->ds.concat(tempVector_ds); //Aumentando o vetor de relevancias preenchendo com 0
-        
+
         //Aumentando o vetor de distancias preenchendo com o valor maximo
         tempVector_a.fill(winner1->a.max());
-        winner1->a.concat(tempVector_a);
+        for (int cont = 0; cont < winner1->a.size(); cont++) {
+            if (std::isnan(winner1->a[cont])) {
+                cout << cont << endl;
+            }
 
+        }
+        winner1->a.concat(tempVector_a);
+        for (int cont = 0; cont < winner1->a.size(); cont++) {
+            if (std::isnan(winner1->a[cont])) {
+                cout << cont << endl;
+            }
+
+        }
     }
 
     VILARFDSSOM& updateMap(const TVector &w) {
@@ -488,7 +522,17 @@ public:
     inline TNode* getWinner(const TVector &w) {
         TNode *winner = 0;
         TNumber temp = 0;
+        for (int i = 0; i < w.size(); i++) {
+            if (std::isnan(w[i])) {
+                cout << w[i] << " -- ";
+            }
+        }
         TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
+        for (int i = 0; i < w.size(); i++) {
+            if (std::isnan(w[i])) {
+                cout << w[i] << " -- ";
+            }
+        }
         winner = (*Mesh<TNode>::meshNodeSet.begin());
 
         TPNodeSet::iterator it;
@@ -596,6 +640,7 @@ public:
         TVector wNew(v);
         createNode(nodeID++, wNew);
     }
+
     void resetSize(int dimw) {
         VILARFDSSOM::dimw = dimw;
     }
