@@ -5,7 +5,7 @@
  * Created on 11 de Outubro de 2010, 07:25
  */
 #define NO_INVALID_DIMENSION_SIZE
-//#define PRINT_CLUSTER
+#define PRINT_CLUSTER
 
 #include <stdlib.h>
 #include <fstream>
@@ -171,8 +171,8 @@ int main(int argc, char** argv) {
     cout << "Running test" << endl;
     //createParametersFile(&params); //createTrainingTestFiles(som.d_min, som.d_max, file, dictionary, featuresDict, "phonemes_" + filename);
 
-    runCompleteTest(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
-    //runStudyOfCase(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    //runCompleteTest(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    runStudyOfCase(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
     //runTestAfterTraining(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
     //runStudyOfCaseAfterTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
@@ -222,7 +222,7 @@ void runCompleteTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNo
 
             outputM.PATH = "output" + std::to_string(paramsNumber) + "/";
             outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
-            dbgOut(1) << std::to_string(experiment+1) << "% do arquivo " << std::to_string(fileNumber) << endl;
+            dbgOut(1) << std::to_string(experiment + 1) << "% do arquivo " << std::to_string(fileNumber) << endl;
             som->reset();
         }
 
@@ -238,6 +238,7 @@ void runTestAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM
     for (fileNumber = paramsNumber - 1; fileNumber < paramsNumber; fileNumber++) { // For para arquivos
         for (experiment = 0; experiment <= 99; experiment++) { // For para experimentos
             MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
+            cout << "f-" << fileNumber << " e-" << experiment;
             //Testa com todos os arquivos de entrada depois que arede já foi treinada
             som->readSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
 
@@ -269,8 +270,8 @@ void runTestAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM
 }
 
 void runStudyOfCase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
-    int experiment = 90;// Número do experimento
-    int fileNumber = 2;// Número do arquivo de entrada
+    int experiment = 62; // Número do experimento
+    int fileNumber = 4; // Número do arquivo de entrada
     string filename = "";
     std::vector<float> params = loadParametersFile();
     int i = experiment * 7;
@@ -299,7 +300,6 @@ void runStudyOfCase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNod
         //Taxa de false negative
         MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
         clusteringSOM.setData(dataFalse);
-        som->resetSize(clusteringSOM.getInputSize());
         taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + filename, dataFalse, featuresDict, dssom, som->a_t));
         if (i == som->d_max) {
             som->saveSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(i));
@@ -314,14 +314,14 @@ void runStudyOfCase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNod
 }
 
 void runStudyOfCaseAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM) {
-    int experiment = 93;
-    int fileNumber = 2;
+    int experiment = 38;
+    int fileNumber = 5;
     string filename = "sentences_" + std::to_string(fileNumber) + ".txt";
 
     cout << "f-" << fileNumber << " e-" << experiment;
     MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
     //Testa com todos os arquivos de entrada depois que arede já foi treinada
-    som->readSOM("networks/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
+    som->readSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
 
     for (int i = som->d_min; i <= som->d_max; i++) { // For para tamanhos de entrada
 
@@ -680,7 +680,7 @@ void createParametersFiles(MyParameters * params) {
 }
 
 void createParametersFile(MyParameters * params) {
-    string name1 = "input/MyParametersFile.txt";
+    string name1 = "/home/raphael/Desktop/MyParametersFile.txt";
     std::ofstream file1;
     file1.open(name1.c_str());
     cout << *params;
@@ -690,6 +690,7 @@ void createParametersFile(MyParameters * params) {
         file1 << params->a_t << "\n";
         file1 << params->lp << "\n";
         file1 << params->dsbeta << "\n";
+        file1 << std::round(params->age_wins) << "\n";
         file1 << params->e_b << "\n";
         file1 << params->e_n << "\n";
         file1 << params->epsilon_ds << "\n";
