@@ -201,7 +201,18 @@ public:
 
     MatVector<int> writeClusterResultsReadable(const std::string &filename, MatMatrix<float> &data, std::string &featuresDict,
             SOM<DSNode> *som, float at_min) {
+        
 #ifdef PRINT_CLUSTER
+        DSNode* nodoReset;//For reset all actvations
+        nodoReset = som->getFirstNode();
+        for(int i = 0 ; i < som->size() ; i++){
+            nodoReset->at_Know = 0;
+            nodoReset->at_Unknown = 0;
+            if (i < som->size() - 1) {
+                nodoReset = som->getNextNode();
+            }
+        }
+        
         std::ofstream file;
         file.open(filename.c_str());
 #endif

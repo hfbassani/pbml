@@ -270,8 +270,8 @@ void runTestAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM
 }
 
 void runStudyOfCase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
-    int experiment = 62; // Número do experimento
-    int fileNumber = 4; // Número do arquivo de entrada
+    int experiment = 3; // Número do experimento
+    int fileNumber = 5; // Número do arquivo de entrada
     string filename = "";
     std::vector<float> params = loadParametersFile();
     int i = experiment * 7;
