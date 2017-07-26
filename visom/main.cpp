@@ -174,15 +174,15 @@ int main(int argc, char** argv) {
 
     learningTest(&som, clusteringSOM, dssom, featuresDict, outputM);
 
-    /*////////Gerando os arquivos na mão
+    /*///////Gerando os arquivos na mão
     
     std::vector<FeaturesVector> phonemesData;
     loadTrueFeatureMatrix(file, dictionary, featuresDict, phonemesData, filename + ".new" );
     MatMatrix<float> data;
     std::vector<int> groups;
     std::map<int, int> groupLabels;
-    createInputData(phonemesData, 5, data, groupLabels, groups);
-    string name_true = "trueData_" + std::to_string(5) + "_arq_";
+    createInputData(phonemesData, 2, data, groupLabels, groups);
+    string name_true = "trueData_" + std::to_string(2) + "_arq_";
     std::ofstream file_true;
     file_true.open(name_true.c_str());
     for (int i = 0; i < data.rows(); i++) {
@@ -370,8 +370,8 @@ void runStudyOfCaseAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
 }
 
 void learningTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM) {
-    int experiment = 62;
-    int fileNumber = 4;
+    int experiment = 3;
+    int fileNumber = 5;
     string filename = "sentences_" + std::to_string(fileNumber) + ".txt";
 
     cout << "f-" << fileNumber << " e-" << experiment;
@@ -388,7 +388,7 @@ void learningTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode>
         //taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("outputTest/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, som->a_t));
 
 
-        clusteringSOM.writeClusterResultsHTML("outputTest/result_size-" + std::to_string(i) + ".html", data, featuresDict, dssom, som->a_t, i);
+        clusteringSOM.writeClusterResultsHTML("outputTest/result_size-" + std::to_string(i) + ".html", data, featuresDict, dssom, som->a_t, i, experiment, fileNumber);
 
     }
 
@@ -608,7 +608,7 @@ MatMatrix<float> loadTrueData(int tam, int fileNumber) {
 
 MatMatrix<float> loadTestData(int tam) {
     MatMatrix<float> mat;
-    std::ifstream inputFile("TestData/trueData_" + std::to_string(tam) + "_arq_");
+    std::ifstream inputFile("TestData/trueData_" + std::to_string(tam) + "_arq_0");
     std::string text;
     std::string temp = "";
     MatVector<float> output_vect;

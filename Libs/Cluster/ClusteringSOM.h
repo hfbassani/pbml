@@ -20,6 +20,7 @@
 #include "ClusteringMetrics.h"
 #include "TextToPhoneme.h"
 #include <math.h>
+#include <sstream>
 
 template <class SOMType>
 class ClusteringSOM {
@@ -383,13 +384,17 @@ public:
         return activations;
     }
 
+    int map(float x, float in_min, float in_max, float out_min, float out_max) {
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    }
+
     void writeClusterResultsHTML(const std::string &filename, MatMatrix<float> &data, std::string &featuresDict,
-            SOM<DSNode> *som, float at_min, int dim) {
+            SOM<DSNode> *som, float at_min, int dim, int exp, int fileNumber) {
         using namespace std;
+
         MatVector<std::string> phonemes_now;
         MatVector<float> averages;
         std::vector<std::string> colors = {"#0000ff", "#0040ff", "#0080ff", "#00bfff", "#00ffff", "#00ffbf", "#00ff80", "#00ff40", "#00ff00", "#40ff00", "#80ff00", "#bfff00", "#ffff00", "#ffbf00", "#ff8000", "#ff4000", "#ff0000"};
-        //std::vector<std::string> colors = {"#0000ff", "#0040ff", "#0080ff", "#00bfff", "#00ffff", "#ffff00", "#ffbf00", "#ff8000", "#ff4000", "#ff0000"};
         float a;
         int at_know = 0, at_all = 0, at_Unknown = 0;
         PhonemesToFeatures pf;
@@ -404,11 +409,11 @@ public:
         arq.write(buff.c_str(), buff.length());
         buff = "<head><title>VILARFDSSOM - " + std::to_string(dim) + " </title></head>";
         arq.write(buff.c_str(), buff.length());
-        buff = "<body>";
+        buff = "<body bgcolor=#999999>";
         arq.write(buff.c_str(), buff.length());
-        buff = "<center><h2>Vencedores para cada entrada de tamanho = " + std::to_string(dim) + "</h2><center>";
-        buff += "<center><h3>Frase: he may get a tax refund | Quantidade de nodos = "+ std::to_string(som->size()) +"</h3><center>";
-        buff += "<center><h3>Fonemas: HH    IY  M   EY G	EH	T AH T	AE	K	S R	IH	F	AH	N	D </h3><center>";
+        buff = "<center><h2>  Exp: " + std::to_string(exp) + " | Arq: " + std::to_string(fileNumber) + " | Tamanho de entrada = " + std::to_string(dim) + "</h2><center>";
+        buff += "<center><h3>Frase: Base completa | Quantidade de nodos = " + std::to_string(som->size()) + "  | a_t = " + std::to_string(at_min) + "</h3><center>";
+        buff += "<center><h3>Fonemas: Base completa  </h3><center>";
         arq.write(buff.c_str(), buff.length());
         buff = "<table border=1>";
         arq.write(buff.c_str(), buff.length());
@@ -461,31 +466,50 @@ public:
                     averageX2 += relevances[i] * relevances[i]*(1 / 12.0);
                 }
                 deviation = sqrt(averageX2 - (average * average));
+
                 strRelevances += std::to_string(average) + " +|- " + std::to_string(deviation) + "\t";
                 averages.append(average);
             }
 
 
             MatVector<int> indices;
+            
             for (int x = 0; x < averages.size(); x++) {
-                indices.append((averages[x]) * (colors.size())); //(x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+//                if (a < at_min) {
+//                    a = -a;
+//                }
+                float v = averages[x] * (a); ///Fator de peso a_t interferindo na cor da relevância 
+                if (v > 1) {
+                    v = 1;
+                }else if (v < 0) {
+                    v = 0;
+                }
+                indices.append(map(v, 0.0, 1.0, 0, colors.size() - 1));
             }
 
             buff += "<tr>";
 
             buff += "<td>&nbsp;";
+            //Coloca os fonemas da entrada na tabela
             for (int i = 0; i < phonemes_now.size(); i++) {
-                buff += "<font color=" + colors[indices[i]] + ">";
+                buff += "<font color=" + colors[indices[i]] + "><b>";
                 buff += phonemes_now[i];
-                buff += "&nbsp;</font>";
+                buff += "&nbsp;</b></font>";
             }
             buff += "</td>";
             //Vencedor
             buff += "<td>&nbsp;";
             buff += std::to_string(winner->getId());
             buff += "&nbsp;</td>";
+            //Ativação
+            int value = map(a, 0.7, 1.0, 0, colors.size() - 1);
+            buff += "<td>&nbsp;<font color=" + colors[value] + "><b>";
+            stringstream stream;
+            stream << fixed << setprecision(2) << a;
+            buff += stream.str();
+            buff += "&nbsp;</b></font></td>";
             ////Traduzir protótipos para fonemas
-            std::string temp2;
+
             phonemes_now.clear();
             for (int begin = 0, end = 11, j = 0; end < winner->w.size(); begin += 12, end += 12, j++) {
                 features.copy(winner->w, begin, end);
@@ -496,7 +520,9 @@ public:
             //Médias das relevancias por fonema
             for (int i = 0; i < averages.size(); i++) {
                 buff += "<td><center>&nbsp;";
-                buff += std::to_string(averages[i]);
+                stringstream stream;
+                stream << fixed << setprecision(2) << averages[i];
+                buff += stream.str();
                 buff += "<br>";
                 buff += phonemes_now[i];
                 buff += "&nbsp;</center></td>";
