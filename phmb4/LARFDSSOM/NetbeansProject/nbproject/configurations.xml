@@ -258,13 +258,13 @@
       <compileType>
         <ccTool>
           <incDir>
-            <pElem>../../Libs/MatMatrix</pElem>
-            <pElem>../../Libs/Defines</pElem>
-            <pElem>../../Libs/Data</pElem>
-            <pElem>../../Libs/Debug</pElem>
-            <pElem>../../Libs/Parameters</pElem>
             <pElem>../SOM</pElem>
             <pElem>../Cluster</pElem>
+            <pElem>../../../Libs/Data</pElem>
+            <pElem>../../../Libs/Debug</pElem>
+            <pElem>../../../Libs/Defines</pElem>
+            <pElem>../../../Libs/MatMatrix</pElem>
+            <pElem>../../../Libs/Parameters</pElem>
           </incDir>
         </ccTool>
       </compileType>
@@ -2083,12 +2083,12 @@
           <architecture>2</architecture>
           <incDir>
             <pElem>../SOM</pElem>
-            <pElem>../../Libs/Debug</pElem>
-            <pElem>../../Libs/Defines</pElem>
-            <pElem>../../Libs/MatMatrix</pElem>
-            <pElem>../../Libs/Parameters</pElem>
-            <pElem>../../Libs/Data</pElem>
             <pElem>../Cluster</pElem>
+            <pElem>../../../Libs/Data</pElem>
+            <pElem>../../../Libs/Debug</pElem>
+            <pElem>../../../Libs/Defines</pElem>
+            <pElem>../../../Libs/MatMatrix</pElem>
+            <pElem>../../../Libs/Parameters</pElem>
           </incDir>
           <commandLine>-m64 -g</commandLine>
         </ccTool>

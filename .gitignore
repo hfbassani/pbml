@@ -51,6 +51,7 @@ visom/test*
 visom/Test*
 
 phmb4/LARFDSSOM/NetbeansProject/results/
+*.idea
 
 
 # End of https://www.gitignore.io/api/c++,netbeans
