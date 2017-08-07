@@ -256,11 +256,11 @@
           <incDir>
             <pElem>../../Libs/MatMatrix</pElem>
             <pElem>../../Libs/Defines</pElem>
-            <pElem>../../Libs/Cluster</pElem>
             <pElem>../../Libs/Data</pElem>
             <pElem>../../Libs/Debug</pElem>
             <pElem>../../Libs/Parameters</pElem>
             <pElem>../SOM</pElem>
+            <pElem>../Cluster</pElem>
           </incDir>
         </ccTool>
       </compileType>
@@ -1152,11 +1152,11 @@
           <incDir>
             <pElem>../../Libs/MatMatrix</pElem>
             <pElem>../../Libs/Defines</pElem>
-            <pElem>../../Libs/Cluster</pElem>
             <pElem>../../Libs/Data</pElem>
             <pElem>../../Libs/Debug</pElem>
             <pElem>../../Libs/Parameters</pElem>
             <pElem>../SOM</pElem>
+            <pElem>../Cluster</pElem>
           </incDir>
         </ccTool>
       </compileType>
