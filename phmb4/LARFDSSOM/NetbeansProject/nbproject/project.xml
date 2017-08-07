@@ -11,8 +11,12 @@
             <make-dep-projects/>
             <sourceRootList>
                 <sourceRootElem>../SOM</sourceRootElem>
-                <sourceRootElem>../../Libs</sourceRootElem>
                 <sourceRootElem>../Cluster</sourceRootElem>
+                <sourceRootElem>../../../Libs/Data</sourceRootElem>
+                <sourceRootElem>../../../Libs/Debug</sourceRootElem>
+                <sourceRootElem>../../../Libs/Defines</sourceRootElem>
+                <sourceRootElem>../../../Libs/MatMatrix</sourceRootElem>
+                <sourceRootElem>../../../Libs/Parameters</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
