@@ -71,12 +71,6 @@ def plot_synthetic_data_graphs(fileName):
     results = results.dropna(axis=0, how='any')
     results = results.astype(np.float64)
     
-#    print results["max_value"]
-#    print results["max_value"][:7]
-#    print results["max_value"][7:11]
-#    print results["max_value"][11:16]
-#    print results["max_value"][16:]
-    
     plot_dimensions_graph(results["max_value"][:7])
     plot_noise_graph(results["max_value"][7:11])
     plot_samples_graph(results["max_value"][11:16])
@@ -100,34 +94,55 @@ def plot_params_results(fileName, paramsToPlot = None):
     if paramsToPlot == None:
         paramsToPlot = params.columns
         
+    indexes = np.linspace(0, len(params[paramsToPlot[0]]), num=21)
+    indexes[0] = indexes[0] + 1 
+#    indexes = [169, 4, 55, 24, 75, 9, 97, 83, 191, 62, 59, 1, 159, 56]
+    
+    gammas = []
+    h_threshs = []
     for param in paramsToPlot:
         for result in results.columns:
+#            x = 1
             plot_x_y(params[param], results[result], "{0} - {1}".format(param, result))
             
-def plot_h_graph():
-    gamma_values = np.linspace(0.1, 1, num=19)
+        if param == "gamma":
+            values = params[param]
+            for index in indexes:
+                gammas.append(values[index])
+                
+        if param == "h_threshold":
+            for index in indexes:
+                values = params[param]
+                h_threshs.append(values[index])
+            
+                
+    if len(gammas) > 0 and len(h_threshs) > 0:
+        h_order = np.argsort(gammas)
+        gammas = np.sort(gammas)
+        for i in xrange(len(gammas)):
+            h = []
+            for j in xrange(len(gammas)):
+                h.append(np.exp( - (j / gammas[i])))
+            
+            fig, ax = plt.subplots()
+            ax.yaxis.grid()
     
-    for gamma in gamma_values:
-        h = []
-        for i in xrange(19):
-            h.append(np.exp( - (i / gamma)))
+            plt.title("Gamma {0} x H {1}".format(gammas[i], h_threshs[h_order[i]]))
+            plt.plot(gammas, h, "-o", color='b', clip_on=False)
             
             
-        fig, ax = plt.subplots()
-        ax.yaxis.grid()
-
-        plt.title("Gamma {0} x H".format(gamma))
-        plt.plot(gamma_values, h, "-o", color='b', clip_on=False)
-        plt.yticks(np.linspace(0, 1, num=21))
-        plt.show()
+            h_thresh_x = [gammas[0], gammas[len(gammas) - 1]]
+            h_thresh_y = [h_threshs[h_order[i]]] * 2
+            plt.plot(h_thresh_x, h_thresh_y, "-", color='r', clip_on=False)
+            
+            plt.yticks(np.linspace(0, 1, num=21))
+            plt.show()
     
             
-fileName = "../outputMetrics/v1_htrhesh0-1.csv"
+fileName = "../outputMetrics/v2_new_nn.csv"
 
-#plot_synthetic_data_graphs(fileName=fileName)
+plot_synthetic_data_graphs(fsileName=fileName)
 
 paramsToPlot = ["gamma", "h_threshold"]
 plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot)
-
-#plot_h_graph()
 
