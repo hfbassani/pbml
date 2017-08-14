@@ -97,6 +97,7 @@ def plot_params_results(fileName, paramsToPlot = None):
     indexes = np.linspace(0, len(params[paramsToPlot[0]]), num=21)
     indexes[0] = indexes[0] + 1 
 #    indexes = [169, 4, 55, 24, 75, 9, 97, 83, 191, 62, 59, 1, 159, 56]
+#    indexes = [169, 4, 55, 24, 75, 9, 97, 83, 62, 59, 166, 56]
     
     gammas = []
     h_threshs = []
@@ -139,10 +140,10 @@ def plot_params_results(fileName, paramsToPlot = None):
             plt.show()
     
             
-fileName = "../outputMetrics/v2_new_nn.csv"
+fileName = "../outputMetrics/v1_new_nn__at_g0109_h000104.csv"
 
-plot_synthetic_data_graphs(fsileName=fileName)
+plot_synthetic_data_graphs(fileName=fileName)
 
-paramsToPlot = ["gamma", "h_threshold"]
+paramsToPlot = ["a_t"]
 plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot)
 
