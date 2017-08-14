@@ -60,8 +60,8 @@ public:
         epsilon_ds.setRange(0.01, 0.05) = 0.01;
         minwd.setRange(0, 0.5) = 0;
         epochs.setRange(1, 100) = 100;
-        gamma.setRange(0.1, 0.9) = 0.1;
-        h_threshold.setRange(0.001, 0.4) = 0.001;
+        gamma.setRange(0.2, 0.85) = 0.2;
+        h_threshold.setRange(0.04, 0.35) = 0.04;
         tau.setRange(0.00001, 0.01) = 0.00001;
 
         //Add parameters to latin hypercube sampling:
