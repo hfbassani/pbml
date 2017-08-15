@@ -16,7 +16,8 @@
 
 using namespace std;
 
-void createParametersFile(MyParameters * params, string fileName, int qtdParameters);
+void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters);
+void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters);
 
 std::vector<float> loadParametersFile(int number);
 
@@ -26,9 +27,11 @@ int main(int argc, char** argv) {
     string filename = "";
     int qtd_files = 1;
     int qtd_parameter = 0;
+    
+    bool originalVersion = false;
 
     int c;
-    while ((c = getopt(argc, argv, "f:n:r:")) != -1) {
+    while ((c = getopt(argc, argv, "f:n:r:o")) != -1) {
         switch (c) {
             case 'f':
                 filename.assign(optarg);
@@ -38,6 +41,9 @@ int main(int argc, char** argv) {
                 break;
             case 'r':
                 qtd_parameter = atoi(optarg);
+                break;
+            case 'o':
+                originalVersion = true;
                 break;
         }
     }
@@ -53,9 +59,13 @@ int main(int argc, char** argv) {
     }
 
     for (int i = 0 ; i < qtd_files ; ++i) {
-        createParametersFile(&params, filename + "_" + std::to_string(i), qtd_parameter);   
-    } 
-
+        if (originalVersion) {
+            createParametersFileOriginalLARFDSSOM(&params, filename + "_" + std::to_string(i), qtd_parameter);   
+        } else {
+            createParametersFileExperiments(&params, filename + "_" + std::to_string(i), qtd_parameter);
+        }
+    }
+        
     cout << "Done." << endl;
     
     return 0;
@@ -76,7 +86,26 @@ std::vector<float> loadParametersFile(string fileName) {
     return params;
 }
 
-void createParametersFile(MyParameters * params, string fileName, int qtdParameters) {
+void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters) {
+    std::ofstream file;
+    file.open(fileName.c_str());
+
+    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
+        file << params->a_t.value << "\n";
+        file << params->lp << "\n";
+        file << params->dsbeta << "\n";
+        file << round(params->age_wins) << "\n";
+        file << params->e_b << "\n";
+        file << params->e_n << "\n";
+        file << params->epsilon_ds << "\n";
+        file << params->minwd << "\n";
+        file << round(params->epochs) << "\n";
+    }
+    
+    file.close();
+}
+
+void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters) {
     std::ofstream file;
     file.open(fileName.c_str());
 
@@ -92,8 +121,6 @@ void createParametersFile(MyParameters * params, string fileName, int qtdParamet
         file << params->gamma << "\n";
         file << params->h_threshold << "\n";
         file << params->tau << "\n";
-
-
     }
     
     file.close();

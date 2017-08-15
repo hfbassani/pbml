@@ -25,6 +25,7 @@ public:
     LHSParameter dsbeta;
     LHSParameter age_wins;
     LHSParameter e_b;
+    LHSParameter e_n;
     LHSParameter epsilon_ds;
     LHSParameter minwd;
     LHSParameter epochs;
@@ -43,12 +44,13 @@ public:
         addParameterD(dsbeta, "Relevance rate");
         addParameterD(age_wins, "Max competitions");
         addParameterD(e_b, "learning rate");
+        addParameterD(e_n, "Cluster Percentage");
         addParameterD(epsilon_ds, "Relevance rate");
         addParameterD(minwd, "Relevance rate");
         addParameterD(epochs, "Epochs");
-        addParameterD(gamma, "Relevance rate");
-        addParameterD(h_threshold, "Epochs");
-        addParameterD(tau, "Epochs");
+        addParameterD(gamma, "decay rate for function h");
+        addParameterD(h_threshold, "threshold for function h");
+        addParameterD(tau, "decay rate");
 
         //Set default ranges and values
         N = 150;
@@ -57,6 +59,7 @@ public:
         dsbeta.setRange(0.0001, 0.5) = 0.0001;
         age_wins.setRange(1, 100) = 1;
         e_b.setRange(0.0001, 0.01) = 0.0001;
+        e_n.setRange(0.001, 0.1) = 0.001;
         epsilon_ds.setRange(0.01, 0.05) = 0.01;
         minwd.setRange(0, 0.5) = 0;
         epochs.setRange(1, 100) = 100;
@@ -70,6 +73,7 @@ public:
         addParameterToLHS(dsbeta);
         addParameterToLHS(age_wins);
         addParameterToLHS(e_b);
+        addParameterToLHS(e_n);
         addParameterToLHS(epsilon_ds);
         addParameterToLHS(minwd);
         addParameterToLHS(epochs);
