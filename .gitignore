@@ -105,7 +105,7 @@ fabric.properties
 
 # *.iml
 # modules.xml
-# .idea/misc.xml
+.idea/misc.xml
 # *.ipr
 
 # Sonarlint plugin
@@ -136,18 +136,6 @@ fabric.properties
 hs_err_pid*
 
 # End of https://www.gitignore.io/api/java,intellij
-
-visom/output*
-visom/networks*
-visom/input
-visom/test*
-visom/Test*
-
-phmb4/LARFDSSOM/NetbeansProject/results/
-
-
-
-
 
 # Created by https://www.gitignore.io/api/python,pycharm+all
 
@@ -309,3 +297,13 @@ ENV/
 /site
 
 # End of https://www.gitignore.io/api/python,pycharm+all
+
+
+
+visom/output*
+visom/networks*
+visom/input
+visom/test*
+visom/Test*
+
+phmb4/LARFDSSOM/NetbeansProject/results/
