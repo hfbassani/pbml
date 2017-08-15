@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ClusteringAnalysis:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ClusteringAnalysis_jar</output-path>
+    <root id="archive" name="ClusteringAnalysis.jar">
+      <element id="module-output" name="ClusteringAnalysis" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/weka.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/i9-weka.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/i9-subspace.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

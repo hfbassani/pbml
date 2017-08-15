@@ -1,3 +1,7 @@
 java -jar ClusteringAnalysis.jar “CE” “inputFiles/noise/“ “LARFDSSOM/NetbeansProject/results/“ “outputMetrics/“ -n “inputFiles/parametersName.txt” -p “LARFDSSOM/NetbeansProject/Parametersg0106h00405” -r 100
 
 ./larfdssom -I inputPaths -n fileNames -r results/ -p ParametersTAU
+
+java -jar ClusteringAnalysis.jar "CE" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/inputFiles/" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/results/final_no_sqrt/" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/results/final_no_sqrt.txt" -r 500
+
+java -jar ClusteringAnalysis.jar "CE" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/inputFiles/" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/results/final_sqrt/" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/results/final_sqrt.txt" -r 500
