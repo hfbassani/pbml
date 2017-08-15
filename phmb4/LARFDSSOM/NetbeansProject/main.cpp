@@ -83,21 +83,20 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
     clusteringSOM.setFilterNoise(isFilterNoise);    
     
-    for (int i = 0 ; i < params.size() - 1 ; i += 11) {
+    int numberOfParameters = 9;
+    
+    for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         som.a_t = params[i];
         som.lp = params[i + 1];
         som.dsbeta = params[i + 2];
         som.age_wins = params[i + 3];
         som.e_b = params[i + 4];
-        som.e_b0 = params[i + 4];
-        som.epsilon_ds = params[i + 5];
-        som.minwd = params[i + 6];
-        int epocs = params[i + 7];
-        som.gamma = params[i + 8];
-        som.h_threshold = params[i + 9];
-        som.tau = params[i + 10];
+        som.e_n = params[i + 5];
+        som.epsilon_ds = params[i + 6];
+        som.minwd = params[i + 7];
+        int epocs = params[i + 8];
         
-        string index = to_string((i/11));
+        string index = to_string((i/numberOfParameters));
         
         som.maxNodeNumber = 70;
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
