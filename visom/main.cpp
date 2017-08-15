@@ -57,6 +57,7 @@ void runTimeSeriesMotifDiscovery(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
 
 vector<string> splitString(string str, char delimiter);
 void createInputDataFromTimeSeries(int dimension, string path);
+MatMatrix<float> loadInputDataFromTimeSeries(int dimension, string path);
 
 std::vector<MatMatrix<float> > v_false[100]; //Vector of true data
 std::vector<MatMatrix<float> > v_true[100]; //Vector of false data
@@ -176,8 +177,8 @@ int main(int argc, char** argv) {
     //cout << "Loading True data in Memory..." << endl;
     //loadTrueDataInMemory();
     cout << "Running test" << endl;
-    //runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
-    createInputDataFromTimeSeries(2, "input/FaceFour/FaceFour_TEST");
+    runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    //createInputDataFromTimeSeries(2, "input/FaceFour/FaceFour_TEST");
     //learningTest(&som, clusteringSOM, dssom, featuresDict, outputM);
 
     /*///////Gerando os arquivos na mão
@@ -612,6 +613,32 @@ MatMatrix<float> loadTrueData(int tam, int fileNumber) {
     return mat;
 }
 
+MatMatrix<float> loadInputDataFromTimeSeries(int dimension, string path) {
+    MatMatrix<float> mat;
+    std::ifstream inputFile(path + std::to_string(dimension) + "_arq_.txt");
+    std::string text;
+    std::string temp = "";
+    MatVector<float> output_vect;
+    while (!inputFile.eof()) {
+        getline(inputFile, text);
+        if (text.size() > 0) {
+            for (int i = 0; i < text.size(); i++) {
+                if (text[i] != '\t') {
+                    temp += text[i];
+                } else {
+                    output_vect.append(std::stof(temp));
+                    temp = "";
+                }
+            }
+        }
+        if (output_vect.size() > 0) {
+            mat.concatRows(output_vect);
+            output_vect.clear();
+        }
+    }
+    return mat;
+}
+
 MatMatrix<float> loadTestData(int tam) {
     MatMatrix<float> mat;
     std::ifstream inputFile("TestData/trueData_" + std::to_string(tam) + "_arq_0");
@@ -800,32 +827,29 @@ void loadTrueDataInMemory() {
 }
 
 void runTimeSeriesMotifDiscovery(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
-    //TO DO-----------
+    cout << "run Time Series Motif Discovery " << endl;
 
-    /*
     som->reset();
-    
     som->a_t = 0.702437;
-    //som->lp = params[i + 1];
     som->dsbeta = 0.0922593;
     som->e_b = 0.0595755;
     som->e_n = 0.247219;
     som->epsilon_ds = 0.0698139;
     som->minwd = 0.222785;
-    
-    cout << "f-" << "runTimeSeriesMotifDiscovery " << " e-" << experiment;
+    som->d_max = 2;
+
+
     //Faz o treinamento e teste para a quantidade de dimensões solicitadas com taxas
-    som->d_max = 6;
+
     for (int i = som->d_min; i <= som->d_max; i++) {
         //Taxa de true positive
-        MatMatrix<float> data = loadTrueData(i, fileNumber);
+        MatMatrix<float> data = loadInputDataFromTimeSeries(i, "input/FaceFour/Data/");
         clusteringSOM.setData(data);
         som->resetSize(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(1); // 1 - Epocs
-        som->saveSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(i));    
-
+        som->saveSOM("networks/TimeSeries/som_arq_TE_" + std::to_string(i));
+        cout << std::to_string(som->size());
     }
-     */
 }
 
 vector<string> splitString(string str, char delimiter) {
