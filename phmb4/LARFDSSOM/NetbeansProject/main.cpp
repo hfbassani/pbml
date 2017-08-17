@@ -85,16 +85,16 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     
     int numberOfParameters = 9;
     
-    for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
+    for (int i = 0 ; i < params.size() ; i += numberOfParameters) {
         som.a_t = params[i];
         som.lp = params[i + 1];
         som.dsbeta = params[i + 2];
         som.age_wins = params[i + 3];
         som.e_b = params[i + 4];
-        som.e_n = params[i + 5];
+        som.e_n = params[i + 5] * som.e_b;
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7];
-        int epocs = params[i + 8];
+        int epochs = params[i + 8];
         
         string index = to_string((i/numberOfParameters));
         

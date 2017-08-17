@@ -131,7 +131,6 @@ def plot_params_results(fileName, paramsToPlot = None):
             plt.title("Gamma {0} x H {1}".format(gammas[i], h_threshs[h_order[i]]))
             plt.plot(gammas, h, "-o", color='b', clip_on=False)
             
-            
             h_thresh_x = [gammas[0], gammas[len(gammas) - 1]]
             h_thresh_y = [h_threshs[h_order[i]]] * 2
             plt.plot(h_thresh_x, h_thresh_y, "-", color='r', clip_on=False)
