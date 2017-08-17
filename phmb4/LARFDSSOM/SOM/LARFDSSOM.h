@@ -58,7 +58,7 @@ public:
     uint maxNodeNumber;
     float minwd;
     float e_b;
-    float e_b0;
+    float e_n;
     int nodesCounter;
 
     TNumber dsbeta; //Taxa de aprendizagem
@@ -66,15 +66,9 @@ public:
     float age_wins;       //period to remove nodes
     float lp;           //remove percentage threshold
     float a_t;
-    
-    float gamma;
 
     int nodesLeft;
     int nodeID;
-    
-    vector<TNode *> ranks;
-    float h_threshold;
-    float tau;
 
     inline float activation(const TNode &node, const TVector &w) {
 
@@ -349,76 +343,43 @@ public:
         return *this;
     }
 
-    inline void updateRank(const TVector &w) {
-        
-        ranks.clear();
-        
-        for (it = Mesh<TNode>::meshNodeSet.begin(); it != Mesh<TNode>::meshNodeSet.end(); it++) {
-            TNode *node = (*it);
-            node->act = activation(*node, w);
-            insertInRank(node);
-        }
-    }
-    
-    inline void insertInRank(TNode *node) {
-    
-        vector<TNode*>::iterator i;
-        for (i=ranks.begin(); i != ranks.end(); i++) {
-            TNode* r = (*i);
-            if ( node->act > r->act ) break;
-        }
-        
-        ranks.insert(i, node);
-    }
-    
-    inline void learningDecay(int step) {
-        //TODO CHECK IF ITS CORRECT
-        int epoch = age_wins / step;
-        e_b = (e_b0)/(1 + tau * epoch); //Equacao (Nova e Estevez, 2013 Neural Comput&Applic)
-        if (e_b <= 0) 
-            e_b = 0.000001;
-    }
-    
     LARFDSSOM& updateMap(const TVector &w) {
 
         using namespace std;
         TNode *winner1 = 0;
 
-        updateRank(w);
+        //Passo 3 : encontra o nó vencedor
+        winner1 = getWinner(w); //winner
+        winner1->wins++;
         
-        //encontra o nó vencedor
-        winner1 = ranks.at(0);
-        winner1->wins += 1;
-        
+        //Passo 6: Calcula a atividade do nó vencedor
+        TNumber a = activation(*winner1, w); //DS activation
         //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
         //e o limite de nodos não tiver sido atingido
-        
-        if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
+
+        if ((a < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
             //dbgOut(2) << a << "\t<\t" << a_t << endl;
             //Cria um novo nodo no local do padrão observado
             TVector wNew(w);
             TNode *nodeNew = createNode(nodeID++, wNew);
             nodeNew->wins = 0;//step/meshNodeSet.size();
-            
+
             //Conecta o nodo
             updateConnections(nodeNew);
 
-        } else {
-            
-            for (int i = 0 ; i < ranks.size() ; ++i) {
-                float h = exp(- ((double) i / gamma));
-                
-                if (h < h_threshold) {
-                    break;
-                }
-                
-                TNode* node = ranks.at(i);
-                updateNode(*node, w, e_b * h);
-                
+        } else if (a >= a_t) { // caso contrário
+            // Atualiza o peso do vencedor
+            updateNode(*winner1, w, e_b);
+
+            //Passo 6.2: Atualiza o peso dos vizinhos
+            TPNodeConnectionMap::iterator it;
+            for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
+                TNode* node = it->first;
+                updateNode(*node, w, e_n);
             }
         }
 
-        //Se atingiu age_wins
+        //Passo 9:Se atingiu age_wins
         if (step >= age_wins) {
 
             int size = meshNodeSet.size();
@@ -427,9 +388,8 @@ public:
             dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
             //reseta o número de vitórias
             resetWins();
-            //Adiciona conexões entre nodos semelhantes
+            //Passo 8.2:Adiciona conexões entre nodos semelhantes
             updateAllConnections();
-//            learningDecay(step);
             step = 0;
         }
 
@@ -563,6 +523,7 @@ public:
 
         maxNodeNumber = 100;
         e_b = 0.05;
+        e_n = 0.0006;
         counter_i = 0;
         aloc_node = 0;
         aloc_con = 0;
@@ -647,6 +608,7 @@ public:
         file << maxNodeNumber << "\t";
         file << minwd << "\t";
         file << e_b << "\t";
+        file << e_n << "\t";
         file << dsbeta << "\t"; //Taxa de aprendizagem
         file << epsilon_ds << "\t"; //Taxa de aprendizagem
         file << age_wins << "\t";       //period to remove nodes
@@ -660,6 +622,7 @@ public:
         file >> maxNodeNumber;
         file >> minwd;
         file >> e_b;
+        file >> e_n;
         file >> dsbeta; //Taxa de aprendizagem
         file >> epsilon_ds; //Taxa de aprendizagem
         file >> age_wins;       //period to remove nodes
