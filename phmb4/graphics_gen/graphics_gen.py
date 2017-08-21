@@ -10,7 +10,7 @@ def plot_noise_graph (ce):
     ax.yaxis.grid()
     ax.set_xticklabels(noise_labels)
 
-    plt.title('CE Measure x Noise Percentage [LARFDSSOM]', fontsize=14)
+    plt.title('CE x Noise Percentage', fontsize=14)
     plt.plot(noise_values, ce, '-^', color='k', clip_on=False)
     plt.xticks(noise_values)
     plt.yticks(np.linspace(0, 1, num=11))
@@ -22,7 +22,7 @@ def plot_samples_graph (ce):
     fig, ax = plt.subplots()
     ax.yaxis.grid()
 
-    plt.title('CE Measure x Dataset Size [LARFDSSOM]', fontsize=12)
+    plt.title('CE x Dataset Size', fontsize=14)
     plt.plot(samples_size, ce, "-^", color='k', clip_on=False)
     plt.xticks(samples_size)
     plt.yticks(np.linspace(0, 1, num=11))
@@ -35,7 +35,7 @@ def plot_dimensions_graph (ce):
     ax.yaxis.grid()
     ax.set_xlim(5, 75)
 
-    plt.title('CE Measure x Number of Dimensions [LARFDSSOM]', fontsize=12)
+    plt.title('CE x Number of Dimensions', fontsize=14)
     plt.plot(x, ce, "-^", color='k', clip_on=False)
     plt.xticks(np.linspace(5, 75, num=8))
     plt.yticks(np.linspace(0, 1, num=11))
@@ -47,7 +47,7 @@ def plot_irrelevant_dims_graph (ce):
     fig, ax = plt.subplots()
     ax.yaxis.grid()
 
-    plt.title('CE Measure x Number of Number of Irrelevant Dimensions [LARFDSSOM]', fontsize=12)
+    plt.title('CE x Number of Irrelevant Dimensions', fontsize=14)
     plt.plot(irrelevant_dims_size, ce, "-^", color='k', clip_on=False)
     plt.xticks(irrelevant_dims_size)
     plt.yticks(np.linspace(0, 1, num=11))
@@ -58,9 +58,11 @@ def plot_x_y(x, y, title):
 
     fig, ax = plt.subplots()
     ax.yaxis.grid()
+    ax.set_ylim([0, 1])
 
     plt.title(title, fontsize=12)
     plt.plot(x, y, "o", color='b', clip_on=False)
+    plt.yticks(np.linspace(0, 1, num=11))
     plt.show()
 
 def plot_synthetic_data_graphs(fileName):
@@ -95,9 +97,10 @@ def plot_params_results(fileName, paramsToPlot = None):
         paramsToPlot = params.columns
         
     indexes = np.linspace(0, len(params[paramsToPlot[0]]), num=21)
-    indexes[0] = indexes[0] + 1 
+    indexes = indexes + 1 
 #    indexes = [169, 4, 55, 24, 75, 9, 97, 83, 191, 62, 59, 1, 159, 56]
 #    indexes = [169, 4, 55, 24, 75, 9, 97, 83, 62, 59, 166, 56]
+#    indexes = [303, 487, 17, 94, 49, 19, 410, 295, 365, 84, 291, 438, 121]
     
     gammas = []
     h_threshs = []
@@ -127,22 +130,26 @@ def plot_params_results(fileName, paramsToPlot = None):
             
             fig, ax = plt.subplots()
             ax.yaxis.grid()
-    
-            plt.title("Gamma {0} x H {1}".format(gammas[i], h_threshs[h_order[i]]))
-            plt.plot(gammas, h, "-o", color='b', clip_on=False)
+            ax.set_ylim([0, 1])
+            ax.set_xlim([1, len(gammas)])
             
-            h_thresh_x = [gammas[0], gammas[len(gammas) - 1]]
+            h_thresh_x = [1, len(gammas)]
             h_thresh_y = [h_threshs[h_order[i]]] * 2
             plt.plot(h_thresh_x, h_thresh_y, "-", color='r', clip_on=False)
             
-            plt.yticks(np.linspace(0, 1, num=21))
+            plt.title("Gamma {0} x H {1}".format(gammas[i], h_threshs[h_order[i]]), fontsize=14)
+            plt.plot(np.linspace(1, len(gammas), num=len(gammas)), h, "-o", color='b', clip_on=False)
+            plt.xticks(np.arange(1, len(gammas) + 1))
+            
+            
+            plt.yticks(np.linspace(0, 1, num=11))
             plt.show()
     
             
-fileName = "../outputMetrics/v1_new_nn__at_g0109_h000104.csv"
+fileName = "../outputMetrics/v4_new_nn_g014_h000108.csv"
 
 plot_synthetic_data_graphs(fileName=fileName)
 
-paramsToPlot = ["a_t"]
+paramsToPlot = ["gamma", "h_threshold"]
 plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot)
 
