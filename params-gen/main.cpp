@@ -90,7 +90,7 @@ void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileNam
     std::ofstream file;
     file.open(fileName.c_str());
 
-    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
+    for (params->initLHS(qtdParameters, time(NULL)) ; !params->finished(); params->setNextValues()) {
         file << params->a_t.value << "\n";
         file << params->lp << "\n";
         file << params->dsbeta << "\n";
@@ -109,7 +109,7 @@ void createParametersFileExperiments(MyParameters * params, string fileName, int
     std::ofstream file;
     file.open(fileName.c_str());
 
-    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
+    for (params->initLHS(qtdParameters, time(NULL)) ; !params->finished(); params->setNextValues()) {
         file << params->a_t.value << "\n";
         file << params->lp << "\n";
         file << params->dsbeta << "\n";
