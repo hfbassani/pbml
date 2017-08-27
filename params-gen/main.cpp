@@ -89,6 +89,8 @@ std::vector<float> loadParametersFile(string fileName) {
 void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters) {
     std::ofstream file;
     file.open(fileName.c_str());
+    
+    cout << "createParametersFileOriginalLARFDSSOM" << endl;
 
     for (params->initLHS(qtdParameters, time(NULL)) ; !params->finished(); params->setNextValues()) {
         file << params->a_t.value << "\n";

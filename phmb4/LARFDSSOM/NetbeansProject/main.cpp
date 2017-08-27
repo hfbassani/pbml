@@ -85,7 +85,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     
     int numberOfParameters = 9;
     
-    for (int i = 0 ; i < params.size() ; i += numberOfParameters) {
+    for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         som.a_t = params[i];
         som.lp = params[i + 1];
         som.dsbeta = params[i + 2];
