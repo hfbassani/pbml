@@ -20,6 +20,7 @@ class MyParameters : public LHSParameters {
 public:
 
     Parameter<int> N;
+    Parameter<bool> real;
     LHSParameter a_t;
     LHSParameter lp;
     LHSParameter dsbeta;
@@ -54,17 +55,29 @@ public:
 
         //Set default ranges and values
         N = 150;
-        a_t.setRange(0.90, 0.999) = 0.9;
-        lp.setRange(0.0001, 0.1) = 0.0001;
-        dsbeta.setRange(0.0001, 0.5) = 0.0001;
-        age_wins.setRange(1, 100) = 1;
-        e_b.setRange(0.0001, 0.01) = 0.0001;
-        e_n.setRange(0.001, 0.1) = 0.001;
-        epsilon_ds.setRange(0.01, 0.05) = 0.01;
-        minwd.setRange(0, 0.5) = 0;
+        if (real) {
+            a_t.setRange(0.70, 0.999) = 0.9;
+            lp.setRange(0.01, 0.1) = 0.01;
+            dsbeta.setRange(0.001, 0.5) = 0.001;
+            age_wins.setRange(1, 100) = 1;
+            e_b.setRange(0.0001, 0.01) = 0.0001;
+            e_n.setRange(0.002, 1.0) = 0.002;
+            epsilon_ds.setRange(0.01, 0.1) = 0.01;
+            minwd.setRange(0.001, 0.5) = 0.001;
+        } else {
+            a_t.setRange(0.90, 0.999) = 0.9;
+            lp.setRange(0.0001, 0.1) = 0.0001;
+            dsbeta.setRange(0.0001, 0.5) = 0.0001;
+            age_wins.setRange(1, 100) = 1;
+            e_b.setRange(0.0001, 0.01) = 0.0001;
+            e_n.setRange(0.001, 0.1) = 0.001;
+            epsilon_ds.setRange(0.01, 0.05) = 0.01;
+            minwd.setRange(0, 0.5) = 0;
+        }
+        
         epochs.setRange(1, 100) = 100;
-        gamma.setRange(0.2, 0.85) = 0.2;
-        h_threshold.setRange(0.04, 0.35) = 0.04;
+        gamma.setRange(0.14, 4.0) = 0.14;
+        h_threshold.setRange(0.001, 0.8) = 0.001;
         tau.setRange(0.00001, 0.01) = 0.00001;
 
         //Add parameters to latin hypercube sampling:
