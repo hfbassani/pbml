@@ -16,14 +16,13 @@
 
 using namespace std;
 
-void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters, bool simulated);
-void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters, bool simulated);
+void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters);
+void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters);
 
 std::vector<float> loadParametersFile(int number);
 
 int main(int argc, char** argv) {
 
-    MyParameters params; //Teste de Parâmetros
     string filename = "";
     int qtd_files = 1;
     int qtd_parameter = 0;
@@ -64,11 +63,13 @@ int main(int argc, char** argv) {
     
     srand(time(NULL));
     
+    MyParameters params(!simulatedData); //Teste de Parâmetros
+    
     for (int i = 0 ; i < qtd_files ; ++i) {
         if (originalVersion) {
-            createParametersFileOriginalLARFDSSOM(&params, filename + "_" + std::to_string(i), qtd_parameter, simulatedData);   
+            createParametersFileOriginalLARFDSSOM(&params, filename + "_" + std::to_string(i), qtd_parameter);   
         } else {
-            createParametersFileExperiments(&params, filename + "_" + std::to_string(i), qtd_parameter, simulatedData);
+            createParametersFileExperiments(&params, filename + "_" + std::to_string(i), qtd_parameter);
         }
     }
         
@@ -92,12 +93,11 @@ std::vector<float> loadParametersFile(string fileName) {
     return params;
 }
 
-void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters, bool simulated) {
+void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters) {
     std::ofstream file;
     file.open(fileName.c_str());
     
     cout << "createParametersFileOriginalLARFDSSOM" << endl;
-    params->real = !simulated;
     
     for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
         file << params->a_t.value << "\n";
@@ -114,12 +114,11 @@ void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileNam
     file.close();
 }
 
-void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters, bool simulated) {
+void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters) {
     std::ofstream file;
     file.open(fileName.c_str());
 
     cout << "createParametersFileExperiments" << endl;
-    params->real = !simulated;
     
     for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
         file << params->a_t.value << "\n";

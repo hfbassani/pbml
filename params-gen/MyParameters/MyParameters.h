@@ -20,7 +20,6 @@ class MyParameters : public LHSParameters {
 public:
 
     Parameter<int> N;
-    Parameter<bool> real;
     LHSParameter a_t;
     LHSParameter lp;
     LHSParameter dsbeta;
@@ -34,7 +33,7 @@ public:
     LHSParameter h_threshold;
     LHSParameter tau;
 
-    MyParameters() {
+    MyParameters(bool real) {
         comments = "Test float Parameters";
         section = "VILARFDSSOM Parameters";
 
