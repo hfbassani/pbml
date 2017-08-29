@@ -61,7 +61,9 @@ int main(int argc, char** argv) {
         cout << "option -f [filename] [-n number of files]-r [number of sets] is required" << endl;
         return -1;
     }
-
+    
+    srand(time(NULL));
+    
     for (int i = 0 ; i < qtd_files ; ++i) {
         if (originalVersion) {
             createParametersFileOriginalLARFDSSOM(&params, filename + "_" + std::to_string(i), qtd_parameter, simulatedData);   
@@ -97,7 +99,7 @@ void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileNam
     cout << "createParametersFileOriginalLARFDSSOM" << endl;
     params->real = !simulated;
     
-    for (params->initLHS(qtdParameters, time(NULL)) ; !params->finished(); params->setNextValues()) {
+    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
         file << params->a_t.value << "\n";
         file << params->lp << "\n";
         file << params->dsbeta << "\n";
@@ -119,7 +121,7 @@ void createParametersFileExperiments(MyParameters * params, string fileName, int
     cout << "createParametersFileExperiments" << endl;
     params->real = !simulated;
     
-    for (params->initLHS(qtdParameters, time(NULL)) ; !params->finished(); params->setNextValues()) {
+    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
         file << params->a_t.value << "\n";
         file << params->lp << "\n";
         file << params->dsbeta << "\n";
