@@ -37,7 +37,8 @@ public:
 
     typedef GDSConnectionMW TConnection;
     typedef std::map<GDSNodeMW*, TConnection*> TPNodeConnectionMap; //Para mapeamento local dos n�s e conex�es ligadas a this
-
+    
+    TNumber nodeLife;
     int wins;
     TPNodeConnectionMap nodeMap;
     TNumber act;
@@ -69,6 +70,8 @@ public:
 
     int nodesLeft;
     int nodeID;
+    
+    TPNodeSet deadNodeSet;
 
     inline float activation(const TNode &node, const TVector &w) {
 
@@ -351,7 +354,9 @@ public:
         //Passo 3 : encontra o nó vencedor
         winner1 = getWinner(w); //winner
         winner1->wins++;
+        winner1->nodeLife = 1.0;
         
+        bool hasDeadNodes = false;
         //Passo 6: Calcula a atividade do nó vencedor
         TNumber a = activation(*winner1, w); //DS activation
         //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
@@ -363,6 +368,7 @@ public:
             TVector wNew(w);
             TNode *nodeNew = createNode(nodeID++, wNew);
             nodeNew->wins = 0;//step/meshNodeSet.size();
+            nodeNew->nodeLife = 1.0;
 
             //Conecta o nodo
             updateConnections(nodeNew);
@@ -375,17 +381,30 @@ public:
             TPNodeConnectionMap::iterator it;
             for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
                 TNode* node = it->first;
-                updateNode(*node, w, e_n);
+                node->nodeLife -= 0.1;
+                
+                if (node->nodeLife > 0) {
+                    updateNode(*node, w, e_n);
+                } else {
+                    hasDeadNodes = true;
+                    deadNodeSet.insert(node);
+                }
+            }
+            
+            if (hasDeadNodes) {
+                TPNodeSet::iterator itMesh = deadNodeSet.begin();
+                while (itMesh != deadNodeSet.end()) {
+                    eraseNode((*itMesh));
+                    itMesh++;
+                }
+                
+                deadNodeSet.clear();
+                hasDeadNodes = false;
             }
         }
 
         //Passo 9:Se atingiu age_wins
         if (step >= age_wins) {
-
-            int size = meshNodeSet.size();
-            //remove os perdedores
-            removeLoosers();
-            dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
             //reseta o número de vitórias
             resetWins();
             //Passo 8.2:Adiciona conexões entre nodos semelhantes
