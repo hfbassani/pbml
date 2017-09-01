@@ -381,7 +381,7 @@ public:
             TPNodeConnectionMap::iterator it;
             for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
                 TNode* node = it->first;
-                node->nodeLife -= 0.1;
+                node->nodeLife -= lp;
                 
                 if (node->nodeLife > 0) {
                     updateNode(*node, w, e_n);
