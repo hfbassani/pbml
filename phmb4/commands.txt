@@ -1,4 +1,4 @@
-java -jar ClusteringAnalysis.jar “CE” “inputFiles/noise/“ “LARFDSSOM/NetbeansProject/results/“ “outputMetrics/“ -n “inputFiles/parametersName.txt” -p “LARFDSSOM/NetbeansProject/Parametersg0106h00405” -r 100
+java -jar ClusteringAnalysis.jar CE ../../Datasets/Simulated/noise ../../phmb4/LARFDSSOM/NetbeansProject/results/ ../outputMetrics/ -n ../../phmb4/Parameters/parametersNameOrig -p ../../phmb4/Parameters/ParamsOrigSim150 -r 150
 
 ./larfdssom -I inputPaths -n fileNames -r results/ -p ParametersTAU
 

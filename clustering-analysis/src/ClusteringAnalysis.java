@@ -123,6 +123,7 @@ public class ClusteringAnalysis {
     }
 
     public static void runTests(String inputPath, String resultsPath) {
+
         inputsDirectory = checkDirectory(inputPath);
         if(inputsDirectory == null) {
             System.out.println("Directory not found: " + inputPath);
@@ -148,8 +149,6 @@ public class ClusteringAnalysis {
                 dataFile = inputPath + filename;
                 trueClustersFile = inputPath + removeExtension(filename) + ".true";
 
-                System.out.println("dataFile: " + dataFile);
-                System.out.println("trueClustersFile: " + trueClustersFile);
 
                 Instances dataInstances = null;
                 try {
@@ -201,14 +200,10 @@ public class ClusteringAnalysis {
                     outputLines.add(output);
                     System.out.println(output);
                 }
-
             }
         }
 
         createFullCSV(measureNames, values, bestValues, indexes, means);
-
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime());
-        saveFile(outputLines, outputDir + timeStamp + "_results.txt");
     }
 
     public static void createFullCSV(String[] measureNames, ArrayList<ArrayList<Double>> measures,
