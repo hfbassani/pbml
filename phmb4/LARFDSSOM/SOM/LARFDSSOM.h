@@ -38,6 +38,7 @@ public:
     typedef GDSConnectionMW TConnection;
     typedef std::map<GDSNodeMW*, TConnection*> TPNodeConnectionMap; //Para mapeamento local dos n�s e conex�es ligadas a this
 
+    TNumber nodeLife;
     int wins;
     TPNodeConnectionMap nodeMap;
     TNumber act;
@@ -72,6 +73,7 @@ public:
     int nodesLeft;
     int nodeID;
     
+    TPNodeSet deadNodeSet;
     vector<TNode *> ranks;
     float h_threshold;
     float tau;
@@ -388,10 +390,13 @@ public:
         
         //encontra o nó vencedor
         winner1 = ranks.at(0);
-        winner1->wins += 1;
+        winner1->wins++;
+        winner1->nodeLife = 1.0 + lp;
         
         //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
         //e o limite de nodos não tiver sido atingido
+        
+        bool hasDeadNodes = false;
         
         if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
             //dbgOut(2) << a << "\t<\t" << a_t << endl;
@@ -399,6 +404,7 @@ public:
             TVector wNew(w);
             TNode *nodeNew = createNode(nodeID++, wNew);
             nodeNew->wins = 0;//step/meshNodeSet.size();
+            nodeNew->nodeLife = 1.0;
             
             //Conecta o nodo
             updateConnections(nodeNew);
@@ -408,23 +414,34 @@ public:
             for (int i = 0 ; i < ranks.size() ; ++i) {
                 float h = exp(- ((double) i / gamma));
                 
-                if (h < h_threshold) {
-                    break;
+                TNode* node = ranks.at(i);
+                
+                if (h >= h_threshold) {
+                    updateNode(*node, w, e_b * h);
                 }
                 
-                TNode* node = ranks.at(i);
-                updateNode(*node, w, e_b * h);
+                node->nodeLife -= lp;
+                if (node->nodeLife <= 0) {
+                    hasDeadNodes = true;
+                    deadNodeSet.insert(node);
+                }
+            }
+            
+            if (hasDeadNodes) {
+                TPNodeSet::iterator itMesh = deadNodeSet.begin();
+                while (itMesh != deadNodeSet.end()) {
+                    eraseNode((*itMesh));
+                    itMesh++;
+                }
                 
+                deadNodeSet.clear();
+                hasDeadNodes = false;
             }
         }
 
         //Se atingiu age_wins
         if (step >= age_wins) {
 
-            int size = meshNodeSet.size();
-            //remove os perdedores
-            removeLoosers();
-            dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
             //reseta o número de vitórias
             resetWins();
             //Adiciona conexões entre nodos semelhantes
