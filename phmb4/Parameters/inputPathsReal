@@ -1,7 +1,7 @@
-../../Datasets/Realdata/breast.arff
-../../Datasets/Realdata/diabetes.arff
-../../Datasets/Realdata/glass.arff
-../../Datasets/Realdata/liver.arff
-../../Datasets/Realdata/pendigits.arff
-../../Datasets/Realdata/shape.arff
-../../Datasets/Realdata/vowel.arff
+../../../Datasets/Realdata/breast.arff
+../../../Datasets/Realdata/diabetes.arff
+../../../Datasets/Realdata/glass.arff
+../../../Datasets/Realdata/liver.arff
+../../../Datasets/Realdata/pendigits.arff
+../../../Datasets/Realdata/shape.arff
+../../../Datasets/Realdata/vowel.arff
