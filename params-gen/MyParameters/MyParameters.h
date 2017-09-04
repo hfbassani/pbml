@@ -55,7 +55,7 @@ public:
         //Set default ranges and values
         N = 150;
         if (real) {
-            a_t.setRange(0.70, 0.999) = 0.9;
+            a_t.setRange(0.70, 0.999) = 0.70;
             lp.setRange(0.01, 0.1) = 0.01;
             dsbeta.setRange(0.001, 0.5) = 0.001;
             age_wins.setRange(1, 100) = 1;
