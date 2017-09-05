@@ -132,11 +132,6 @@ public:
     {
         meshNodeSet.erase(node);
 
-        typename TPNodeConnectionMap::iterator it;
-        for (it = node->nodeMap.begin(); it != node->nodeMap.end(); it++) {
-            disconnect(node, (*it).first);
-        }
-
         delete node;
         aloc_node--; //Destroi a conex�o entre os dois n�s.
         node = 0;
