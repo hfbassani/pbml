@@ -218,7 +218,7 @@ public:
 
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
         while (itMesh != meshNodeSet.end()) {
-            if (meshNodeSet.size()<2)
+            if (meshNodeSet.size()< 2)
                 break;
 
             if ((*itMesh)->wins < step*lp) {
@@ -399,9 +399,6 @@ public:
             TVector wNew(w);
             TNode *nodeNew = createNode(nodeID++, wNew);
             nodeNew->wins = 0;//step/meshNodeSet.size();
-            
-            //Conecta o nodo
-            updateConnections(nodeNew);
 
         } else {
             
@@ -427,8 +424,7 @@ public:
             dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
             //reseta o número de vitórias
             resetWins();
-            //Adiciona conexões entre nodos semelhantes
-            updateAllConnections();
+            
 //            learningDecay(step);
             step = 0;
         }
