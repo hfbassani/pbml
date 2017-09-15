@@ -177,8 +177,14 @@ int main(int argc, char** argv) {
     //cout << "Loading True data in Memory..." << endl;
     //loadTrueDataInMemory();
     cout << "Running test" << endl;
+    
     runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
-    //createInputDataFromTimeSeries(2, "input/FaceFour/FaceFour_TEST");
+    //for (int i = 2 ; i <= 1500/2; i++ ){
+    //   createInputDataFromTimeSeries(i, "/home/raphael/git/pbml/Datasets/Gun_Point/OriginalData_subdivided/Gun_Point_0.txt");
+    //}
+        
+    
+    
     //learningTest(&som, clusteringSOM, dssom, featuresDict, outputM);
 
     /*///////Gerando os arquivos na mão
@@ -615,7 +621,7 @@ MatMatrix<float> loadTrueData(int tam, int fileNumber) {
 
 MatMatrix<float> loadInputDataFromTimeSeries(int dimension, string path) {
     MatMatrix<float> mat;
-    std::ifstream inputFile(path + std::to_string(dimension) + "_arq_.txt");
+    std::ifstream inputFile(path + std::to_string(dimension) + "_arq_0.txt");
     std::string text;
     std::string temp = "";
     MatVector<float> output_vect;
@@ -836,20 +842,21 @@ void runTimeSeriesMotifDiscovery(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
     som->e_n = 0.247219;
     som->epsilon_ds = 0.0698139;
     som->minwd = 0.222785;
-    som->d_max = 2;
+    som->d_max = 1500/2;
 
 
     //Faz o treinamento e teste para a quantidade de dimensões solicitadas com taxas
 
     for (int i = som->d_min; i <= som->d_max; i++) {
         //Taxa de true positive
-        MatMatrix<float> data = loadInputDataFromTimeSeries(i, "input/FaceFour/Data/");
+        MatMatrix<float> data = loadInputDataFromTimeSeries(i, "/home/raphael/git/pbml/Datasets/Gun_Point/OriginalData_subdivided/");
         clusteringSOM.setData(data);
         som->resetSize(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(1); // 1 - Epocs
-        som->saveSOM("networks/TimeSeries/som_arq_TE_" + std::to_string(i));
-        cout << std::to_string(som->size());
+        //som->saveSOM("networks/TimeSeries/som_arq_TE_" + std::to_string(i));
+        cout << "som->size() = " << std::to_string(som->size()) << " D = " << std::to_string(i) << endl;
     }
+    som->saveSOM("networks/TimeSeries/som_arq_0");
 }
 
 vector<string> splitString(string str, char delimiter) {
@@ -866,7 +873,6 @@ vector<string> splitString(string str, char delimiter) {
 
 void createInputDataFromTimeSeries(int dimension, string path) {
     std::ifstream file(path);
-    //"input/FaceFour/FaceFour_TEST"
     string text;
     FeaturesVector featuresVector;
     std::vector<FeaturesVector> vectorData;
@@ -891,7 +897,7 @@ void createInputDataFromTimeSeries(int dimension, string path) {
     }
     vectorData.push_back(featuresVector);
     createInputData(vectorData, dimension, data, groupLabels, groups);
-    string name_true = std::to_string(dimension) + "_arq_.txt";
+    string name_true = "/home/raphael/git/pbml/Datasets/Gun_Point/OriginalData_subdivided/" + std::to_string(dimension) + "_arq_0.txt";
     std::ofstream file_out;
     file_out.open(name_true.c_str());
 
