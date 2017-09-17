@@ -58,8 +58,8 @@ OBJECTFILES= \
 CFLAGS=-m64
 
 # CC Compiler Flags
-CCFLAGS=-m64 -m64 -g
-CXXFLAGS=-m64 -m64 -g
+CCFLAGS=-m64 -m64 -g -Wno-comment
+CXXFLAGS=-m64 -m64 -g -Wno-comment
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -76,7 +76,7 @@ LDLIBSOPTIONS=
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/larfdssom: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/larfdssom ${OBJECTFILES} ${LDLIBSOPTIONS} -m64
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/larfdssom ${OBJECTFILES} ${LDLIBSOPTIONS} -m64 -L/usr/X11/lib -static-libstdc++
 
 ${OBJECTDIR}/_ext/631c6e9c/ArffData.o: ../../../Libs/Data/ArffData.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/631c6e9c
