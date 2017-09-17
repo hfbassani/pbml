@@ -58,8 +58,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=
-CXXFLAGS=
+CCFLAGS=-Wno-comment
+CXXFLAGS=-Wno-comment
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -76,7 +76,7 @@ LDLIBSOPTIONS=
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/netbeansproject: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/netbeansproject ${OBJECTFILES} ${LDLIBSOPTIONS}
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/netbeansproject ${OBJECTFILES} ${LDLIBSOPTIONS} -L/usr/X11/lib -static-libstdc++
 
 ${OBJECTDIR}/_ext/631c6e9c/ArffData.o: ../../../Libs/Data/ArffData.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/631c6e9c
