@@ -79,7 +79,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
     
     ClusteringMeshSOM clusteringSOM(dssom);
-    clusteringSOM.readFile(filePath);
+    clusteringSOM.readFile(filePath, true);
     clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
     clusteringSOM.setFilterNoise(isFilterNoise);    
     

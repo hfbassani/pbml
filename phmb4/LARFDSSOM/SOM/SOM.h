@@ -114,7 +114,24 @@ public:
     SOM& trainning(int N = 1) {
         for (int i=0; i<N; i++)
             trainningStep();
+                
+        return *this;
+    }
+    
+    SOM& orderedTrainning(int N = 1, std::vector<int> order = NULL) {
+        int row = 0;
         
+        for (int i=0; i<N; i++) {
+            trainningStep(row);
+            
+            if (row == data.rows() - 1) {
+                row = 0;
+                continue;
+            }
+            row++;
+            
+        }
+                
         return *this;
     }
     
@@ -123,6 +140,16 @@ public:
         int vindex = rand()%data.rows();
         for (uint l = 0; l < data.cols(); l++)
                 v[l] = data[vindex][l];
+        
+        updateMap(v);
+        
+        return *this;
+    }
+    
+    SOM& trainningStep(int row) {
+        TVector v(data.cols());
+        for (uint l = 0; l < data.cols(); l++)
+                v[l] = data[row][l];
         
         updateMap(v);
         
