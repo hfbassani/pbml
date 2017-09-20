@@ -58,6 +58,7 @@ void runTimeSeriesMotifDiscovery(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
 vector<string> splitString(string str, char delimiter);
 void createInputDataFromTimeSeries(int dimension, string path);
 MatMatrix<float> loadInputDataFromTimeSeries(int dimension, string path);
+MatMatrix<float> createOneInputDataFromTimeSeries(int dimension, string path);
 
 std::vector<MatMatrix<float> > v_false[100]; //Vector of true data
 std::vector<MatMatrix<float> > v_true[100]; //Vector of false data
@@ -177,14 +178,14 @@ int main(int argc, char** argv) {
     //cout << "Loading True data in Memory..." << endl;
     //loadTrueDataInMemory();
     cout << "Running test" << endl;
-    
+
+
+
     runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
-    //for (int i = 2 ; i <= 1500/2; i++ ){
-    //   createInputDataFromTimeSeries(i, "/home/raphael/git/pbml/Datasets/Gun_Point/OriginalData_subdivided/Gun_Point_0.txt");
-    //}
-        
     
-    
+      
+
+
     //learningTest(&som, clusteringSOM, dssom, featuresDict, outputM);
 
     /*///////Gerando os arquivos na mão
@@ -842,14 +843,14 @@ void runTimeSeriesMotifDiscovery(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
     som->e_n = 0.247219;
     som->epsilon_ds = 0.0698139;
     som->minwd = 0.222785;
-    som->d_max = 1500/2;
-
+    som->d_max = 2;
+    
 
     //Faz o treinamento e teste para a quantidade de dimensões solicitadas com taxas
 
     for (int i = som->d_min; i <= som->d_max; i++) {
         //Taxa de true positive
-        MatMatrix<float> data = loadInputDataFromTimeSeries(i, "/home/raphael/git/pbml/Datasets/Gun_Point/OriginalData_subdivided/");
+        MatMatrix<float> data = createOneInputDataFromTimeSeries(i, "/home/raphael/git/pbml/Datasets/Gun_Point/TRAIN/Gun_Point_TRAIN");
         clusteringSOM.setData(data);
         som->resetSize(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(1); // 1 - Epocs
@@ -897,7 +898,7 @@ void createInputDataFromTimeSeries(int dimension, string path) {
     }
     vectorData.push_back(featuresVector);
     createInputData(vectorData, dimension, data, groupLabels, groups);
-    string name_true = "/home/raphael/git/pbml/Datasets/Gun_Point/OriginalData_subdivided/" + std::to_string(dimension) + "_arq_0.txt";
+    string name_true = "/home/raphael/git/pbml/Datasets/Gun_Point/TRAIN/D-" + std::to_string(dimension) + "_arq_train.txt";
     std::ofstream file_out;
     file_out.open(name_true.c_str());
 
@@ -908,4 +909,33 @@ void createInputDataFromTimeSeries(int dimension, string path) {
         file_out << "\n";
     }
     file_out.close();
+}
+
+MatMatrix<float> createOneInputDataFromTimeSeries(int dimension, string path) {
+    std::ifstream file(path);
+    string text;
+    FeaturesVector featuresVector;
+    std::vector<FeaturesVector> vectorData;
+    MatMatrix<float> data;
+    std::vector<int> groups;
+    std::map<int, int> groupLabels;
+    while (!file.eof()) {
+
+        getline(file, text);
+        vector<string> tempVector = splitString(text, ',');
+        if (tempVector.size() < 1) {
+            cout << text;
+        }
+        for (int i = 1; i < tempVector.size(); i++) {
+            Features features;
+            float number = std::stof(tempVector[i]);
+            features.append(number);
+            featuresVector.concatCols(features);
+        }
+
+
+    }
+    vectorData.push_back(featuresVector);
+    createInputData(vectorData, dimension, data, groupLabels, groups);
+    return data;
 }
