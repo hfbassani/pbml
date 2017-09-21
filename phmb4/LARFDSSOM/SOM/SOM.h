@@ -118,17 +118,26 @@ public:
         return *this;
     }
     
-    SOM& orderedTrainning(int N = 1, std::vector<int> order = NULL) {
-        int row = 0;
+    SOM& orderedTrainning(int N = 1, std::vector<int> order = NULL, std::vector<int> orderLenghts = NULL) {
+        int totalLen = 0, group = 0, counter = 0;
         
         for (int i=0; i<N; i++) {
-            trainningStep(row);
-            
-            if (row == data.rows() - 1) {
-                row = 0;
+            int vindex = rand()%(totalLen + orderLenghts[group] - totalLen) + totalLen;
+            trainningStep(vindex);
+                        
+            if (counter == orderLenghts[group]) {
+                counter = 0;
+                
+                if (group < orderLenghts.size() - 1) {
+                    totalLen += orderLenghts[group];
+                    group++;
+                } else {
+                    totalLen = 0;
+                    group = 0;
+                }
                 continue;
             }
-            row++;
+            counter++;
             
         }
                 

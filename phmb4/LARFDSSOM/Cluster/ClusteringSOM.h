@@ -909,7 +909,7 @@ public:
         if (orderedGroups.empty()) {
             som->trainning(N);
         } else {
-            som->orderedTrainning(N, orderedGroups);
+            som->orderedTrainning(N, orderedGroups, orderedGroupsSizes);
         }
     }
     
