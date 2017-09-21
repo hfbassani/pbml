@@ -354,15 +354,12 @@ public:
         //Passo 3 : encontra o nó vencedor
         winner1 = getWinner(w); //winner
         winner1->wins++;
-        winner1->nodeLife = 1.0;
+        winner1->act = activation(*winner1, w);
         
-        bool hasDeadNodes = false;
-        //Passo 6: Calcula a atividade do nó vencedor
-        TNumber a = activation(*winner1, w); //DS activation
         //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
         //e o limite de nodos não tiver sido atingido
 
-        if ((a < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
+        if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
             //dbgOut(2) << a << "\t<\t" << a_t << endl;
             //Cria um novo nodo no local do padrão observado
             TVector wNew(w);
@@ -373,7 +370,35 @@ public:
             //Conecta o nodo
             updateConnections(nodeNew);
 
-        } else if (a >= a_t) { // caso contrário
+        } else if (winner1->act >= a_t) { // caso contrário
+            
+            for (it = Mesh<TNode>::meshNodeSet.begin(); it != Mesh<TNode>::meshNodeSet.end(); it++) {
+                TNode *node = (*it);
+                node->act = activation(*node, w);
+
+                if (node->act >= a_t) {
+                    node->nodeLife -= lp;
+                    
+                    winner1->nodeLife = 1.0;
+
+                    if (node->nodeLife <= 0) {
+                        deadNodeSet.insert(node);
+                    }
+                }
+            }
+            
+            winner1->nodeLife = 1.0;
+            
+            if (deadNodeSet.size() > 0) {
+                TPNodeSet::iterator itMesh = deadNodeSet.begin();
+                while (itMesh != deadNodeSet.end()) {
+                    eraseNode((*itMesh));
+                    itMesh++;
+                }
+
+                deadNodeSet.clear();
+            }
+            
             // Atualiza o peso do vencedor
             updateNode(*winner1, w, e_b);
 
@@ -381,33 +406,12 @@ public:
             TPNodeConnectionMap::iterator it;
             for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
                 TNode* node = it->first;
-                node->nodeLife -= lp;
-                
-                if (node->nodeLife > 0) {
-                    updateNode(*node, w, e_n);
-                } else {
-                    hasDeadNodes = true;
-                    deadNodeSet.insert(node);
-                }
-            }
-            
-            if (hasDeadNodes) {
-                TPNodeSet::iterator itMesh = deadNodeSet.begin();
-                while (itMesh != deadNodeSet.end()) {
-                    eraseNode((*itMesh));
-                    itMesh++;
-                }
-                
-                deadNodeSet.clear();
-                hasDeadNodes = false;
+                updateNode(*node, w, e_n);
             }
         }
-
+        
         //Passo 9:Se atingiu age_wins
         if (step >= age_wins) {
-            //reseta o número de vitórias
-            resetWins();
-            //Passo 8.2:Adiciona conexões entre nodos semelhantes
             updateAllConnections();
             step = 0;
         }
@@ -467,7 +471,7 @@ public:
         TNumber temp = 0;
         TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
         winner = (*Mesh<TNode>::meshNodeSet.begin());
-
+        
         TPNodeSet::iterator it;
         it = Mesh<TNode>::meshNodeSet.begin();
         it++;
