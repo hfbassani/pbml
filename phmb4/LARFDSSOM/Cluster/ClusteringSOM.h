@@ -12,6 +12,7 @@
 #include <map>
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
 #include "ArffData.h"
 #include "MatVector.h"
 
@@ -28,6 +29,8 @@ public:
     MatMatrix<float> *trainingData;
     bool allocated;
     std::vector<int> groups;
+    std::vector<int> orderedGroupsSizes; 
+    std::vector<int> orderedGroups;
     std::map<int, int> groupLabels; 
 
     bool isSubspaceClustering;
@@ -96,7 +99,7 @@ public:
         groupLabels.clear();
     }
 
-    bool readFile(const std::string &filename) {
+    bool readFile(const std::string &filename, bool order) {
 
         if (trainingData==NULL && !allocated) {
             trainingData = new MatMatrix<float>();
@@ -104,8 +107,24 @@ public:
         }
         
         if (ArffData::readArff(filename, *trainingData, groupLabels, groups)) {
-                ArffData::rescaleCols01(*trainingData);
-                return true;
+            
+            if (order) {
+                for (std::map<int,int>::iterator it = groupLabels.begin(); it != groupLabels.end(); ++it) {
+                    int class_value = it->first;
+                    int prevSize = orderedGroups.size();
+                    
+                    for (int i = 0 ; i < groups.size() ; ++i) {
+                        if (groups[i] == class_value) {
+                            orderedGroups.push_back(i);
+                        }
+                    }
+                    
+                    orderedGroupsSizes.push_back(orderedGroups.size() - prevSize);
+                }
+            }
+            
+            ArffData::rescaleCols01(*trainingData);
+            return true;
         }
         return false;
     }
@@ -886,7 +905,12 @@ public:
 
     void train(MatMatrix<float> &trainingData, int N) {
         som->data = trainingData;
-        som->trainning(N);
+        
+        if (orderedGroups.empty()) {
+            som->trainning(N);
+        } else {
+            som->orderedTrainning(N, orderedGroups, orderedGroupsSizes);
+        }
     }
     
     void getRelevances(int node_i, MatVector<float> &relevances) {

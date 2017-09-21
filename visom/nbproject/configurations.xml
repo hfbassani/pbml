@@ -263,9 +263,24 @@
       <compileType>
         <cTool>
           <developmentMode>5</developmentMode>
+          <commandLine>-std=c++0x</commandLine>
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>../Libs/ART</pElem>
+            <pElem>../Libs/CImg</pElem>
+            <pElem>../Libs/Cluster</pElem>
+            <pElem>../Libs/Data</pElem>
+            <pElem>../Libs/Debug</pElem>
+            <pElem>../Libs/Defines</pElem>
+            <pElem>../Libs/Language</pElem>
+            <pElem>../Libs/MatMatrix</pElem>
+            <pElem>../Libs/Parameters</pElem>
+            <pElem>../Libs/SOM</pElem>
+            <pElem>.</pElem>
+          </incDir>
+          <commandLine>-std=c++11</commandLine>
         </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>

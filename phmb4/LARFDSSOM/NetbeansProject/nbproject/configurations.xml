@@ -257,6 +257,7 @@
       </toolsSet>
       <compileType>
         <ccTool>
+          <commandlineTool>g++</commandlineTool>
           <incDir>
             <pElem>../SOM</pElem>
             <pElem>../Cluster</pElem>
@@ -266,7 +267,11 @@
             <pElem>../../../Libs/MatMatrix</pElem>
             <pElem>../../../Libs/Parameters</pElem>
           </incDir>
+          <commandLine>-Wno-comment</commandLine>
         </ccTool>
+        <linkerTool>
+          <commandLine>-L/usr/X11/lib -static-libstdc++</commandLine>
+        </linkerTool>
       </compileType>
       <item path="../../../Libs/Data/ArffData.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -1177,7 +1182,11 @@
             <pElem>../Cluster</pElem>
             <pElem>../SOM</pElem>
           </incDir>
+          <commandLine>-Wno-comment</commandLine>
         </ccTool>
+        <linkerTool>
+          <commandLine>-L/usr/X11/lib -static-libstdc++</commandLine>
+        </linkerTool>
       </compileType>
       <item path="../../../Libs/Data/ArffData.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -2090,11 +2099,11 @@
             <pElem>../../../Libs/MatMatrix</pElem>
             <pElem>../../../Libs/Parameters</pElem>
           </incDir>
-          <commandLine>-m64 -g</commandLine>
+          <commandLine>-m64 -g -Wno-comment</commandLine>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/larfdssom</output>
-          <commandLine>-m64</commandLine>
+          <commandLine>-m64 -L/usr/X11/lib -static-libstdc++</commandLine>
         </linkerTool>
       </compileType>
       <item path="../../../Libs/Data/ArffData.cpp" ex="false" tool="1" flavor2="0">
