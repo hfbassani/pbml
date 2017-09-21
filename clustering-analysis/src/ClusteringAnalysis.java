@@ -26,6 +26,7 @@ public class ClusteringAnalysis {
     static String extension = ".arff";
     static String measuresStr = "CE";
     static String outputDir = "";
+    static String outputFileName = "";
     static ArrayList<String> parametersName = new ArrayList<>();
     static ArrayList<String> parameters = new ArrayList<>();
     static int repeat = 500;
@@ -35,11 +36,11 @@ public class ClusteringAnalysis {
     static ArrayList<Cluster> trueClusters;
 
     static final String INPUT_MESSAGE = "Usage: 'Metrics (CE:F1Measure)' 'Datafiles directory' 'Results directory' " +
-            "'Output directory' [-t] [-e extension] [-n 'Parameter Names File'] [-p 'Parameters File'] -r 'number of experiments'";
+            "'Output directory' 'Output file name' [-t] [-e extension] [-n 'Parameter Names File'] [-p 'Parameters File'] -r 'number of experiments'";
 
     public static void main(String[] args) {
 
-        if (args.length < 4) {
+        if (args.length < 5) {
             System.out.println(INPUT_MESSAGE);
             return;
         }
@@ -55,6 +56,8 @@ public class ClusteringAnalysis {
                 resultsDir = handleDirectoryString(args[i]);
             } else if (i == 3) {
                 outputDir = handleDirectoryString(args[i]);
+            } else if (i == 4) {
+                outputFileName = args[i];
             } else if (args[i].compareTo("-t") == 0) {
                 showErrorMessage(args, i);
                 allTrue = true;
@@ -139,6 +142,7 @@ public class ClusteringAnalysis {
         List<String> outputLines = new ArrayList<>();
 
         String[] measureNames = measuresStr.split(":");
+        ArrayList<Integer> clustersFound = new ArrayList<>();
         ArrayList<ArrayList<Double>> values = new ArrayList<>();
         ArrayList<Double> bestValues = new ArrayList<>();
         ArrayList<Double> means = new ArrayList<>();
@@ -165,6 +169,7 @@ public class ClusteringAnalysis {
 
                 trueClusters = readTrueClusters(new File(trueClustersFile));
                 ArrayList<ArrayList<ClusterQualityMeasure>> measures = new ArrayList<>();
+                ArrayList<Integer> clusters = new ArrayList<>();
 
                 for (int r = 0; r < repeat; r++) {
 
@@ -175,6 +180,7 @@ public class ClusteringAnalysis {
                     ArrayList<ClusterQualityMeasure> measure =
                             evaluateClusters(measuresStr, results, dataInstances, trueClusters);
 
+                    clusters.add(results.size());
                     measures.add(measure);
                 }
 
@@ -191,22 +197,23 @@ public class ClusteringAnalysis {
                     bestValues.add(best);
                     int bestParameterSetIndex = measureValues.indexOf(best);
                     indexes.add(bestParameterSetIndex);
+                    clustersFound.add(clusters.get(bestParameterSetIndex));
 
                     OptionalDouble average = measureValues.stream().mapToDouble(a -> a).average();
                     double mean = average.isPresent() ? average.getAsDouble() : 0;
                     means.add(mean);
 
-                    String output = filename + "\nBest " + measureNames[i] + ": " + best + "\nBest Parameter Set Index: " + bestParameterSetIndex + "\nMean: " + mean + "\n";
+                    String output = filename + "\nBest " + measureNames[i] + ": " + best + "\nBest Parameter Set Index: " + bestParameterSetIndex + "\nMean: " + mean + "\nClusters Found: " + clusters.get(bestParameterSetIndex);
                     outputLines.add(output);
                     System.out.println(output);
                 }
             }
         }
 
-        createFullCSV(measureNames, values, bestValues, indexes, means);
+        createFullCSV(measureNames, values, clustersFound, bestValues, indexes, means);
     }
 
-    public static void createFullCSV(String[] measureNames, ArrayList<ArrayList<Double>> measures,
+    public static void createFullCSV(String[] measureNames, ArrayList<ArrayList<Double>> measures, ArrayList<Integer> clustersFound,
                                      ArrayList<Double> bestValues, ArrayList<Integer> indexes, ArrayList<Double> means) {
         ArrayList<String> outputLines = new ArrayList<>();
 
@@ -239,6 +246,17 @@ public class ClusteringAnalysis {
             int j = 0;
             while(j < qtdInputFiles) {
                 line += "," + Double.toString(bestValues.get(i + (j * measureNames.length)));
+                ++j;
+            }
+        }
+        outputLines.add(line);
+
+        line = "clusters_found";
+        for (int i = 0; i < measureNames.length; ++i) {
+
+            int j = 0;
+            while(j < qtdInputFiles) {
+                line += "," + Integer.toString(clustersFound.get(i + (j * measureNames.length)));
                 ++j;
             }
         }
@@ -299,8 +317,7 @@ public class ClusteringAnalysis {
             outputLines.add(line);
         }
 
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime());
-        saveFile(outputLines, outputDir + timeStamp + "_results.csv");
+        saveFile(outputLines, outputDir + outputFileName + ".csv");
     }
 
     public static void saveFile(List<String> lines, String path) {
