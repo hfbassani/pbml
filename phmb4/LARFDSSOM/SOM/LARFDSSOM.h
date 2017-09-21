@@ -390,20 +390,14 @@ public:
         
         //encontra o nó vencedor
         winner1 = ranks.at(0);
-        winner1->wins++;
-        winner1->nodeLife = 1.0 + lp;
         
         //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
         //e o limite de nodos não tiver sido atingido
         
-        bool hasDeadNodes = false;
-        
         if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
-            //dbgOut(2) << a << "\t<\t" << a_t << endl;
             //Cria um novo nodo no local do padrão observado
             TVector wNew(w);
             TNode *nodeNew = createNode(nodeID++, wNew);
-            nodeNew->wins = 0;//step/meshNodeSet.size();
             nodeNew->nodeLife = 1.0;
 
         } else {
@@ -411,20 +405,22 @@ public:
             for (int i = 0 ; i < ranks.size() ; ++i) {
                 float h = exp(- ((double) i / gamma));
                 
-                TNode* node = ranks.at(i);
-                
-                if (h >= h_threshold) {
-                    updateNode(*node, w, e_b * h);
+                if (h < h_threshold) {
+                    break;
                 }
                 
+                TNode* node = ranks.at(i);
+                updateNode(*node, w, e_b * h);
+                
                 node->nodeLife -= lp;
+                winner1->nodeLife = 1.0;
+                
                 if (node->nodeLife <= 0) {
-                    hasDeadNodes = true;
                     deadNodeSet.insert(node);
                 }
             }
             
-            if (hasDeadNodes) {
+            if (deadNodeSet.size() > 0) {
                 TPNodeSet::iterator itMesh = deadNodeSet.begin();
                 while (itMesh != deadNodeSet.end()) {
                     eraseNode((*itMesh));
@@ -432,17 +428,9 @@ public:
                 }
                 
                 deadNodeSet.clear();
-                hasDeadNodes = false;
             }
         }
-
-        //Se atingiu age_wins
-        if (step >= age_wins) {
-//            learningDecay(step);
-            step = 0;
-        }
-
-        step++;
+        
         return *this;
     }
 
