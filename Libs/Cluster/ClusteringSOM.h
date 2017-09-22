@@ -253,6 +253,12 @@ public:
                 }
 
             }
+//GAMBI INIT
+            temp2 = nodoNow->w.toString();
+            
+            
+//GAMBI END
+            
             MatVector<float> relevances;
             relevances = nodoNow->ds;
             std::string strRelevances;
@@ -323,7 +329,12 @@ public:
                     }
 
                 }
-                output_matrix[indice][1] += "  " + temp;
+//GAMBI INIT
+             output_matrix[indice][1] += "  " + rowOfData.toString();
+             //output_matrix[indice][1] += "  " + temp;
+            
+//GAMBI END
+               
 
             }
 
