@@ -439,6 +439,12 @@ public:
             }
         }
         
+        if(step >= age_wins) {
+            step = 0;
+        }
+        
+        step++;
+        
         return *this;
     }
 
