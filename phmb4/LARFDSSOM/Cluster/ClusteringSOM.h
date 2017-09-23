@@ -32,7 +32,10 @@ public:
     std::vector<int> orderedGroupsSizes; 
     std::vector<int> orderedGroups;
     std::map<int, int> groupLabels; 
-
+    
+    std::vector<int> supervisedGroup;
+    std::vector<int> reinforcementGroup;
+    
     bool isSubspaceClustering;
     bool filterNoise;
 
@@ -916,7 +919,24 @@ public:
 
     void train(MatMatrix<float> &trainingData, int N) {
         som->data = trainingData;
-
+        
+//        MatVector<int> samplesIndexes;
+//        if (som->unsupervisionRate < 1.0) {
+//            
+//            samplesIndexes.range(0, groups.size() -1 );
+//            samplesIndexes.shuffler();
+//            
+//            if (som->supervisionRate > 0) {
+//                som->supervisedIndexes.copy(samplesIndexes, 
+//                        0, ceil(groups.size() * som->supervisionRate) - 1);
+//            }
+//            
+//            if (som->reinforcementRate > 0) {
+//                som->reinforcementIndexes.copy(samplesIndexes, som->supervisedIndexes.size(), 
+//                        floor(groups.size() * som->reinforcementRate) + som->supervisedIndexes.size() - 1);
+//            }
+//        } 
+        
         if (orderedGroups.empty()) {
             som->trainning(N);
         } else {

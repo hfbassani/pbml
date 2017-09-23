@@ -22,12 +22,15 @@
 
 using namespace std;
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, bool isSubspaceClustering, bool isFilterNoise, bool ordered);
+void runExperiments (std::vector<float> params, string filePath, string outputPath, 
+        string fileName, bool isSubspaceClustering, bool isFilterNoise, 
+        bool ordered, float supervisionRate, float reinforcementRate);
 std::vector<float> loadParametersFile(string path);
 std::vector<string> loadStringFile(string path);
 
 int main(int argc, char** argv) {
     
+    srand (time(NULL));
     dbgThreshold(1);
     
     dbgOut(1) << "Running LARFDSSOM" << endl;
@@ -39,9 +42,13 @@ int main(int argc, char** argv) {
     
     bool isSubspaceClustering = true;
     bool isFilterNoise = true;
+    bool isOrdered = false;
+    
+    float supervisionRate = 0.0;
+    float reinforcementRate = 0.0;
     
     int c;
-    while ((c = getopt(argc, argv, "i:n:r:p:sf")) != -1) {
+    while ((c = getopt(argc, argv, "i:n:r:p:S:R:sfO")) != -1) {
         switch (c) {
             case 'i':
                 inputPath.assign(optarg);
@@ -55,11 +62,20 @@ int main(int argc, char** argv) {
             case 'p':
                 parametersFile.assign(optarg);
                 break;
+            case 'S':
+                supervisionRate = atof(optarg);
+                break;
+            case 'R':
+                reinforcementRate = atof(optarg);
+                break;
             case 's':
                 isSubspaceClustering = false;
                 break;
             case 'f':
                 isFilterNoise = false;
+                break;
+            case 'O':
+                isOrdered = true;
                 break;
         }
     }
@@ -68,14 +84,17 @@ int main(int argc, char** argv) {
     std::vector<string> fileNames = loadStringFile(fileNamesPath);
     std::vector<float> params = loadParametersFile(parametersFile);
     
-    bool isOrdered = false;
     
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
-        runExperiments(params, inputFiles[i], resultPath, fileNames[i], isSubspaceClustering, isFilterNoise, isOrdered);
+        runExperiments(params, inputFiles[i], resultPath, 
+                fileNames[i], isSubspaceClustering, isFilterNoise, 
+                isOrdered, supervisionRate, reinforcementRate);
     }
 }
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, bool isSubspaceClustering, bool isFilterNoise, bool ordered) {
+void runExperiments (std::vector<float> params, string filePath, string outputPath, 
+        string fileName, bool isSubspaceClustering, bool isFilterNoise, 
+        bool ordered, float supervisionRate, float reinforcementRate) {
     
     LARFDSSOM som(1);
     SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
@@ -93,6 +112,11 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     int numberOfParameters = 9;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
+        
+        som.supervisionRate = supervisionRate;
+        som.reinforcementRate = reinforcementRate;
+        som.unsupervisionRate = 1.0 - som.supervisionRate - som.reinforcementRate;
+        
         som.a_t = params[i];
         som.lp = params[i + 1];
         som.dsbeta = params[i + 2];

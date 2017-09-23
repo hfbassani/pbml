@@ -31,6 +31,13 @@ public:
     int counter_i;
     int dimw;//dimensão do vetor de pessos
     
+    float supervisionRate;
+    float reinforcementRate;
+    float unsupervisionRate;
+    
+//    MatVector<int> reinforcementIndexes;
+//    MatVector<int> supervisedIndexes;
+    
     virtual inline TNode* getWinner(const TVector &w) {
         TNode *winner = 0;
         TNumber temp = 0;
@@ -163,7 +170,16 @@ public:
         for (uint l = 0; l < data.cols(); l++)
                 v[l] = data[vindex][l];
         
-        updateMap(v);
+        float rate = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
+        dbgOut(1) << "rand number: " << rate << endl;
+        if (rate <= unsupervisionRate) {
+            dbgOut(1) << "unsupervisionRate: " << unsupervisionRate << endl << endl;
+        } else if (rate <= supervisionRate) {
+            dbgOut(1) << "supervisionRate: " << supervisionRate << endl << endl;
+        } else {
+            dbgOut(1) << "reinforcementRate: " << reinforcementRate << endl << endl;
+        }
+        updateMap(v); 
         
         return *this;
     }
