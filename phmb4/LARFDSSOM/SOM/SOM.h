@@ -100,6 +100,8 @@ public:
     }
 
     virtual SOM& updateMap(const TVector &w) = 0;
+    
+    virtual SOM& updateMapSup(const TVector &w, int cls) = 0;
 
     SOM& trainningEach(int N = 1) {
         MatVector<int> vindex(data.rows());
@@ -118,14 +120,14 @@ public:
         return *this;
     }
     
-    SOM& trainning(int N = 1) {
+    SOM& trainning(int N = 1, std::vector<int> groups = NULL) {
         for (int i=0; i<N; i++)
-            trainningStep();
+            trainningStep(groups);
                 
         return *this;
     }
     
-    SOM& orderedTrainning(int N = 1, std::vector<int> order = NULL, std::vector<int> orderLenghts = NULL) {
+    SOM& orderedTrainning(int N = 1, std::vector<int> groups = NULL, std::vector<int> order = NULL, std::vector<int> orderLenghts = NULL) {
         int row = 0;
         for (int i=0; i<N; i++) {
             if (i < order.size()) {
@@ -134,7 +136,7 @@ public:
                 row = 0;
             }
             
-            trainningStep(row);
+            trainningStep(row, groups);
         }
                 
         return *this;
@@ -164,32 +166,24 @@ public:
 //        return *this;
     }
     
-    SOM& trainningStep() {
+    SOM& trainningStep(std::vector<int> groups = NULL) {
         TVector v(data.cols());
         int vindex = rand()%data.rows();
         for (uint l = 0; l < data.cols(); l++)
                 v[l] = data[vindex][l];
         
-        float rate = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
-        dbgOut(1) << "rand number: " << rate << endl;
-        if (rate <= unsupervisionRate) {
-            dbgOut(1) << "unsupervisionRate: " << unsupervisionRate << endl << endl;
-        } else if (rate <= supervisionRate) {
-            dbgOut(1) << "supervisionRate: " << supervisionRate << endl << endl;
-        } else {
-            dbgOut(1) << "reinforcementRate: " << reinforcementRate << endl << endl;
-        }
-        updateMap(v); 
+        chooseTrainingType(v, groups[vindex]);
         
         return *this;
     }
+
     
-    SOM& trainningStep(int row) {
+    SOM& trainningStep(int row, std::vector<int> groups = NULL) {
         TVector v(data.cols());
         for (uint l = 0; l < data.cols(); l++)
                 v[l] = data[row][l];
         
-        updateMap(v);
+        chooseTrainingType(v, groups[row]);
         
         return *this;
     }
@@ -201,6 +195,18 @@ public:
         return *this;
     }
     
+    void chooseTrainingType(TVector &v, int cls = 99999) {
+        float rate = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
+        dbgOut(1) << "rand number: " << rate 
+                << " (supervisionRate: " << supervisionRate << " | unsupervisionRate: " << unsupervisionRate << ")" << endl;
+        if (rate <= supervisionRate) {
+            dbgOut(1) << "supervised" << endl << endl;
+            updateMapSup(v, cls);
+        } else {
+            dbgOut(1) << "unsupervised" << endl << endl;
+            updateMap(v); 
+        }
+    }
 
     SOM()
     {

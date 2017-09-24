@@ -41,6 +41,7 @@ public:
     int wins;
     TPNodeConnectionMap nodeMap;
     TNumber act;
+    int cls;
 
     inline int neighbors() {
         return nodeMap.size();
@@ -70,6 +71,8 @@ public:
     int nodesLeft;
     int nodeID;
 
+    int noCls;
+    
     inline float activation(const TNode &node, const TVector &w) {
 
         float distance = 0;
@@ -230,13 +233,13 @@ public:
     }
 
     //*
-    LARFDSSOM& finishMap() {
+    LARFDSSOM& finishMap(std::vector<int> groups) {
 
         dbgOut(1) << "Finishing map..." << endl;
         do {
             resetWins();
             maxNodeNumber = meshNodeSet.size();
-            trainning(age_wins);
+            trainning(age_wins, groups);
             
             resetWins();
 
@@ -264,26 +267,33 @@ public:
     }
     /**/
     
-    LARFDSSOM& finishMapFixed(bool ordered) {
+    LARFDSSOM& finishMapFixed(bool ordered, std::vector<int> groups) {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
             if (ordered) {
-                trainningStep(step%data.rows());
+                trainningStep(step%data.rows(), groups);
             } else {
-                trainningStep();
+                trainningStep(groups);
             }
         }
         maxNodeNumber = meshNodeSet.size(); //fix mesh max size
         
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         
-        trainningStep();//step equal to 2
+        
+        //step equal to 2
+        if (ordered) {
+            trainningStep(step%data.rows(), groups);
+        } else {
+            trainningStep(groups);
+        }
+        
         while (step!=1) {
             if (ordered) {
-                trainningStep(step%data.rows());
+                trainningStep(step%data.rows(), groups);
             } else {
-                trainningStep();
+                trainningStep(groups);
             }
         }
         
@@ -370,6 +380,7 @@ public:
             //Cria um novo nodo no local do padrão observado
             TVector wNew(w);
             TNode *nodeNew = createNode(nodeID++, wNew);
+            nodeNew->cls = noCls;
             nodeNew->wins = 0;//step/meshNodeSet.size();
 
             //Conecta o nodo
@@ -403,6 +414,11 @@ public:
 
         step++;
         return *this;
+    }
+
+
+    LARFDSSOM& updateMapSup(const TVector& w, int cls) {
+        updateMap(w);
     }
 
     virtual TNode *getFirstWinner(const TVector &w){

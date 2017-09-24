@@ -938,9 +938,9 @@ public:
 //        } 
         
         if (orderedGroups.empty()) {
-            som->trainning(N);
+            som->trainning(N, groups);
         } else {
-            som->orderedTrainning(N, orderedGroups, orderedGroupsSizes);
+            som->orderedTrainning(N, groups, orderedGroups, orderedGroupsSizes);
         }
     }
 
@@ -1023,7 +1023,7 @@ public:
 
     void train(MatMatrix<float> &trainingData, int N) {
         som->data = trainingData;
-        som->trainning(N);
+        som->trainning(N, groups);
     }
 
     void getRelevances(int node_i, MatVector<float> &relevances) {

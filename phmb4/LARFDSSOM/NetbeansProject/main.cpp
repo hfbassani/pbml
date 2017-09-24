@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
                 supervisionRate = atof(optarg);
                 break;
             case 'R':
-                reinforcementRate = atof(optarg);
+//                reinforcementRate = atof(optarg);
                 break;
             case 's':
                 isSubspaceClustering = false;
@@ -126,14 +126,14 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7];
         int epochs = params[i + 8];
-        
         string index = to_string((i/numberOfParameters));
         
+        som.noCls = std::min_element(clusteringSOM.groups.begin(), clusteringSOM.groups.end())[0] - 1;
         som.maxNodeNumber = 70;
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(100 * clusteringSOM.getNumSamples());
-        som.finishMapFixed(ordered);
+        som.finishMapFixed(ordered, clusteringSOM.groups);
         clusteringSOM.writeClusterResults(outputPath + fileName + "_" + index + ".results");
         
     }
