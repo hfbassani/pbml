@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def plot_noise_graph (ce):
+def plot_noise_graph (ce, savePlots=False):
     noise_values = np.linspace(10, 70, num=4)
     noise_labels = ['10%', '30%', '50%', '70%']
 
@@ -10,35 +10,45 @@ def plot_noise_graph (ce):
     ax.yaxis.grid()
     ax.set_xticklabels(noise_labels)
 
-    plt.title('CE x Noise Percentage', fontsize=14)
+    title = 'CE x Noise Percentage'
+    plt.title(title, fontsize=14)
     plt.plot(noise_values, ce, '-^', color='k', clip_on=False)
     plt.yticks(np.linspace(0, 1, num=11))
+    
+    if savePlots:
+        plt.savefig("{0}.png".format(title))
+        
     plt.show()
 
-def plot_samples_graph (ce):
+def plot_samples_graph (ce, savePlots=False):
     samples_size = np.linspace(1500, 5500, num=5)
 
-    plot_x_y(samples_size, ce, 'CE x Dataset Size', '-^', 'k', 14)
+    plot_x_y(samples_size, ce, 'CE x Dataset Size', '-^', 'k', 14, savePlots=savePlots)
     
-def plot_dimensions_graph (ce):
+def plot_dimensions_graph (ce, savePlots=False):
     x = [5, 10, 15, 20, 25, 50, 75]
     
     fig, ax = plt.subplots()
     ax.yaxis.grid()
     ax.set_xlim(5, 75)
 
-    plt.title('CE x Number of Dimensions', fontsize=14)
+    title = 'CE x Number of Dimensions'
+    plt.title(title, fontsize=14)
     plt.plot(x, ce, "-^", color='k', clip_on=False)
     plt.xticks(np.linspace(5, 75, num=8))
     plt.yticks(np.linspace(0, 1, num=11))
+    
+    if savePlots:
+        plt.savefig("{0}.png".format(title))
+        
     plt.show()
     
-def plot_irrelevant_dims_graph (ce):
+def plot_irrelevant_dims_graph (ce, savePlots=False):
     irrelevant_dims_size = np.linspace(0, 5, num=6)
 
-    plot_x_y(irrelevant_dims_size, ce, 'CE x Number of Irrelevant Dimensions', '-^', 'k', 14)
+    plot_x_y(irrelevant_dims_size, ce, 'CE x Number of Irrelevant Dimensions', '-^', 'k', 14, savePlots=savePlots)
 
-def plot_x_y(x, y, title, marker="o", color='b', fontSize=12):
+def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, savePlots=False):
     fig, ax = plt.subplots()
     ax.yaxis.grid()
     ax.set_ylim([0, 1])
@@ -46,7 +56,12 @@ def plot_x_y(x, y, title, marker="o", color='b', fontSize=12):
     plt.title(title, fontsize=fontSize)
     plt.plot(x, y, marker, color=color, clip_on=False)
     plt.yticks(np.linspace(0, 1, num=11))
+    
+    if savePlots:
+        plt.savefig("{0}.png".format(title))
+        
     plt.show()
+    
 
 def get_headers(fileName):
     headers = pd.read_csv(fileName, nrows=4, header=None)
@@ -58,15 +73,15 @@ def get_headers(fileName):
 
     return headers
 
-def plot_synthetic_data_graphs(fileName):
+def plot_synthetic_data_graphs(fileName, savePlots=False):
     results = get_headers(fileName)
     
-    plot_dimensions_graph(results["max_value"][:7])
-    plot_noise_graph(results["max_value"][7:11])
-    plot_samples_graph(results["max_value"][11:16])
-    plot_irrelevant_dims_graph(results["max_value"][16:])
+    plot_dimensions_graph(results["max_value"][:7], savePlots=savePlots)
+    plot_noise_graph(results["max_value"][7:11], savePlots=savePlots)
+    plot_samples_graph(results["max_value"][11:16], savePlots=savePlots)
+    plot_irrelevant_dims_graph(results["max_value"][16:], savePlots=savePlots)
     
-def plot_params_results(fileName, paramsToPlot = None):
+def plot_params_results(fileName, paramsToPlot = None, savePlots = False):
 
     results = pd.read_csv(fileName, skiprows=5, header=None)
 
@@ -96,7 +111,7 @@ def plot_params_results(fileName, paramsToPlot = None):
     for param in paramsToPlot:
         for result in results.columns:
             x = 1
-            plot_x_y(params[param], results[result], "{0} - {1}".format(param, result))
+            plot_x_y(params[param], results[result], "{0} - {1}".format(param, result), savePlots=savePlots)
             
         if param == "gamma":
             values = list(params[param])
@@ -132,12 +147,17 @@ def plot_params_results(fileName, paramsToPlot = None):
 
 
             plt.yticks(np.linspace(0, 1, num=11))
+            
+            if savePlots:
+                plt.savefig("gammas_x_hthresh{0}.png".format(i))
+                
             plt.show()
+            
 
-fileName = "../outputMetrics/results_ParamsNodeDelNNSim500_0_at_order_seq_no_finish_1e.csv"
+fileName = "../outputMetrics/results_ParamsNodeDelNNSim500_0_at_order_seq_finish.csv"
 
-plot_synthetic_data_graphs(fileName=fileName)
+plot_synthetic_data_graphs(fileName=fileName, savePlots=True)
 
-paramsToPlot = ["gamma", "h_threshold"]
-plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot)
+paramsToPlot = ["a_t", "lp", "gamma", "h_threshold"]
+plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
 
