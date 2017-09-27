@@ -35,6 +35,7 @@ public:
     float reinforcementRate;
     float unsupervisionRate;
     
+    int noCls;
 //    MatVector<int> reinforcementIndexes;
 //    MatVector<int> supervisedIndexes;
     
@@ -195,15 +196,15 @@ public:
         return *this;
     }
     
-    void chooseTrainingType(TVector &v, int cls = 99999) {
+    void chooseTrainingType(TVector &v, int cls) {
         float rate = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
-        dbgOut(1) << "rand number: " << rate 
-                << " (supervisionRate: " << supervisionRate << " | unsupervisionRate: " << unsupervisionRate << ")" << endl;
-        if (rate <= supervisionRate) {
-            dbgOut(1) << "supervised" << endl << endl;
+//        dbgOut(1) << "rand number: " << rate 
+//                << " (supervisionRate: " << supervisionRate << " | unsupervisionRate: " << unsupervisionRate << ")" << endl;
+        if (cls != noCls && rate <= supervisionRate && Mesh<TNode>::meshNodeSet.size() > 0) {
+//            dbgOut(1) << "supervised" << endl << endl;
             updateMapSup(v, cls);
         } else {
-            dbgOut(1) << "unsupervised" << endl << endl;
+//            dbgOut(1) << "unsupervised" << endl << endl;
             updateMap(v); 
         }
     }

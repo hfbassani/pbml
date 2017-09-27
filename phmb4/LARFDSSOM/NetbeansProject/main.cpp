@@ -109,7 +109,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
     clusteringSOM.setFilterNoise(isFilterNoise);    
     
-    int numberOfParameters = 9;
+    int numberOfParameters = 11;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         
@@ -126,6 +126,10 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7];
         int epochs = params[i + 8];
+        
+        som.push_rate = params[i + 9];
+        som.supervisionRate = params[i + 10];
+        
         string index = to_string((i/numberOfParameters));
         
         som.noCls = std::min_element(clusteringSOM.groups.begin(), clusteringSOM.groups.end())[0] - 1;
