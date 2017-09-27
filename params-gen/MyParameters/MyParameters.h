@@ -32,6 +32,8 @@ public:
     LHSParameter gamma;
     LHSParameter h_threshold;
     LHSParameter tau;
+    LHSParameter pullRate;
+    LHSParameter supervisionRate;
 
     MyParameters(bool real) {
         comments = "Test float Parameters";
@@ -51,6 +53,8 @@ public:
         addParameterD(gamma, "decay rate for function h");
         addParameterD(h_threshold, "threshold for function h");
         addParameterD(tau, "decay rate");
+        addParameterD(pullRate, "pullRate rate");
+        addParameterD(supervisionRate, "supervision rate");
 
         //Set default ranges and values
         N = 150;
@@ -78,6 +82,8 @@ public:
         gamma.setRange(0.14, 4.0) = 0.14;
         h_threshold.setRange(0.001, 0.8) = 0.001;
         tau.setRange(0.00001, 0.01) = 0.00001;
+        pullRate.setRange(0.001, 0.1) = 0.001;
+        supervisionRate.setRange(0.01, 0.40) = 0.01;
 
         //Add parameters to latin hypercube sampling:
         addParameterToLHS(a_t);
@@ -92,6 +98,8 @@ public:
         addParameterToLHS(gamma);
         addParameterToLHS(h_threshold);
         addParameterToLHS(tau);
+        addParameterToLHS(pullRate);
+        addParameterToLHS(supervisionRate);
     }
 
 };
