@@ -270,11 +270,15 @@ public:
     }
     /**/
     
-    LARFDSSOM& finishMapFixed() {
+    LARFDSSOM& finishMapFixed(bool ordered) {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
-            trainningStep();
+            if (ordered) {
+                trainningStep(step%data.rows());
+            } else {
+                trainningStep();
+            }
         }
         maxNodeNumber = meshNodeSet.size(); //fix mesh max size
         
@@ -282,7 +286,11 @@ public:
         
         trainningStep();//step equal to 2
         while (step!=1) {
-            trainningStep();
+            if (ordered) {
+                trainningStep(step%data.rows());
+            } else {
+                trainningStep();
+            }
         }
         
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;

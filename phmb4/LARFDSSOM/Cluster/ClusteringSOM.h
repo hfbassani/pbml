@@ -70,63 +70,62 @@ public:
     int getInputSize() {
         return trainingData->cols();
     }
-    
+
     int getNumSamples() {
         return trainingData->rows();
     }
-    
+
     virtual int getNodeId(int node_i) {
         return node_i;
     }
 
     virtual void train(MatMatrix<float> &trainingData, int N) = 0;
-    
+
     virtual void getRelevances(int node_i, MatVector<float> &relevances) = 0;
-    
+
     virtual void getWeights(int node_i, MatVector<float> &weights) = 0;
 
     virtual void getWinners(const MatVector<float> &sample, std::vector<int> &winners) = 0;
-    
+
     virtual int getWinner(const MatVector<float> &sample) = 0;
-    
+
     virtual bool isNoise(const MatVector<float> &sample) {
         return false;
     }
-        
+
     void cleanUpTrainingData() {
         trainingData->clear();
         groups.clear();
         groupLabels.clear();
     }
 
-    bool readFile(const std::string &filename, bool order) {
+    bool readFile(const std::string &filename) {
 
-        if (trainingData==NULL && !allocated) {
+        if (trainingData == NULL && !allocated) {
             trainingData = new MatMatrix<float>();
             allocated = true;
         }
-        
+
         if (ArffData::readArff(filename, *trainingData, groupLabels, groups)) {
-            
-            if (order) {
-                for (std::map<int,int>::iterator it = groupLabels.begin(); it != groupLabels.end(); ++it) {
-                    int class_value = it->first;
-                    int prevSize = orderedGroups.size();
-                    
-                    for (int i = 0 ; i < groups.size() ; ++i) {
-                        if (groups[i] == class_value) {
-                            orderedGroups.push_back(i);
-                        }
-                    }
-                    
-                    orderedGroupsSizes.push_back(orderedGroups.size() - prevSize);
-                }
-            }
-            
             ArffData::rescaleCols01(*trainingData);
             return true;
         }
         return false;
+    }
+
+    bool orderGroups() {
+        for (std::map<int, int>::iterator it = groupLabels.begin(); it != groupLabels.end(); ++it) {
+            int class_value = it->first;
+            int prevSize = orderedGroups.size();
+
+            for (int i = 0; i < groups.size(); ++i) {
+                if (groups[i] == class_value) {
+                    orderedGroups.push_back(i);
+                }
+            }
+
+            orderedGroupsSizes.push_back(orderedGroups.size() - prevSize);
+        }
     }
 
     void setData(MatMatrix<float> &data) {
@@ -134,7 +133,7 @@ public:
             delete trainingData;
             allocated = false;
         }
-        
+
         trainingData = &data;
     }
 
@@ -151,7 +150,7 @@ public:
         if (!file.is_open()) {
             dbgOut(0) << "Error openning output file" << endl;
             return false;
-        }       
+        }
 
         int meshSize = getMeshSize();
         int inputSize = getInputSize();
@@ -161,7 +160,7 @@ public:
         for (int i = 0; i < meshSize; i++) {
             MatVector<float> relevances;
             getRelevances(i, relevances);
-            
+
             file << i << "\t";
             for (int j = 0; j < inputSize; j++) {
                 file << relevances[j];
@@ -176,7 +175,7 @@ public:
             trainingData->getRow(i, sample);
             if (filterNoise && isNoise(sample))
                 continue;
-            
+
             std::vector<int> winners;
             if (isSubspaceClustering) {
                 getWinners(sample, winners);
@@ -194,41 +193,41 @@ public:
         file.close();
         return true;
     }
-    
+
     std::string outClusters(bool printData = true) {
-      
+
         std::stringstream out;
         out << std::setprecision(2) << std::fixed;
-        
+
         int meshSize = getMeshSize();
         int inputSize = getInputSize();
-        std::vector<int> clusterData; 
+        std::vector<int> clusterData;
         for (int i = 0; i < meshSize; i++) {
-            
+
             out << getNodeId(i) << ": ";
-            
+
             MatVector<float> relevances;
             getRelevances(i, relevances);
-            
+
             //Print relevances
             float average = 0;
             int num = 0;
             for (int j = 0; j < inputSize; j++) {
-                if (relevances[j]<=1) {
+                if (relevances[j] <= 1) {
                     average += relevances[j];
                     num++;
                 }
             }
-            if (num<1) num = 1;
-            average = average/num;
-            
+            if (num < 1) num = 1;
+            average = average / num;
+
             for (int j = 0; j < inputSize; j++) {
-                if (relevances[j]>average)
+                if (relevances[j] > average)
                     out << 1 << " ";
                 else
                     out << 0 << " ";
             }
-            
+
             clusterData.clear();
             for (int k = 0; k < trainingData->rows(); k++) {
                 MatVector<float> sample;
@@ -238,9 +237,9 @@ public:
 
                 std::vector<int> winners;
                 if (isSubspaceClustering) {
-                        getWinners(sample, winners);
+                    getWinners(sample, winners);
                 } else {
-                        winners.push_back(getWinner(sample));
+                    winners.push_back(getWinner(sample));
                 }
 
                 for (int j = 0; j < winners.size(); j++) {
@@ -250,7 +249,7 @@ public:
                     }
                 }
             }
-            
+
             out << clusterData.size();
             if (printData) {
                 out << "\t";
@@ -258,90 +257,90 @@ public:
                     out << clusterData[j] << " ";
                 }
             }
-            out << endl;    
+            out << endl;
         }
 
-        return out.str();  
+        return out.str();
     }
-    
+
     std::string outRelevances() {
-      
+
         std::stringstream out;
         out << std::setprecision(2) << std::fixed;
-        
+
         int meshSize = getMeshSize();
         int inputSize = getInputSize();
 
         out << "D:\t";
         for (int j = 0; j < inputSize; j++) {
-                out << j << "\t";
+            out << j << "\t";
         }
-        out << endl; 
-        
+        out << endl;
+
         for (int i = 0; i < meshSize; i++) {
-            
+
             out << getNodeId(i) << ":\t";
-            
+
             MatVector<float> relevances;
             getRelevances(i, relevances);
-            
+
             //Print relevances
             for (int j = 0; j < inputSize; j++) {
-                    out << relevances[j] << "\t";
+                out << relevances[j] << "\t";
             }
-            out << endl;    
+            out << endl;
         }
 
-        return out.str();  
+        return out.str();
     }
-    
+
     std::string outWeights() {
-      
+
         std::stringstream out;
-        
+
         out << std::setprecision(2) << std::fixed;
-        
+
         int meshSize = getMeshSize();
         int inputSize = getInputSize();
 
         out << "D:\t";
         for (int j = 0; j < inputSize; j++) {
-                out << j << "\t";
+            out << j << "\t";
         }
-        out << endl; 
-        
+        out << endl;
+
         for (int i = 0; i < meshSize; i++) {
-            
+
             out << getNodeId(i) << ":\t";
-            
+
             MatVector<float> weights;
             getWeights(i, weights);
-            
+
             //Print relevances
             for (int j = 0; j < inputSize; j++) {
-                    out << weights[j] << "\t";
+                out << weights[j] << "\t";
             }
-            out << endl;    
+            out << endl;
         }
 
-        return out.str();  
-    }    
-    
+        return out.str();
+    }
+
     std::string outClassInfo() {
-      
+
         std::stringstream out;
         out << std::setprecision(2) << std::fixed;
-        
+
         int meshSize = getMeshSize();
         int hits = 0;
         int total = 0;
         int noise = 0;
-        
+
         MatVector<int> nodeHits(meshSize);
         MatVector<int> nodeClusterSize(meshSize);
         nodeHits.fill(0);
         nodeClusterSize.fill(0);
-        
+
         for (int k = 0; k < trainingData->rows(); k++) {
             MatVector<float> sample;
             trainingData->getRow(k, sample);
@@ -350,7 +349,7 @@ public:
                 continue;
             }
 
-            int classIndex = sample.size()-1;
+            int classIndex = sample.size() - 1;
             int winner = getWinner(sample);
             MatVector<float> weights;
             getWeights(winner, weights);
@@ -359,39 +358,39 @@ public:
                 hits++;
                 nodeHits[winner]++;
             }
-            
+
             total++;
             nodeClusterSize[winner]++;
         }
-        
+
         for (int i = 0; i < meshSize; i++) {
 
             MatVector<float> weights;
             getWeights(i, weights);
-            
+
             out << getNodeId(i) << ": ";
-            out << "\t" << weights[weights.size()-1];
+            out << "\t" << weights[weights.size() - 1];
             out << "\t" << nodeHits[i] << "/" << nodeClusterSize[i];
-            out << "\t" << nodeHits[i]/(float)nodeClusterSize[i];
-            out << endl;    
+            out << "\t" << nodeHits[i] / (float) nodeClusterSize[i];
+            out << endl;
         }
 
-        out << "Classification acuracy:\t" << hits/(float)total << endl;
-        out << "Total noise:\t" << noise/(float)trainingData->rows() << endl;
-       
+        out << "Classification acuracy:\t" << hits / (float) total << endl;
+        out << "Total noise:\t" << noise / (float) trainingData->rows() << endl;
+
         return out.str();
     }
-    
-    std::string outConfusionMatrix(std::vector<int> &groups, std::map<int,int> &groupLabels) {
-      
+
+    std::string outConfusionMatrix(std::vector<int> &groups, std::map<int, int> &groupLabels) {
+
         std::stringstream out;
         out << std::setprecision(2) << std::fixed;
-        
+
         int meshSize = getMeshSize();
         MatMatrix<int> confusionMatrix(getMeshSize(), groupLabels.size());
         confusionMatrix.fill(0);
         int noise = 0;
-        
+
         for (int k = 0; k < trainingData->rows(); k++) {
             MatVector<float> sample;
             trainingData->getRow(k, sample);
@@ -406,17 +405,17 @@ public:
             } else {
                 winners.push_back(getWinner(sample));
             }
-            
-            for (int w=0; w<winners.size(); w++) {
+
+            for (int w = 0; w < winners.size(); w++) {
                 confusionMatrix[winners[w]][groups[k]]++;
             }
         }
-        
+
         /** print confusion matrix **/
         MatVector<int> rowSums(confusionMatrix.rows());
         MatVector<int> colSums(confusionMatrix.cols());
         rowSums.fill(0);
-        colSums.fill(0);        
+        colSums.fill(0);
         dbgOut(0) << "cluster\\class\t|";
         for (int c = 0; c < confusionMatrix.cols(); c++)
             dbgOut(1) << "\tcla" << groupLabels[c];
@@ -438,57 +437,57 @@ public:
 
         dbgOut(0) << "Random index: " << ClusteringMetrics::RANDI(confusionMatrix) << endl;
         dbgOut(0) << "Adjusted random index: " << ClusteringMetrics::ARI(confusionMatrix) << endl << endl;
-        out << "Total noise:\t" << noise << "(" << noise/(float)trainingData->rows() << ")" << endl;
-       
+        out << "Total noise:\t" << noise << "(" << noise / (float) trainingData->rows() << ")" << endl;
+
         return out.str();
     }
-    
+
     std::string printConditionalEntropy(std::vector<int> &groups) {
         std::stringstream out;
         MatVector<int> trueClusters(groups.size());
         MatVector<int> obtained(groups.size());
         int noise = 0;
-        
+
         for (int k = 0; k < trainingData->rows(); k++) {
             MatVector<float> sample;
             trainingData->getRow(k, sample);
-            
-//            if (isNoise(sample)) {
-//                noise++;
-//                continue;
-//            }
+
+            //            if (isNoise(sample)) {
+            //                noise++;
+            //                continue;
+            //            }
 
             int w = getWinner(sample);
-            
+
             trueClusters[k] = groups[k];
-            obtained[k] = w;        
+            obtained[k] = w;
             //dbgOut(0) << trueClusters[k] << "\t" << obtained[k] << endl;
-            
+
         }
-        
+
         out << "Conditional entropy:\t" << conditionalEntropy(trueClusters, obtained) << endl;
-        out << "Total noise:\t" << noise << "(" << noise/(float)trainingData->rows() << ")" << endl;
+        out << "Total noise:\t" << noise << "(" << noise / (float) trainingData->rows() << ")" << endl;
         return out.str();
     }
-    
+
     float conditionalEntropy(MatVector<int> &X, MatVector<int> &Y) {
         std::map<int, int> m;
 
-        for (int i=0; i<Y.size(); i++) {
+        for (int i = 0; i < Y.size(); i++) {
             int cluster = Y[i];
 
-            if (m.find(cluster)!=m.end()) {
+            if (m.find(cluster) != m.end()) {
                 int count = m[cluster];
                 m[cluster] = count + 1;
             } else {
                 m[cluster] = 1;
             }
         }
-        
-        for (int i=0; i<X.size(); i++) {
+
+        for (int i = 0; i < X.size(); i++) {
             int cluster = X[i];
 
-            if (m.find(cluster)!=m.end()) {
+            if (m.find(cluster) != m.end()) {
                 int count = m[cluster];
                 m[cluster] = count + 1;
             } else {
@@ -504,37 +503,37 @@ public:
         pxDy.fill(0);
 
         //Count y and (x,y) ocurrences
-        for (int i=0; i<Y.size(); i++) {
-              pxDy[X[i]][Y[i]]++;
-              py[Y[i]]++;
+        for (int i = 0; i < Y.size(); i++) {
+            pxDy[X[i]][Y[i]]++;
+            py[Y[i]]++;
         }
 
         //Calculate p(x|y)
-        for (int x=0; x<ny; x++) {
-            for (int y=0; y<ny; y++) {
-                if (py[y]>0)
-                    pxDy[x][y]/=py[y];
-                else 
+        for (int x = 0; x < ny; x++) {
+            for (int y = 0; y < ny; y++) {
+                if (py[y] > 0)
+                    pxDy[x][y] /= py[y];
+                else
                     pxDy[x][y] = 0;
             }
         }
 
         //Calculate p(y)
-        for (int y=0; y<ny; y++) {
-            py[y]/=Y.size();
+        for (int y = 0; y < ny; y++) {
+            py[y] /= Y.size();
         }
 
         //dbgOut(0) << py.toString() << endl;
         //Compute conditional entropy: H(X|Y) = sum_y{py*sum_x[p(x|y)*log(1/p(x|y))]}
         double hxDy = 0;
-        for (int y=0; y<ny; y++) {
+        for (int y = 0; y < ny; y++) {
 
             float sum_pxDylog1_pxDy = 0;
-            for (int x=0; x<ny; x++) {
-                if (pxDy[x][y]>0)
-                    sum_pxDylog1_pxDy += pxDy[x][y]*log2(1/pxDy[x][y]);
+            for (int x = 0; x < ny; x++) {
+                if (pxDy[x][y] > 0)
+                    sum_pxDylog1_pxDy += pxDy[x][y] * log2(1 / pxDy[x][y]);
             }
-            hxDy += py[y]*sum_pxDylog1_pxDy;
+            hxDy += py[y] * sum_pxDylog1_pxDy;
         }
 
         return hxDy;
@@ -542,10 +541,12 @@ public:
 };
 
 #ifdef SOM2D_H
-class ClusteringSOM2D: public ClusteringSOM<SOM2D<DSNeuron, SOMParameters> > {
 
+class ClusteringSOM2D : public ClusteringSOM<SOM2D<DSNeuron, SOMParameters> > {
 public:
-    ClusteringSOM2D(SOM2D<DSNeuron, SOMParameters> *som) : ClusteringSOM<SOM2D<DSNeuron, SOMParameters> >(som){};
+
+    ClusteringSOM2D(SOM2D<DSNeuron, SOMParameters> *som) : ClusteringSOM<SOM2D<DSNeuron, SOMParameters> >(som) {
+    };
 
     int getMeshSize() {
         return som->getSomCols() * som->getSomRows();
@@ -562,7 +563,7 @@ public:
         relevances.size(som->parameters.NFeatures);
         relevances.fill(1);
     }
-    
+
     void getWeights(int node_i, MatVector<float> &weights) {
         int col = node_i / som->getSomRows();
         int row = ((node_i / (float) som->getSomRows()) - col) * som->getSomRows();
@@ -574,12 +575,12 @@ public:
     }
 
     int getWinner(const MatVector<float> &sample) {
-        
+
         DSNeuron bmu;
         som->findBMU(sample, bmu);
-        return bmu.c + bmu.r*som->getSomCols();
+        return bmu.c + bmu.r * som->getSomCols();
     }
-        
+
     void getWinners(const MatVector<float> &sample, std::vector<int> &winner) {
 
         winner.clear();
@@ -592,10 +593,12 @@ public:
 #endif
 
 #ifdef DSLVQ_H
-class ClusteringDSLVQ: public ClusteringSOM<DSSOM<LVQNeuron, DSSOMParameters> > {
 
+class ClusteringDSLVQ : public ClusteringSOM<DSSOM<LVQNeuron, DSSOMParameters> > {
 public:
-    ClusteringDSLVQ(DSSOM<LVQNeuron, DSSOMParameters> *som) : ClusteringSOM<DSSOM<LVQNeuron, DSSOMParameters> >(som){};
+
+    ClusteringDSLVQ(DSSOM<LVQNeuron, DSSOMParameters> *som) : ClusteringSOM<DSSOM<LVQNeuron, DSSOMParameters> >(som) {
+    };
 
     int getMeshSize() {
         return som->getSomCols() * som->getSomRows();
@@ -607,20 +610,20 @@ public:
         som->initializeP(som->parameters);
         som->train(trainingData);
     }
-    
+
     void test(MatMatrix<float> &testData, MatVector<int> classes) {
-        
+
         classes.size(testData.rows());
-        
-        for (int r=0; r<testData.rows(); r++) {
+
+        for (int r = 0; r < testData.rows(); r++) {
             MatVector<float> sample;
             testData.getRow(r, sample);
-            
+
             LVQNeuron neuron;
             som->findBMU(sample, neuron);
             classes[r] = neuron.getClass();
         }
-    }    
+    }
 
     void getRelevances(int node_i, MatVector<float> &relevances) {
         int col = node_i / som->getSomRows();
@@ -641,14 +644,14 @@ public:
 
         weights = neuron.weights;
     }
-        
+
     int getWinner(const MatVector<float> &sample) {
-        
+
         LVQNeuron bmu;
         som->findBMU(sample, bmu);
-        return bmu.c + bmu.r*som->getSomCols();
+        return bmu.c + bmu.r * som->getSomCols();
     }
-        
+
     void getWinners(const MatVector<float> &sample, std::vector<int> &winner) {
 
         winner.clear();
@@ -661,10 +664,12 @@ public:
 #endif
 
 #ifdef _DSSOMC_H
-class ClusteringDSSOMC: public ClusteringSOM<DSSOMC<DSCNeuron, DSSOMCParameters> > {
 
+class ClusteringDSSOMC : public ClusteringSOM<DSSOMC<DSCNeuron, DSSOMCParameters> > {
 public:
-    ClusteringDSSOMC(DSSOMC<DSCNeuron, DSSOMCParameters> *som) : ClusteringSOM<DSSOMC<DSCNeuron, DSSOMCParameters> >(som){};
+
+    ClusteringDSSOMC(DSSOMC<DSCNeuron, DSSOMCParameters> *som) : ClusteringSOM<DSSOMC<DSCNeuron, DSSOMCParameters> >(som) {
+    };
 
     int getMeshSize() {
         return som->getSomCols() * som->getSomRows();
@@ -676,7 +681,7 @@ public:
         som->initializeP(som->parameters);
         som->train(trainingData);
     }
-    
+
     void getRelevances(int node_i, MatVector<float> &relevances) {
         int col = node_i / som->getSomRows();
         int row = ((node_i / (float) som->getSomRows()) - col) * som->getSomRows();
@@ -698,10 +703,10 @@ public:
     }
 
     int getWinner(const MatVector<float> &sample) {
-        
+
         DSCNeuron bmu;
         som->findBMU(sample, bmu);
-        return bmu.c + bmu.r*som->getSomCols();
+        return bmu.c + bmu.r * som->getSomCols();
     }
 
     void getWinners(const MatVector<float> &sample, std::vector<int> &winner) {
@@ -716,10 +721,12 @@ public:
 #endif
 
 #ifdef _SOMAW_H
-class ClusteringSOMAW: public ClusteringSOM<SOMAW<DSNeuron, SOMAWParameters> > {
 
+class ClusteringSOMAW : public ClusteringSOM<SOMAW<DSNeuron, SOMAWParameters> > {
 public:
-    ClusteringSOMAW(SOMAW<DSNeuron, SOMAWParameters> *som) : ClusteringSOM<SOMAW<DSNeuron, SOMAWParameters> >(som){};
+
+    ClusteringSOMAW(SOMAW<DSNeuron, SOMAWParameters> *som) : ClusteringSOM<SOMAW<DSNeuron, SOMAWParameters> >(som) {
+    };
 
     int getMeshSize() {
         return som->getSomCols() * som->getSomRows();
@@ -741,7 +748,7 @@ public:
 
         relevances = neuron.dsWeights;
     }
-    
+
     void getWeights(int node_i, MatVector<float> &weights) {
         int col = node_i / som->getSomRows();
         int row = ((node_i / (float) som->getSomRows()) - col) * som->getSomRows();
@@ -753,12 +760,12 @@ public:
     }
 
     int getWinner(const MatVector<float> &sample) {
-        
+
         DSNeuron bmu;
         som->findBMU(sample, bmu);
-        return bmu.c + bmu.r*som->getSomCols();
+        return bmu.c + bmu.r * som->getSomCols();
     }
-        
+
     void getWinners(const MatVector<float> &sample, std::vector<int> &winner) {
 
         winner.clear();
@@ -771,10 +778,12 @@ public:
 #endif
 
 #ifdef _DSSOM_H
-class ClusteringDSSOM: public ClusteringSOM<DSSOM<DSNeuron, DSSOMParameters> > {
 
+class ClusteringDSSOM : public ClusteringSOM<DSSOM<DSNeuron, DSSOMParameters> > {
 public:
-    ClusteringDSSOM(DSSOM<DSNeuron, DSSOMParameters> *som) : ClusteringSOM<DSSOM<DSNeuron, DSSOMParameters> >(som){};
+
+    ClusteringDSSOM(DSSOM<DSNeuron, DSSOMParameters> *som) : ClusteringSOM<DSSOM<DSNeuron, DSSOMParameters> >(som) {
+    };
 
     int getMeshSize() {
         return som->getSomCols() * som->getSomRows();
@@ -806,14 +815,14 @@ public:
 
         weights = neuron.weights;
     }
-        
+
     int getWinner(const MatVector<float> &sample) {
-        
+
         DSNeuron bmu;
         som->findBMU(sample, bmu);
-        return bmu.c + bmu.r*som->getSomCols();
+        return bmu.c + bmu.r * som->getSomCols();
     }
-        
+
     void getWinners(const MatVector<float> &sample, std::vector<int> &winner) {
 
         winner.clear();
@@ -894,85 +903,87 @@ public:
 #endif
 
 #ifdef SOM_H_
-class ClusteringMeshSOM: public ClusteringSOM<SOM<DSNode> > {
 
+class ClusteringMeshSOM : public ClusteringSOM<SOM<DSNode> > {
 public:
-    ClusteringMeshSOM(SOM<DSNode> *som) : ClusteringSOM<SOM<DSNode> >(som){};
-    
+
+    ClusteringMeshSOM(SOM<DSNode> *som) : ClusteringSOM<SOM<DSNode> >(som) {
+    };
+
     int getMeshSize() {
         return som->meshNodeSet.size();
     }
 
     void train(MatMatrix<float> &trainingData, int N) {
         som->data = trainingData;
-        
+
         if (orderedGroups.empty()) {
             som->trainning(N);
         } else {
             som->orderedTrainning(N, orderedGroups, orderedGroupsSizes);
         }
     }
-    
+
     void getRelevances(int node_i, MatVector<float> &relevances) {
         SOM<DSNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
-        int i=0;
+        int i = 0;
         for (; it != som->meshNodeSet.end(); it++, i++) {
-            if (i==node_i) {
+            if (i == node_i) {
                 relevances = (*it)->ds;
                 return;
             }
         }
         return;
     }
-    
+
     void getWeights(int node_i, MatVector<float> &weights) {
         SOM<DSNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
-        int i=0;
+        int i = 0;
         for (; it != som->meshNodeSet.end(); it++, i++) {
-            if (i==node_i) {
+            if (i == node_i) {
                 weights = (*it)->w;
                 return;
             }
         }
         return;
-    }    
+    }
 
     int getWinner(const MatVector<float> &sample) {
         DSNode *winner = som->getWinner(sample);
         return getNodeIndex(*winner);
     }
-        
+
     void getWinners(const MatVector<float> &sample, std::vector<int> &winners) {
         DSNode *winner = som->getFirstWinner(sample);
         winners.push_back(getNodeIndex(*winner));
-        
+
         winner = som->getNextWinner(winner);
-        while (winner!=NULL) {
+        while (winner != NULL) {
             winners.push_back(getNodeIndex(*winner));
             winner = som->getNextWinner(winner);
         }
     }
-    
+
     virtual bool isNoise(const MatVector<float> &sample) {
         return som->isNoise(sample);
     }
-    
+
     int getNodeIndex(DSNode &node) {
         SOM<DSNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
-        int i=0;
+        int i = 0;
         for (; it != som->meshNodeSet.end(); it++, i++) {
-            if ((*it)== &node) {
+            if ((*it) == &node) {
                 return i;
             }
         }
         return -1;
     }
-    
+
     int getNodeId(int node_i) {
         SOM<DSNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
-        int i=0;
+        int i = 0;
         for (; it != som->meshNodeSet.end(); it++, i++) {
-            if (i==node_i) {                
+            if (i == node_i) {
                 return (*it)->getId();
             }
         }
@@ -980,10 +991,11 @@ public:
     }
 };
 
-class ClusteringMeshSOMNodeW: public ClusteringSOM<SOM<NodeW> > {
-
+class ClusteringMeshSOMNodeW : public ClusteringSOM<SOM<NodeW> > {
 public:
-    ClusteringMeshSOMNodeW(SOM<NodeW> *som) : ClusteringSOM<SOM<NodeW> >(som){};
+
+    ClusteringMeshSOMNodeW(SOM<NodeW> *som) : ClusteringSOM<SOM<NodeW> >(som) {
+    };
 
     int getMeshSize() {
         return som->meshNodeSet.size();
@@ -1003,15 +1015,15 @@ public:
 
     void getWeights(int node_i, MatVector<float> &weights) {
         SOM<NodeW>::TPNodeSet::iterator it = som->meshNodeSet.begin();
-        int i=0;
+        int i = 0;
         for (; it != som->meshNodeSet.end(); it++, i++) {
-            if (i==node_i) {
+            if (i == node_i) {
                 weights = (*it)->w;
                 return;
             }
         }
         return;
-    } 
+    }
 
     int getWinner(const MatVector<float> &sample) {
         NodeW *winner = som->getWinner(sample);
@@ -1021,18 +1033,18 @@ public:
     void getWinners(const MatVector<float> &sample, std::vector<int> &winner) {
         NodeW *winner1 = 0;
         NodeW *winner2 = 0;
-        
+
         som->getWinners(sample, winner1, winner2);
-        
+
         winner.push_back(getNodeIndex(*winner1));
         winner.push_back(getNodeIndex(*winner2));
     }
 
     int getNodeIndex(Node &node) {
         SOM<NodeW>::TPNodeSet::iterator it = som->meshNodeSet.begin();
-        int i=0;
+        int i = 0;
         for (; it != som->meshNodeSet.end(); it++, i++) {
-            if ((*it)== &node) {
+            if ((*it) == &node) {
                 return i;
             }
         }
@@ -1041,4 +1053,4 @@ public:
 };
 #endif
 
-#endif	/* CLUSTERINGSOM_H */
+#endif /* CLUSTERINGSOM_H */
