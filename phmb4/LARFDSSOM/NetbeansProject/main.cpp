@@ -112,11 +112,6 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     int numberOfParameters = 11;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
-        
-        som.supervisionRate = supervisionRate;
-        som.reinforcementRate = reinforcementRate;
-        som.unsupervisionRate = 1.0 - som.supervisionRate - som.reinforcementRate;
-        
         som.a_t = params[i];
         som.lp = params[i + 1];
         som.dsbeta = params[i + 2];
@@ -127,10 +122,13 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.minwd = params[i + 7];
         int epochs = params[i + 8];
         
-        som.push_rate = params[i + 9];
+        som.pull_rate = params[i + 9];
         som.supervisionRate = params[i + 10];
         
         string index = to_string((i/numberOfParameters));
+        
+        som.reinforcementRate = reinforcementRate;
+        som.unsupervisionRate = 1.0 - som.supervisionRate - som.reinforcementRate;
         
         som.noCls = std::min_element(clusteringSOM.groups.begin(), clusteringSOM.groups.end())[0] - 1;
         som.maxNodeNumber = 70;

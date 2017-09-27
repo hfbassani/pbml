@@ -122,8 +122,10 @@ public:
     }
     
     SOM& trainning(int N = 1, std::vector<int> groups = NULL) {
-        for (int i=0; i<N; i++)
+        for (int i=0; i<N; i++) {
+//            dbgOut(1) << i << endl;
             trainningStep(groups);
+        }
                 
         return *this;
     }

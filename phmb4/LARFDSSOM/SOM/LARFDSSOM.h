@@ -62,7 +62,7 @@ public:
     float e_n;
     int nodesCounter;
 
-    float push_rate;
+    float pull_rate;
     
     TNumber dsbeta; //Taxa de aprendizagem
     TNumber epsilon_ds; //Taxa de aprendizagem
@@ -450,9 +450,9 @@ public:
             if (newWinner != NULL) { // checar se esta no raio de algum outro nodo com a_t no limiar
                 // puxar o novo vencedor pelo raio
                 newWinner->wins++;
-                updateNode(*newWinner, w, e_b);
+                updateNode(*newWinner, w, pull_rate);
                 // empurrar o primeiro winner que tem classe diferente da amostra
-                updateNode(*winner1, w, -push_rate);
+                updateNode(*winner1, w, -e_b);
                 
                 updateConnections(newWinner);
                 updateConnections(winner1);
@@ -473,9 +473,9 @@ public:
                 nodeNew->wins = 0;
                 
                 // puxar o vencedor
-                updateNode(*nodeNew, w, e_b);
+                updateNode(*nodeNew, w, pull_rate);
                 // empurrar o primeiro winner que tem classe diferente da amostra
-                updateNode(*winner1, w, -push_rate);
+                updateNode(*winner1, w, -e_b);
                 
                 updateConnections(nodeNew);
                 updateConnections(winner1);
