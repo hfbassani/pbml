@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     bool hybridVersion = false;
     
     int c;
-    while ((c = getopt(argc, argv, "f:n:r:so")) != -1) {
+    while ((c = getopt(argc, argv, "f:n:r:soh")) != -1) {
         switch (c) {
             case 'f':
                 filename.assign(optarg);
