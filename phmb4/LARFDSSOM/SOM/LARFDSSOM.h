@@ -62,7 +62,7 @@ public:
     float e_n;
     int nodesCounter;
 
-    float pull_rate;
+    float push_rate;
     
     TNumber dsbeta; //Taxa de aprendizagem
     TNumber epsilon_ds; //Taxa de aprendizagem
@@ -450,40 +450,53 @@ public:
             if (newWinner != NULL) { // checar se esta no raio de algum outro nodo com a_t no limiar
                 // puxar o novo vencedor pelo raio
                 newWinner->wins++;
-                updateNode(*newWinner, w, pull_rate);
+                updateNode(*newWinner, w, e_b);
                 // empurrar o primeiro winner que tem classe diferente da amostra
-                updateNode(*winner1, w, -e_b);
+                updateNode(*winner1, w, -push_rate);
                 
-                updateConnections(newWinner);
-                updateConnections(winner1);
+//                updateConnections(newWinner);
+//                updateConnections(winner1);
                 
-            } else {
-                TVector wNew(winner1->w);
+            } else if (meshNodeSet.size() < maxNodeNumber) {
+//                TVector wNew(winner1->w);
+//                TNode *nodeNew = createNode(nodeID++, wNew);
+//                
+//                TVector aNew(winner1->a);
+//                nodeNew->a = aNew;
+//                TVector dsNew(winner1->ds);
+//                nodeNew->ds = dsNew;
+//                
+//                nodeNew->act = winner1->act;
+//                nodeNew->cls = winner1->cls;
+//                nodeNew->step = winner1->step;
+//                nodeNew->touched = winner1->touched;
+//                nodeNew->wins = 0;
+//                
+//                // puxar o vencedor
+//                updateNode(*nodeNew, w, e_b);
+                
+                TVector wNew(w);
                 TNode *nodeNew = createNode(nodeID++, wNew);
-                
-                TVector aNew(winner1->a);
-                nodeNew->a = aNew;
-                TVector dsNew(winner1->ds);
-                nodeNew->ds = dsNew;
-                
-                nodeNew->act = winner1->act;
-                nodeNew->cls = winner1->cls;
-                nodeNew->step = winner1->step;
-                nodeNew->touched = winner1->touched;
-                nodeNew->wins = 0;
-                
-                // puxar o vencedor
-                updateNode(*nodeNew, w, pull_rate);
-                // empurrar o primeiro winner que tem classe diferente da amostra
-                updateNode(*winner1, w, -e_b);
-                
+                nodeNew->cls = cls;
+                nodeNew->wins = 0;//step/meshNodeSet.size();
+
                 updateConnections(nodeNew);
-                updateConnections(winner1);
+                
+                // empurrar o primeiro winner que tem classe diferente da amostra
+                updateNode(*winner1, w, -push_rate);
+                
+//                updateConnections(winner1);
             }
         } else {
             winner1->wins++;
             winner1->cls = cls;
             updateNode(*winner1, w, e_b);
+            
+            TPNodeConnectionMap::iterator it;
+            for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
+                TNode* node = it->first;
+                updateNode(*node, w, e_n);
+            }
         }
 
         //Passo 9:Se atingiu age_wins
