@@ -22,7 +22,7 @@
 
 using namespace std;
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, bool isSubspaceClustering, bool isFilterNoise, bool ordered);
+void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, bool isSubspaceClustering, bool isFilterNoise, bool sorted);
 std::vector<float> loadParametersFile(string path);
 std::vector<string> loadStringFile(string path);
 
@@ -39,9 +39,10 @@ int main(int argc, char** argv) {
     
     bool isSubspaceClustering = true;
     bool isFilterNoise = true;
+    bool isSorted = false;
     
     int c;
-    while ((c = getopt(argc, argv, "i:n:r:p:sf")) != -1) {
+    while ((c = getopt(argc, argv, "i:n:r:p:sfS")) != -1) {
         switch (c) {
             case 'i':
                 inputPath.assign(optarg);
@@ -61,31 +62,30 @@ int main(int argc, char** argv) {
             case 'f':
                 isFilterNoise = false;
                 break;
+            case 'S':
+                isSorted = true;
+                break;
         }
     }
     
     std::vector<string> inputFiles = loadStringFile(inputPath);
     std::vector<string> fileNames = loadStringFile(fileNamesPath);
     std::vector<float> params = loadParametersFile(parametersFile);
-    
-    bool isOrdered = false;
-    
+        
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
-        runExperiments(params, inputFiles[i], resultPath, fileNames[i], isSubspaceClustering, isFilterNoise, isOrdered);
+        runExperiments(params, inputFiles[i], resultPath, fileNames[i], isSubspaceClustering, isFilterNoise, isSorted);
     }
 }
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, bool isSubspaceClustering, bool isFilterNoise, bool ordered) {
+void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, 
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted) {
     
     LARFDSSOM som(1);
     SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
     
     ClusteringMeshSOM clusteringSOM(dssom);
     clusteringSOM.readFile(filePath);
-    
-    if (ordered) {
-        clusteringSOM.orderGroups();
-    }
+    clusteringSOM.sorted = sorted;
     
     clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
     clusteringSOM.setFilterNoise(isFilterNoise);    
@@ -109,7 +109,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(100 * clusteringSOM.getNumSamples());
-        som.finishMapFixed(ordered);
+        som.finishMapFixed(sorted);
         clusteringSOM.writeClusterResults(outputPath + fileName + "_" + index + ".results");
         
     }

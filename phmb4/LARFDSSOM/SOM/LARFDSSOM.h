@@ -264,11 +264,11 @@ public:
     }
     /**/
     
-    LARFDSSOM& finishMapFixed(bool ordered) {
+    LARFDSSOM& finishMapFixed(bool sorted) {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
-            if (ordered) {
+            if (sorted) {
                 trainningStep(step%data.rows());
             } else {
                 trainningStep();
@@ -278,9 +278,15 @@ public:
         
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         
-        trainningStep();//step equal to 2
+        //step equal to 2
+        if (sorted) {
+            trainningStep(step%data.rows());
+        } else {
+            trainningStep();
+        }
+        
         while (step!=1) {
-            if (ordered) {
+            if (sorted) {
                 trainningStep(step%data.rows());
             } else {
                 trainningStep();
