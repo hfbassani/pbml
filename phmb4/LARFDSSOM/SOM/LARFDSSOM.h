@@ -272,7 +272,7 @@ public:
             if (sorted) {
                 trainningStep(step%data.rows());
             } else {
-                trainningStep();
+                trainningStep(rand()%data.rows());
             }
         }
         maxNodeNumber = meshNodeSet.size(); //fix mesh max size
@@ -283,14 +283,14 @@ public:
         if (sorted) {
             trainningStep(step%data.rows());
         } else {
-            trainningStep();
+            trainningStep(rand()%data.rows());
         }
         
         while (step!=1) {
             if (sorted) {
                 trainningStep(step%data.rows());
             } else {
-                trainningStep();
+                trainningStep(rand()%data.rows());
             }
         }
         
