@@ -1,14 +1,14 @@
 @relation i10
-@attribute i1 numeric
-@attribute i2 numeric
-@attribute i3 numeric
-@attribute i4 numeric
-@attribute i5 numeric
-@attribute i6 numeric
-@attribute i7 numeric
-@attribute i8 numeric
-@attribute i9 numeric
-@attribute i10 numeric
+@attribute i1 real
+@attribute i2 real
+@attribute i3 real
+@attribute i4 real
+@attribute i5 real
+@attribute i6 real
+@attribute i7 real
+@attribute i8 real
+@attribute i9 real
+@attribute i10 real
 @attribute class {-1,100,101,200,201,300,301,302,401,501,601,701}
 @data
 45.45162,651.064873,307.842695,542.584353,246.278606,92.720283,34.832996,43.595178,49.139203,15.126677,100
