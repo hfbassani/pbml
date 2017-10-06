@@ -82,7 +82,7 @@ public:
         gamma.setRange(0.14, 4.0) = 0.14;
         h_threshold.setRange(0.001, 0.8) = 0.001;
         tau.setRange(0.00001, 0.01) = 0.00001;
-        pushRate.setRange(0.0001, 0.005) = 0.0001;
+        pushRate.setRange(3, 15) = 3;
         supervisionRate.setRange(0.01, 0.40) = 0.01;
 
         //Add parameters to latin hypercube sampling:
