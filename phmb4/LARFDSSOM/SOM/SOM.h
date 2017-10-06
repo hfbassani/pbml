@@ -111,33 +111,21 @@ public:
         return *this;
     }
     
-    SOM& trainning(int N = 1) {
-        for (int i=0; i<N; i++)
-            trainningStep();
+    SOM& trainning(int epochs = 1) {
+        for (int epoch=0; epoch<epochs; epochs++)
+            for (int row = 0 ; row < data.rows() ; ++row)
+                trainningStep(rand()%data.rows());
                 
         return *this;
     }
     
-    SOM& orderedTrainning(int N = 1) {
-        int row = 0;
-        for (int i=0; i<N; i++) {
-            row = i%data.rows();
-            trainningStep(row);
-        }
+    SOM& orderedTrainning(int epochs = 1) {
+        for (int epoch = 0 ; epoch < epochs ; epoch++)
+            for (int row = 0 ; row < data.rows() ; ++row)
+                trainningStep(row);
     }
-    
-    SOM& trainningStep() {
-        TVector v(data.cols());
-        int vindex = rand()%data.rows();
-        for (uint l = 0; l < data.cols(); l++)
-                v[l] = data[vindex][l];
-        
-        updateMap(v);
-        
-        return *this;
-    }
-    
-    SOM& trainningStep(int row) {
+   
+    SOM& trainningStep(int row = 1) {
         TVector v(data.cols());
         for (uint l = 0; l < data.cols(); l++)
                 v[l] = data[row][l];

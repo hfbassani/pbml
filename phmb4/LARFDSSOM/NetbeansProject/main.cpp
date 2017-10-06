@@ -101,14 +101,14 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.e_n = params[i + 5] * som.e_b;
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7];
-        int epochs = params[i + 8];
+        som.epochs = params[i + 8];
         
         string index = to_string((i/numberOfParameters));
         
         som.maxNodeNumber = 70;
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
-        clusteringSOM.trainSOM(100 * clusteringSOM.getNumSamples());
+        clusteringSOM.trainSOM(som.epochs);
         som.finishMapFixed(sorted);
         clusteringSOM.writeClusterResults(outputPath + fileName + "_" + index + ".results");
         

@@ -56,6 +56,7 @@ public:
 class LARFDSSOM : public SOM<GDSNodeMW> {
 public:
     uint maxNodeNumber;
+    int epochs;
     float minwd;
     float e_b;
     float e_n;

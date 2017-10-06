@@ -78,7 +78,7 @@ public:
         return node_i;
     }
 
-    virtual void train(MatMatrix<float> &trainingData, int N) = 0;
+    virtual void train(MatMatrix<float> &trainingData, int epochs) = 0;
 
     virtual void getRelevances(int node_i, MatVector<float> &relevances) = 0;
 
@@ -121,9 +121,9 @@ public:
         trainingData = &data;
     }
 
-    void trainSOM(int N) {
+    void trainSOM(int epochs) {
 
-        train(*trainingData, N);
+        train(*trainingData, epochs);
     }
 
     bool writeClusterResults(const std::string &filename) {
@@ -898,13 +898,13 @@ public:
         return som->meshNodeSet.size();
     }
 
-    void train(MatMatrix<float> &trainingData, int N) {
+    void train(MatMatrix<float> &trainingData, int epochs) {
         som->data = trainingData;
 
         if (!sorted) {
-            som->trainning(N);
+            som->trainning(epochs);
         } else {
-            som->orderedTrainning(N);
+            som->orderedTrainning(epochs);
         }
     }
 
