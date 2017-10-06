@@ -56,6 +56,7 @@ public:
 class LARFDSSOM : public SOM<GDSNodeMW> {
 public:
     uint maxNodeNumber;
+    int epochs;
     float minwd;
     float e_b;
     float e_b0;
@@ -270,26 +271,32 @@ public:
     }
     /**/
     
-    LARFDSSOM& finishMapFixed(bool ordered) {
+    LARFDSSOM& finishMapFixed(bool sorted) {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
-            if (ordered) {
+            if (sorted) {
                 trainningStep(step%data.rows());
             } else {
-                trainningStep();
+                trainningStep(rand()%data.rows());
             }
         }
         maxNodeNumber = meshNodeSet.size(); //fix mesh max size
         
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         
-        trainningStep();//step equal to 2
+        //step equal to 2
+        if (sorted) {
+            trainningStep(step%data.rows());
+        } else {
+            trainningStep(rand()%data.rows());
+        }
+        
         while (step!=1) {
-            if (ordered) {
+            if (sorted) {
                 trainningStep(step%data.rows());
             } else {
-                trainningStep();
+                trainningStep(rand()%data.rows());
             }
         }
         

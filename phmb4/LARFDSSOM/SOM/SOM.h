@@ -111,64 +111,21 @@ public:
         return *this;
     }
     
-    SOM& trainning(int N = 1) {
-        for (int i=0; i<N; i++)
-            trainningStep();
+    SOM& trainning(int epochs = 1) {
+        for (int epoch=0; epoch<epochs; epochs++)
+            for (int row = 0 ; row < data.rows() ; ++row)
+                trainningStep(rand()%data.rows());
                 
         return *this;
     }
     
-    SOM& orderedTrainning(int N = 1, std::vector<int> order = NULL, std::vector<int> orderLenghts = NULL) {
-        int row = 0;
-        for (int i=0; i<N; i++) {
-            if (i < order.size()) {
-                row = i;
-            } else {
-                row = 0;
-            }
-            
-            trainningStep(row);
-        }
-                
-        return *this;
-    
-//        random approach
-//        int totalLen = 0, group = 0, counter = 0;
-        
-//        for (int i=0; i<N; i++) {
-//            int vindex = rand()%(totalLen + orderLenghts[group] - totalLen) + totalLen;
-//            trainningStep(vindex);
-//                        
-//            if (counter == orderLenghts[group]) {
-//                counter = 0;
-//
-//                if (group < orderLenghts.size() - 1) {
-//                    totalLen += orderLenghts[group];
-//                    group++;
-//                } else {
-//                    totalLen = 0;
-//                    group = 0;
-//                }
-//                continue;
-//            }
-//            counter++;
-//        }
-//                
-//        return *this;
+    SOM& orderedTrainning(int epochs = 1) {
+        for (int epoch = 0 ; epoch < epochs ; epoch++)
+            for (int row = 0 ; row < data.rows() ; ++row)
+                trainningStep(row);
     }
-    
-    SOM& trainningStep() {
-        TVector v(data.cols());
-        int vindex = rand()%data.rows();
-        for (uint l = 0; l < data.cols(); l++)
-                v[l] = data[vindex][l];
-        
-        updateMap(v);
-        
-        return *this;
-    }
-    
-    SOM& trainningStep(int row) {
+   
+    SOM& trainningStep(int row = 1) {
         TVector v(data.cols());
         for (uint l = 0; l < data.cols(); l++)
                 v[l] = data[row][l];

@@ -28,9 +28,8 @@ public:
     SOMType *som;
     MatMatrix<float> *trainingData;
     bool allocated;
+    bool sorted;
     std::vector<int> groups;
-    std::vector<int> orderedGroupsSizes; 
-    std::vector<int> orderedGroups;
     std::map<int, int> groupLabels; 
 
     bool isSubspaceClustering;
@@ -79,7 +78,7 @@ public:
         return node_i;
     }
 
-    virtual void train(MatMatrix<float> &trainingData, int N) = 0;
+    virtual void train(MatMatrix<float> &trainingData, int epochs) = 0;
 
     virtual void getRelevances(int node_i, MatVector<float> &relevances) = 0;
 
@@ -113,21 +112,6 @@ public:
         return false;
     }
 
-    bool orderGroups() {
-        for (std::map<int, int>::iterator it = groupLabels.begin(); it != groupLabels.end(); ++it) {
-            int class_value = it->first;
-            int prevSize = orderedGroups.size();
-
-            for (int i = 0; i < groups.size(); ++i) {
-                if (groups[i] == class_value) {
-                    orderedGroups.push_back(i);
-                }
-            }
-
-            orderedGroupsSizes.push_back(orderedGroups.size() - prevSize);
-        }
-    }
-
     void setData(MatMatrix<float> &data) {
         if (allocated) {
             delete trainingData;
@@ -137,9 +121,9 @@ public:
         trainingData = &data;
     }
 
-    void trainSOM(int N) {
+    void trainSOM(int epochs) {
 
-        train(*trainingData, N);
+        train(*trainingData, epochs);
     }
 
     bool writeClusterResults(const std::string &filename) {
@@ -914,13 +898,13 @@ public:
         return som->meshNodeSet.size();
     }
 
-    void train(MatMatrix<float> &trainingData, int N) {
+    void train(MatMatrix<float> &trainingData, int epochs) {
         som->data = trainingData;
 
-        if (orderedGroups.empty()) {
-            som->trainning(N);
+        if (!sorted) {
+            som->trainning(epochs);
         } else {
-            som->orderedTrainning(N, orderedGroups, orderedGroupsSizes);
+            som->orderedTrainning(epochs);
         }
     }
 
