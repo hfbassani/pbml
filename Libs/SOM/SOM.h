@@ -49,6 +49,25 @@ public:
 
         return winner;
     }
+    virtual inline TNode* getWinnerCluster(const TVector &w) {
+        TNode *winner = 0;
+        TNumber temp = 0;
+        TNumber d = (*Mesh<TNode>::meshNodeSet.begin())->w.dist(w);
+        winner = (*Mesh<TNode>::meshNodeSet.begin());
+
+        typename TPNodeSet::iterator it;
+        it = Mesh<TNode>::meshNodeSet.begin();
+        it++;
+        for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
+            temp = (*it)->w.dist(w);
+            if (d > temp) {
+                d = temp;
+                winner = (*it);
+            }
+        }
+
+        return winner;
+    }
 
     virtual inline SOM& getWinners(const TVector &w, TNode* &winner1, TNode* &winner2) {
         typename TPNodeSet::iterator it = Mesh<TNode>::meshNodeSet.begin();

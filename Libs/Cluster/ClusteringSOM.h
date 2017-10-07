@@ -178,26 +178,51 @@ public:
         return true;
     }
 
-    float activation(DSNode* node, MatVector<float> &w) {
-        float distance = 0;
+    float activation(DSNode* node, MatVector<float> &w, uint *index) {
         int end = 0;
-        if (node->w.size() < w.size()) {
+        float tempDistance = 0;
+        *index = 0;
+        float distance = 0;
+        if (node->w.size() <= w.size()) {
             end = node->w.size();
-        } else {
-            end = w.size();
-        }
-        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
-        for (int i = 0; i < end; i++) {
-            distance += node->ds[i] * qrt((w[i] - node->w[i]));
-            if (std::isnan(w[i]) || std::isnan(distance)) {
-                std::cout << i << endl;
+            for (uint i = 0; i < end; i++) {
+                distance += node->ds[i] * qrt((w[i] - node->w[i]));
+                if (std::isnan(w[i]) || std::isnan(distance)) {
+                    std::cout << i << " - Debug 1" << endl;
+                }
             }
+        } else {
+
+            distance = 999;
+            for (uint i = 0; i <= (node->w.size() - w.size()); i += 12) {
+                tempDistance = 0;
+                for (uint j = 0; j < w.size(); j++) {
+                    //cout << i << " - " << j << " - " << tempDistance << " | ";
+                    tempDistance += node->ds[i + j] * qrt((w[j] - node->w[i + j]));
+                    if (std::isnan(w[j]) || std::isnan(tempDistance)) {
+                        std::cout << i << " - Debug 2" << endl;
+                    }
+
+                }
+
+                if (tempDistance < distance) {
+                    distance = tempDistance;
+                    *index = i;
+                }
+
+            }
+
+
         }
-        //for (int count = 0; count < node->ds.size(); count++) {
-        //  std::cout << node->w[count] << " - ";
-        //}
+
+
+        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
+
+
         float sum = node->ds.sum();
+
         return (sum / (sum + distance + 0.0000001));
+
     }
 
     MatVector<int> writeClusterResultsReadable(const std::string &filename, MatMatrix<float> &data, std::string &featuresDict,
@@ -253,12 +278,12 @@ public:
                 }
 
             }
-//GAMBI INIT
+            //GAMBI INIT
             temp2 = nodoNow->w.toString();
-            
-            
-//GAMBI END
-            
+
+
+            //GAMBI END
+
             MatVector<float> relevances;
             relevances = nodoNow->ds;
             std::string strRelevances;
@@ -297,8 +322,9 @@ public:
             DSNode* winner = som->getWinner(sample);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
+            uint index;
+            a = activation(winner, sample, &index);
 
-            a = activation(winner, sample);
             if (a >= at_min) {
                 at_know++;
                 winner->at_Know = winner->at_Know + 1;
@@ -329,12 +355,12 @@ public:
                     }
 
                 }
-//GAMBI INIT
-             output_matrix[indice][1] += "  " + rowOfData.toString();
-             //output_matrix[indice][1] += "  " + temp;
-            
-//GAMBI END
-               
+                //GAMBI INIT
+                output_matrix[indice][1] += "  " + rowOfData.toString();
+                //output_matrix[indice][1] += "  " + temp;
+
+                //GAMBI END
+
 
             }
 
@@ -438,13 +464,14 @@ public:
             trainingData->getRow(i, sample);
             if (filterNoise && isNoise(sample))
                 continue;
-
+            //cout << "W: " << i << endl;
             std::vector<int> winners;
-            DSNode* winner = som->getWinner(sample);
+            DSNode* winner = som->getWinnerCluster(sample);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
 
-            a = activation(winner, sample);
+            uint index;
+            a = activation(winner, sample, &index);
             if (a >= at_min) {
                 at_know++;
                 winner->at_Know = winner->at_Know + 1;
@@ -484,15 +511,15 @@ public:
 
 
             MatVector<int> indices;
-            
+
             for (int x = 0; x < averages.size(); x++) {
-//                if (a < at_min) {
-//                    a = -a;
-//                }
+                //                if (a < at_min) {
+                //                    a = -a;
+                //                }
                 float v = averages[x] * (a); ///Fator de peso a_t interferindo na cor da relevância 
                 if (v > 1) {
                     v = 1;
-                }else if (v < 0) {
+                } else if (v < 0) {
                     v = 0;
                 }
                 indices.append(map(v, 0.0, 1.0, 0, colors.size() - 1));
@@ -502,25 +529,33 @@ public:
 
             buff += "<td>&nbsp;";
             //Coloca os fonemas da entrada na tabela
-            for (int i = 0; i < phonemes_now.size(); i++) {
+            for (int i = index / 12, j = 0; j < phonemes_now.size(); i++, j++) {
                 buff += "<font color=" + colors[indices[i]] + "><b>";
-                buff += phonemes_now[i];
+                buff += phonemes_now[j];
                 buff += "&nbsp;</b></font>";
             }
+
             buff += "</td>";
             //Vencedor
             buff += "<td>&nbsp;";
             buff += std::to_string(winner->getId());
             buff += "&nbsp;</td>";
+
             //Ativação
-            int value = map(a, 0.7, 1.0, 0, colors.size() - 1);
+            float min = 0.7;
+            if (min > a) {
+                min = a;
+            }
+            int value = map(a, min, 1.0, 0, colors.size() - 1);
+            //cout << endl << value << endl << " buff: " << a << endl << " - size: " << colors.size();
+
             buff += "<td>&nbsp;<font color=" + colors[value] + "><b>";
+
             stringstream stream;
             stream << fixed << setprecision(2) << a;
             buff += stream.str();
             buff += "&nbsp;</b></font></td>";
             ////Traduzir protótipos para fonemas
-
             phonemes_now.clear();
             for (int begin = 0, end = 11, j = 0; end < winner->w.size(); begin += 12, end += 12, j++) {
                 features.copy(winner->w, begin, end);
@@ -529,21 +564,30 @@ public:
 
             }
             //Médias das relevancias por fonema
-            for (int i = 0; i < averages.size(); i++) {
+            for (int i = 0, j = 0; i < averages.size(); i++) {
                 buff += "<td><center>&nbsp;";
                 stringstream stream;
                 stream << fixed << setprecision(2) << averages[i];
                 buff += stream.str();
-                buff += "<br>";
-                buff += phonemes_now[i];
-                buff += "&nbsp;</center></td>";
+                if (i >= index / 12 && j < (sample.size() / 12)) {//<b> e </b>
+                    buff += "<br><b>";
+                    buff += phonemes_now[i];
+                    buff += "&nbsp;</b></center></td>";
+                    j++;
+                } else {
+                    buff += "<br>";
+                    buff += phonemes_now[i];
+                    buff += "&nbsp;</center></td>";
+                }
             }
 
             buff += "</tr>";
             phonemes_now.clear();
             averages.clear();
 
+
         }
+
 
 
         arq.write(buff.c_str(), buff.length());

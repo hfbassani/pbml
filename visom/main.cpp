@@ -182,13 +182,13 @@ int main(int argc, char** argv) {
     cout << "Running test" << endl;
 
 
-    
-    runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
-    
+
+    //runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+
     //runTestAfterTrainingTimeSeries(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
 
-    //learningTest(&som, clusteringSOM, dssom, featuresDict, outputM);
+    learningTest(&som, clusteringSOM, dssom, featuresDict, outputM);
 
     /*///////Gerando os arquivos na mão
     
@@ -402,7 +402,7 @@ void learningTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode>
         clusteringSOM.setData(data);
         som->resetSize(clusteringSOM.getInputSize());
         //taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("outputTest/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, som->a_t));
-
+        cout << " Dimension = " << i;
 
         clusteringSOM.writeClusterResultsHTML("outputTest/result_size-" + std::to_string(i) + ".html", data, featuresDict, dssom, som->a_t, i, experiment, fileNumber);
 
@@ -520,7 +520,7 @@ void loadFalseFeatureMatrix(std::string &featuresDict, std::vector<FeaturesVecto
 void createInputData(std::vector<FeaturesVector> &data, int inputCount, MatMatrix<float> &mdata, std::map<int, int> &groupLabels, std::vector<int> &groups) {
 
     int group = 0;
-    
+
     for (int i = 0; i < data.size(); i++) {
         FeaturesVector fb = data[i];
         MatVector<float> vect(inputCount * fb.rows());
@@ -623,6 +623,7 @@ MatMatrix<float> loadTrueData(int tam, int fileNumber) {
     }
     return mat;
 }
+
 MatMatrix<float> loadDataFromPath(std::string path) {
     MatMatrix<float> mat;
     std::ifstream inputFile(path);
@@ -873,7 +874,7 @@ void runTimeSeriesMotifDiscovery(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
     som->epsilon_ds = 0.0698139;
     som->minwd = 0.222785;
     som->d_max = 2;
-    
+
 
     //Faz o treinamento e teste para a quantidade de dimensões solicitadas com taxas
 
@@ -975,30 +976,30 @@ void runTestAfterTrainingTimeSeries(VILARFDSSOM *som, ClusteringMeshSOM clusteri
     som->d_max = 150;
     som->d_min = 150;
 
-            MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
-            
-            //Testa com todos os arquivos de entrada depois que arede já foi treinada
-            som->readSOM("/home/raphael/git/pbml/visom/networks/TimeSeries/som_teste_D-2--3750");
+    MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
+
+    //Testa com todos os arquivos de entrada depois que arede já foi treinada
+    som->readSOM("/home/raphael/git/pbml/visom/networks/TimeSeries/som_teste_D-2--3750");
 
 
-            for (int i = som->d_min; i <= som->d_max; i++) { // For para tamanhos de entrada
+    for (int i = som->d_min; i <= som->d_max; i++) { // For para tamanhos de entrada
 
-                //Taxa de true positive
-                MatMatrix<float> data = createOneInputDataFromTimeSeries(i, "/home/raphael/git/pbml/Datasets/Gun_Point/TRAIN/Gun_Point_TRAIN");
-                clusteringSOM.setData(data);
-                som->resetSize(clusteringSOM.getInputSize());
-                taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("output/result_" + std::to_string(i) + "_" + testname, data, featuresDict, dssom, som->a_t));
+        //Taxa de true positive
+        MatMatrix<float> data = createOneInputDataFromTimeSeries(i, "/home/raphael/git/pbml/Datasets/Gun_Point/TRAIN/Gun_Point_TRAIN");
+        clusteringSOM.setData(data);
+        som->resetSize(clusteringSOM.getInputSize());
+        taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("output/result_" + std::to_string(i) + "_" + testname, data, featuresDict, dssom, som->a_t));
 
-                //Taxa de false negative
-//                MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
-//                clusteringSOM.setData(dataFalse);
-//                som->resetSize(clusteringSOM.getInputSize());
-//                taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + testname, dataFalse, featuresDict, dssom, som->a_t));
+        //Taxa de false negative
+        //                MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
+        //                clusteringSOM.setData(dataFalse);
+        //                som->resetSize(clusteringSOM.getInputSize());
+        //                taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + testname, dataFalse, featuresDict, dssom, som->a_t));
 
-            }
+    }
 
-//            outputM.PATH = "output" + std::to_string(paramsNumber + 10) + "/";
-//            outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
-              dbgOut(1) << std::to_string(100) << "% Concluido do arquivo " << endl;
+    //            outputM.PATH = "output" + std::to_string(paramsNumber + 10) + "/";
+    //            outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
+    dbgOut(1) << std::to_string(100) << "% Concluido do arquivo " << endl;
 
 }
