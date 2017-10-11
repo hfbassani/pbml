@@ -413,7 +413,7 @@ public:
         tempVector_ds.size(sizeTemp);
         tempVector_a.size(sizeTemp);
         tempVector_w.size(sizeTemp);
-        tempVector_ds.fill(0.0);
+        tempVector_ds.fill(0.5);
 
         for (int i = 0, j = winner1->w.size(); i < sizeTemp; i++, j++) {
             tempVector_w[i] = w[j];
