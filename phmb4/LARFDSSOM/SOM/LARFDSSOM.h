@@ -478,7 +478,7 @@ public:
                 TVector wNew(w);
                 TNode *nodeNew = createNode(nodeID++, wNew);
                 nodeNew->cls = cls;
-                nodeNew->wins = 0;//step/meshNodeSet.size();
+                nodeNew->wins = 0;
 
                 updateConnections(nodeNew);
                 
@@ -486,7 +486,11 @@ public:
                 updateNode(*winner1, w, -push_rate);
                 
 //                updateConnections(winner1);
+            } else {
+                // empurrar o primeiro winner que tem classe diferente da amostra
+                updateNode(*winner1, w, -push_rate);
             }
+            
         } else {
             winner1->wins++;
             winner1->cls = cls;

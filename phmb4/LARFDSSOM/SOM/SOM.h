@@ -122,7 +122,7 @@ public:
     }
     
     SOM& trainning(int epochs = 1, std::vector<int> groups = NULL) {
-        for (int epoch=0; epoch<epochs; epochs++)
+        for (int epoch=0; epoch<epochs; epoch++)
             for (int row = 0 ; row < data.rows() ; ++row)
                 trainningStep(rand()%data.rows(), groups);
                 
