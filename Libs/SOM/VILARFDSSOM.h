@@ -73,20 +73,45 @@ public:
 
     inline float activation(const TNode &node, const TVector &w) {
         int end = 0;
-        if (node.w.size() < w.size()) {
-            end = node.w.size();
-        } else {
-            end = w.size();
-        }
+        float tempDistance = 0;
         float distance = 0;
-        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
-        for (uint i = 0; i < end; i++) {
-            distance += node.ds[i] * qrt((w[i] - node.w[i]));
-            if (std::isnan(w[i]) || std::isnan(distance)) {
-                std::cout << i << endl;
+        if (node.w.size() <= w.size()) {
+            end = node.w.size();
+            for (uint i = 0; i < end; i++) {
+                distance += node.ds[i] * qrt((w[i] - node.w[i]));
+                if (std::isnan(w[i]) || std::isnan(distance)) {
+                    std::cout << i << " - Debug 1" << endl;
+                }
             }
+        } else {
+
+            distance = 99999999;
+            for (uint i = 0; i <= (node.w.size() - w.size()); i += 12) {
+                tempDistance = 0;
+                for (uint j = 0; j < w.size(); j++) {
+                    //cout << i << " - " << j << " - " << tempDistance << " | ";
+                    tempDistance += node.ds[i + j] * qrt((w[j] - node.w[i + j]));
+                    if (std::isnan(w[j]) || std::isnan(tempDistance)) {
+                        std::cout << i << " - Debug 2" << endl;
+                    }
+
+                }
+
+                if (tempDistance < distance) {
+                    distance = tempDistance;
+                }
+
+            }
+
+
         }
+
+
+        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
+
+
         float sum = node.ds.sum();
+
         return (sum / (sum + distance + 0.0000001));
 
         //float r = node.ds.sum();
@@ -133,9 +158,9 @@ public:
 
     inline void updateNode(TNode &node, const TVector &w, TNumber e) {
         int end = 0;
-        if (node.w.size() < w.size()){
+        if (node.w.size() < w.size()) {
             end = node.w.size();
-        }else{
+        } else {
             end = w.size();
         }
         //update averages
@@ -388,7 +413,7 @@ public:
         tempVector_ds.size(sizeTemp);
         tempVector_a.size(sizeTemp);
         tempVector_w.size(sizeTemp);
-        tempVector_ds.fill(0.0);
+        tempVector_ds.fill(0.5);
 
         for (int i = 0, j = winner1->w.size(); i < sizeTemp; i++, j++) {
             tempVector_w[i] = w[j];
@@ -522,29 +547,57 @@ public:
     inline TNode* getWinner(const TVector &w) {
         TNode *winner = 0;
         TNumber temp = 0;
-        for (int i = 0; i < w.size(); i++) {
-            if (std::isnan(w[i])) {
-                cout << w[i] << " -- ";
-            }
-        }
+
         TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
-        for (int i = 0; i < w.size(); i++) {
-            if (std::isnan(w[i])) {
-                cout << w[i] << " -- ";
-            }
-        }
+        //for (int i = 0; i < w.size(); i++) {
+        //    if (std::isnan(w[i])) {
+        //        cout << w[i] << " -- ";
+        //    }
+        //}
         winner = (*Mesh<TNode>::meshNodeSet.begin());
 
         TPNodeSet::iterator it;
         it = Mesh<TNode>::meshNodeSet.begin();
         it++;
         for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
+
             temp = dist(*(*it), w);
             if (d > temp) {
                 d = temp;
                 winner = (*it);
             }
+
         }
+
+
+        return winner;
+    }
+
+    inline TNode* getWinnerCluster(const TVector &w) {
+        TNode *winner = 0;
+        TNumber temp = 0;
+
+        TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
+        //for (int i = 0; i < w.size(); i++) {
+        //    if (std::isnan(w[i])) {
+        //        cout << w[i] << " -- ";
+        //    }
+        //}
+        winner = (*Mesh<TNode>::meshNodeSet.begin());
+
+        TPNodeSet::iterator it;
+        it = Mesh<TNode>::meshNodeSet.begin();
+        it++;
+        for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
+
+            temp = dist(*(*it), w);
+            if ((d > temp) && ((*it)->a.size() >= w.size())) {
+                d = temp;
+                winner = (*it);
+            }
+
+        }
+
 
         return winner;
     }
