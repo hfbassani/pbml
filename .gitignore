@@ -306,4 +306,5 @@ visom/input
 visom/test*
 visom/Test*
 
-phmb4/LARFDSSOM/NetbeansProject/results/
+phmb4/LARFDSSOM/NetbeansProject/results*/
+phmb4/py_scripts/plots/

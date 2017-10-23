@@ -1,7 +1,0 @@
-java -jar ClusteringAnalysis.jar CE ../../Datasets/Simulated/noise ../../phmb4/LARFDSSOM/NetbeansProject/results/ ../outputMetrics/ -n ../../phmb4/Parameters/parametersNameOrig -p ../../phmb4/Parameters/ParamsOrigSim150 -r 150
-
-./larfdssom -I inputPaths -n fileNames -r results/ -p ParametersTAU
-
-java -jar ClusteringAnalysis.jar "CE" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/inputFiles/" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/results/final_no_sqrt/" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/results/final_no_sqrt.txt" -r 500
-
-java -jar ClusteringAnalysis.jar "CE" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/inputFiles/" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/results/final_sqrt/" "/home/pedro/Documents/git/clustering-analysis/ClusteringAnalysis/results/final_sqrt.txt" -r 500
