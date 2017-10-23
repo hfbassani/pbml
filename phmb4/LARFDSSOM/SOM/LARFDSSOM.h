@@ -130,24 +130,26 @@ public:
 
     inline void updateNode(TNode &node, const TVector &w, TNumber e) {
         
+        TVector newA(node.a);
+        
         //update averages
         for (uint i = 0; i < node.a.size(); i++) {
             //update neuron weights
             float distance = fabs(w[i] - node.w[i]);
-            node.a[i] = e*dsbeta* distance + (1 - e*dsbeta) * node.a[i];
+            newA[i] = e*dsbeta* distance + (1 - e*dsbeta) * newA[i];
         }
 
-        float max = node.a.max();
-        float min = node.a.min();
-        float average = node.a.mean();
+        float max = newA.max();
+        float min = newA.min();
+        float average = newA.mean();
         //float dsa = node.ds.mean();
 
 
         //update neuron ds weights
-        for (uint i = 0; i < node.a.size(); i++) {
+        for (uint i = 0; i < newA.size(); i++) {
             if ((max - min) != 0) {
                 //node.ds[i] = 1 - (node.a[i] - min) / (max - min);
-                node.ds[i] = 1/(1+exp((node.a[i]-average)/((max - min)*epsilon_ds)));
+                node.ds[i] = 1/(1+exp((newA[i]-average)/((max - min)*epsilon_ds)));
             }
             else
                 node.ds[i] = 1;
@@ -158,6 +160,7 @@ public:
 //            if (node.ds[i] < epsilon_ds)
 //                node.ds[i] = epsilon_ds;
             
+            node.a[i] = newA[i];
         }
 
         //Passo 6.1: Atualiza o peso do vencedor
@@ -454,26 +457,7 @@ public:
                 // empurrar o primeiro winner que tem classe diferente da amostra
                 updateNode(*winner1, w, -push_rate);
                 
-//                updateConnections(newWinner);
-//                updateConnections(winner1);
-                
             } else if (meshNodeSet.size() < maxNodeNumber) {
-//                TVector wNew(winner1->w);
-//                TNode *nodeNew = createNode(nodeID++, wNew);
-//                
-//                TVector aNew(winner1->a);
-//                nodeNew->a = aNew;
-//                TVector dsNew(winner1->ds);
-//                nodeNew->ds = dsNew;
-//                
-//                nodeNew->act = winner1->act;
-//                nodeNew->cls = winner1->cls;
-//                nodeNew->step = winner1->step;
-//                nodeNew->touched = winner1->touched;
-//                nodeNew->wins = 0;
-//                
-//                // puxar o vencedor
-//                updateNode(*nodeNew, w, e_b);
                 
                 TVector wNew(w);
                 TNode *nodeNew = createNode(nodeID++, wNew);
@@ -481,15 +465,7 @@ public:
                 nodeNew->wins = 0;
 
                 updateConnections(nodeNew);
-                
-                // empurrar o primeiro winner que tem classe diferente da amostra
-                updateNode(*winner1, w, -push_rate);
-                
-//                updateConnections(winner1);
-            } else {
-                // empurrar o primeiro winner que tem classe diferente da amostra
-                updateNode(*winner1, w, -push_rate);
-            }
+            } 
             
         } else {
             winner1->wins++;

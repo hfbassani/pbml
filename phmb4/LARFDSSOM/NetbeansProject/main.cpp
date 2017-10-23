@@ -104,7 +104,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.minwd = params[i + 7];
         som.epochs = params[i + 8];
         
-        som.push_rate = 0.20 * som.e_b;
+        som.push_rate = params[i + 9] * som.e_b;
         som.supervisionRate = params[i + 10];
         
         string index = to_string((i/numberOfParameters));
