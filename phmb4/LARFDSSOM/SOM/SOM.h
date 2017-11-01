@@ -156,7 +156,7 @@ public:
         float rate = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
 //        dbgOut(1) << "rand number: " << rate 
 //                << " (supervisionRate: " << supervisionRate << " | unsupervisionRate: " << unsupervisionRate << ")" << endl;
-        if (cls != noCls && rate <= supervisionRate && Mesh<TNode>::meshNodeSet.size() > 0) {
+        if (cls != noCls && rate <= supervisionRate) {
 //            dbgOut(1) << "supervised" << endl << endl;
             updateMapSup(v, cls);
         } else {

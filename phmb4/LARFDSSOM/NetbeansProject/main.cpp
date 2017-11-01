@@ -22,7 +22,8 @@
 
 using namespace std;
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, bool isSubspaceClustering, bool isFilterNoise, bool sorted);
+void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName,
+        float supervisionRate, bool isSubspaceClustering, bool isFilterNoise, bool sorted);
 std::vector<float> loadParametersFile(string path);
 std::vector<string> loadStringFile(string path);
 
@@ -42,8 +43,10 @@ int main(int argc, char** argv) {
     bool isFilterNoise = true;
     bool isSorted = false;
     
+    float supervisionRate = -1;
+    
     int c;
-    while ((c = getopt(argc, argv, "i:n:r:p:sfS")) != -1) {
+    while ((c = getopt(argc, argv, "i:n:r:p:l:sfS")) != -1) {
         switch (c) {
             case 'i':
                 inputPath.assign(optarg);
@@ -56,6 +59,9 @@ int main(int argc, char** argv) {
                 break;
             case 'p':
                 parametersFile.assign(optarg);
+                break;
+            case 'l':
+                supervisionRate = atof(optarg);
                 break;
             case 's':
                 isSubspaceClustering = false;
@@ -74,12 +80,12 @@ int main(int argc, char** argv) {
     std::vector<float> params = loadParametersFile(parametersFile);
         
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
-        runExperiments(params, inputFiles[i], resultPath, fileNames[i], isSubspaceClustering, isFilterNoise, isSorted);
+        runExperiments(params, inputFiles[i], resultPath, fileNames[i], supervisionRate, isSubspaceClustering, isFilterNoise, isSorted);
     }
 }
 
 void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, 
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted) {
+        float supervisionRate, bool isSubspaceClustering, bool isFilterNoise, bool sorted) {
     
     LARFDSSOM som(1);
     SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
@@ -105,12 +111,16 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.epochs = params[i + 8];
         
         som.push_rate = params[i + 9] * som.e_b;
-        som.supervisionRate = params[i + 10];
+        
+        if (supervisionRate < 0) 
+            som.supervisionRate = params[i + 10];
+        else 
+            som.supervisionRate = supervisionRate;
         
         string index = to_string((i/numberOfParameters));
         
-        som.unsupervisionRate = 1.0 - som.supervisionRate - som.reinforcementRate;
-        
+        som.unsupervisionRate = 1.0 - som.supervisionRate;
+                    
         som.noCls = std::min_element(clusteringSOM.groups.begin(), clusteringSOM.groups.end())[0] - 1;
         som.maxNodeNumber = 70;
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
