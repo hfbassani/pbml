@@ -34,10 +34,11 @@ public:
     LHSParameter tau;
     LHSParameter pushRate;
     LHSParameter supervisionRate;
+    LHSParameter seed;
 
     MyParameters(bool real) {
         comments = "Test float Parameters";
-        section = "VILARFDSSOM Parameters";
+        section = "LARFDSSOM Parameters";
 
         //make parameters persistent:
         addParameterD(N, "Number of samples");
@@ -55,6 +56,7 @@ public:
         addParameterD(tau, "decay rate");
         addParameterD(pushRate, "pushRate rate");
         addParameterD(supervisionRate, "supervision rate");
+        addParameterD(seed, "seed");
 
         //Set default ranges and values
         N = 150;
@@ -84,6 +86,7 @@ public:
         tau.setRange(0.00001, 0.01) = 0.00001;
         pushRate.setRange(0, 0.2) = 0;
         supervisionRate.setRange(0, 1) = 0;
+        seed.setRange(0, 100) = 0;
 
         //Add parameters to latin hypercube sampling:
         addParameterToLHS(a_t);
@@ -100,8 +103,8 @@ public:
         addParameterToLHS(tau);
         addParameterToLHS(pushRate);
         addParameterToLHS(supervisionRate);
+        addParameterToLHS(seed);
     }
-
 };
 
 #endif /* MYPARAMETERS_H */
