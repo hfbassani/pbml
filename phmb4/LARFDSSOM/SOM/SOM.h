@@ -10,6 +10,8 @@
 
 #include <list>
 #include <set>
+#include <chrono>
+#include <random>
 #include "Mesh.h"
 #include "MatVector.h"
 
@@ -122,6 +124,8 @@ public:
     }
     
     SOM& trainning(int epochs = 1, std::vector<int> groups = NULL) {
+//        trainningStep(rand()%data.rows(), groups);
+        
         for (int epoch=0; epoch<epochs; epoch++)
             for (int row = 0 ; row < data.rows() ; ++row)
                 trainningStep(rand()%data.rows(), groups);
@@ -153,13 +157,15 @@ public:
     }
     
     void chooseTrainingType(TVector &v, int cls) {
-        float rate = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
-//        dbgOut(1) << "rand number: " << rate 
-//                << " (supervisionRate: " << supervisionRate << " | unsupervisionRate: " << unsupervisionRate << ")" << endl;
-        if (cls != noCls && rate <= supervisionRate) {
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::default_random_engine generator (seed);
+        std::uniform_real_distribution<double> distribution (0.0,1.0);
+        double rate = distribution(generator);
+        
+        if (rate <= supervisionRate) { //supervised
 //            dbgOut(1) << "supervised" << endl << endl;
             updateMapSup(v, cls);
-        } else {
+        } else { //unsupervised
 //            dbgOut(1) << "unsupervised" << endl << endl;
             updateMap(v); 
         }

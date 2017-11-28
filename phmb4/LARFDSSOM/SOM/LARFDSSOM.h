@@ -276,7 +276,7 @@ public:
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
             if (sorted) {
-                trainningStep(step%data.rows(), groups );
+                trainningStep(step%data.rows(), groups);
             } else {
                 trainningStep(rand()%data.rows(), groups);
             }
@@ -364,6 +364,33 @@ public:
         return *this;
     }
 
+    void createNodeMap (const TVector& w, int cls) {
+        // cria um novo nodo na posição da amostra
+        TVector wNew(w);
+        TNode *nodeNew = createNode(nodeID, wNew);
+        nodeID++;
+        nodeNew->cls = cls;
+        nodeNew->wins = 0;
+
+        updateConnections(nodeNew);
+    }
+    
+    void ageWinsCriterion(){
+        //Passo 9:Se atingiu age_wins
+        if (step >= age_wins) {
+
+            int size = meshNodeSet.size();
+            //remove os perdedores
+            removeLoosers();
+            dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
+            //reseta o número de vitórias
+            resetWins();
+            //Passo 8.2:Adiciona conexões entre nodos semelhantes
+            updateAllConnections();
+            step = 0;
+        }
+    }
+    
     LARFDSSOM& updateMap(const TVector &w) {
 
         using namespace std;
@@ -373,17 +400,9 @@ public:
         winner1 = getWinner(w); //winner
         
         if (winner1 == NULL) {
-            //Cria um novo nodo no local do padrão observado
-            TVector wNew(w);
-            TNode *nodeNew = createNode(nodeID++, wNew);
-            nodeNew->cls = noCls;
-            nodeNew->wins = 0;//step/meshNodeSet.size();
-
-            //Conecta o nodo
-            updateConnections(nodeNew);
+            createNodeMap(w, noCls);
             
         } else {
-            winner1->wins++;
 
             //Passo 6: Calcula a atividade do nó vencedor
             TNumber a = activation(*winner1, w); //DS activation
@@ -391,17 +410,10 @@ public:
             //e o limite de nodos não tiver sido atingido
 
             if ((a < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
-                //dbgOut(2) << a << "\t<\t" << a_t << endl;
-                //Cria um novo nodo no local do padrão observado
-                TVector wNew(w);
-                TNode *nodeNew = createNode(nodeID++, wNew);
-                nodeNew->cls = noCls;
-                nodeNew->wins = 0;//step/meshNodeSet.size();
-
-                //Conecta o nodo
-                updateConnections(nodeNew);
-
+                createNodeMap(w, noCls);
+                
             } else if (a >= a_t) { // caso contrário
+                winner1->wins++;
                 // Atualiza o peso do vencedor
                 updateNode(*winner1, w, e_b);
 
@@ -414,25 +426,13 @@ public:
             }
         }
 
-        //Passo 9:Se atingiu age_wins
-        if (step >= age_wins) {
-
-            int size = meshNodeSet.size();
-            //remove os perdedores
-            removeLoosers();
-            dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
-            //reseta o número de vitórias
-            resetWins();
-            //Passo 8.2:Adiciona conexões entre nodos semelhantes
-            updateAllConnections();
-            step = 0;
-        }
-
+        ageWinsCriterion();
+        
         step++;
+        
         return *this;
     }
-
-
+    
     LARFDSSOM& updateMapSup(const TVector& w, int cls) {
         using namespace std;
         
@@ -440,77 +440,88 @@ public:
         winner1 = getFirstWinner(w); // encontra o nó vencedor
 
         if (winner1 == NULL) { // mapa vazio, primeira amostra
-            // cria um novo nodo na posição da amostra
-            TVector wNew(w);
-            TNode *nodeNew = createNode(nodeID++, wNew);
-            nodeNew->cls = cls;
-            nodeNew->wins = 0;
-
-            updateConnections(nodeNew);
+            createNodeMap(w, cls);
             
         } else if (winner1->cls != noCls && winner1->cls != cls) { // winner tem classe diferente da amostra
             // caso winner seja de classe diferente, checar se existe algum
             // outro nodo no mapa que esteja no raio a_t da nova amostra e
             // que pertença a mesma classe da mesma
             
-            TNode *newWinner = getNextWinner(winner1);
-            while(newWinner != NULL) { // saiu do raio da ativação -> não há um novo vencedor
-                
-                if (newWinner->cls == noCls || newWinner->cls == cls) { // novo vencedor valido encontrado
-                    newWinner->cls = cls;
-                    break;
-                }
-                
-                newWinner = getNextWinner(newWinner);
-            }
-                                            
-            if (newWinner != NULL) { // novo winner de acordo com o raio de a_t
-                newWinner->wins++;
-                // puxar o novo vencedor
-                updateNode(*newWinner, w, e_b);
-                
-                // empurrar o primeiro winner que tem classe diferente da amostra
-                updateNode(*winner1, w, -push_rate);
-                
-            } else if (meshNodeSet.size() < maxNodeNumber) {
-                
-                // cria um novo nodo na posição da amostra
-                TVector wNew(w);
-                TNode *nodeNew = createNode(nodeID++, wNew);
-                nodeNew->cls = cls;
-                nodeNew->wins = 0;
-
-                updateConnections(nodeNew);
-            } 
+            handleDifferentClass(winner1, w, cls);
             
         } else { // winner1 representativo e da mesma classe da amostra 
-            winner1->wins++;
-            winner1->cls = cls;
-            updateNode(*winner1, w, e_b);
             
+            if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
+                // cria um novo nodo na posição da amostra
+                createNodeMap(w, cls);
+
+            } else if (winner1->act >= a_t) {
+                winner1->wins++;
+                winner1->cls = cls;
+                updateNode(*winner1, w, e_b);
+
+                TPNodeConnectionMap::iterator it;
+                for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
+                    TNode* node = it->first;
+                    updateNode(*node, w, e_n);
+                }
+            } 
+        }
+
+        ageWinsCriterion();
+        
+        step++;
+        
+        return *this;
+    }
+    
+    void handleDifferentClass(TNode *winner1, const TVector& w, int cls) {
+        TNode *newWinner = winner1;
+        while((newWinner = getNextWinner(newWinner)) != NULL) { // saiu do raio da ativação -> não há um novo vencedor
+            if (newWinner->cls == noCls || newWinner->cls == cls) { // novo vencedor valido encontrado
+                break;
+            }
+        }
+
+        if (newWinner != NULL) { // novo winner de acordo com o raio de a_t
+            newWinner->cls = cls;
+            newWinner->wins++;
+            // puxar o novo vencedor
+            updateNode(*newWinner, w, e_b);
+
             TPNodeConnectionMap::iterator it;
-            for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
+            for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
                 TNode* node = it->first;
                 updateNode(*node, w, e_n);
             }
+
+            // empurrar o primeiro winner que tem classe diferente da amostra
+            updateNode(*winner1, w, -push_rate);
+
+        } else if (meshNodeSet.size() < maxNodeNumber) {
+
+            // cria um novo nodo na posição da amostra
+            createNodeMap(w, cls);
+
+//            TVector wNew(winner1->w);
+//            TNode *nodeNew = createNode(nodeID++, wNew);
+//            nodeNew->cls = cls;
+//            nodeNew->wins = 0;
+
+//                TVector aNew(winner1->a);
+//                nodeNew->a = aNew;
+//                TVector dsNew(winner1->ds);
+//                nodeNew->ds = dsNew;
+//                
+//                nodeNew->act = winner1->act;
+//                nodeNew->step = winner1->step;
+//                nodeNew->touched = winner1->touched;
+//                nodeNew->wins = winner1->wins + 1;               
+            // puxar o vencedor
+//            updateNode(*nodeNew, w, e_b);
+
+//            updateNode(*winner1, w, -push_rate);
         }
-
-        //Passo 9:Se atingiu age_wins
-        if (step >= age_wins) {
-
-            int size = meshNodeSet.size();
-            //remove os perdedores
-            removeLoosers();
-            dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
-            //reseta o número de vitórias
-            resetWins();
-            //Passo 8.2:Adiciona conexões entre nodos semelhantes
-            updateAllConnections();
-            step = 0;
-        }
-
-        step++;
-        return *this;
     }
 
     virtual TNode *getFirstWinner(const TVector &w){
@@ -675,6 +686,11 @@ public:
         nodeID = 0;
 
         destroyMesh();
+        TVector v(dimw);
+        v.random();
+        TVector wNew(v);
+        TNode *nodeNew = createNode(0, wNew);
+        nodeNew->cls = noCls;
     }
     
     void resetSize(int dimw) {

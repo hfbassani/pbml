@@ -29,7 +29,7 @@ std::vector<string> loadStringFile(string path);
 
 int main(int argc, char** argv) {
     
-    srand (time(NULL));
+//    srand (time(NULL));
     dbgThreshold(1);
     
     dbgOut(1) << "Running LARFDSSOM" << endl;
@@ -97,7 +97,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
     clusteringSOM.setFilterNoise(isFilterNoise);    
     
-    int numberOfParameters = 11;
+    int numberOfParameters = 12;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         som.a_t = params[i];
@@ -117,12 +117,13 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         else 
             som.supervisionRate = supervisionRate;
         
-        string index = to_string((i/numberOfParameters));
+        string index = std::to_string((i/numberOfParameters));
         
         som.unsupervisionRate = 1.0 - som.supervisionRate;
-                    
+                  
+        srand(params[i + 11] + time(NULL));
         som.noCls = std::min_element(clusteringSOM.groups.begin(), clusteringSOM.groups.end())[0] - 1;
-        som.maxNodeNumber = 70;
+        som.maxNodeNumber = 140;
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(som.epochs);
