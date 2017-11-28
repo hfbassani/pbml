@@ -116,6 +116,7 @@ void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileNam
         file << params->epsilon_ds << "\n";
         file << params->minwd << "\n";
         file << round(params->epochs) << "\n";
+        file << params->seed << "\n";
     }
     
     file.close();
@@ -139,6 +140,7 @@ void createParametersFileHybrid(MyParameters * params, string fileName, int qtdP
         file << round(params->epochs) << "\n";
         file << params->pushRate << "\n";
         file << params->supervisionRate << "\n";
+        file << params->seed << "\n";
     }
     
     file.close();
@@ -162,6 +164,7 @@ void createParametersFileExperiments(MyParameters * params, string fileName, int
         file << params->gamma << "\n";
         file << params->h_threshold << "\n";
         file << params->tau << "\n";
+        file << params->seed << "\n";
     }
     
     file.close();

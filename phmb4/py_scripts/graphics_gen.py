@@ -316,14 +316,14 @@ def plot_gammas_vs_hthresholds(filename, savePlots=False):
 
 #-------------------------------------------------------------------#
 
-fileName = "../outputMetrics/results_ParamsNodeDelNNSim500_0_at_order_seq_finish.csv"
+fileName = "../outputMetrics/hybrid_new_rand_default_init_new_else.csv"
 
 # plot_synthetic_data_graphs(fileName=fileName, savePlots=True)
-subplot_synthetic_data_graphs(fileName=fileName, savePlots=True)
+#subplot_synthetic_data_graphs(fileName=fileName, savePlots=True)
 
-paramsToPlot = ["a_t", "lp", "gamma", "h_threshold", "e_b"]
-# plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
-subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
+paramsToPlot = ["a_t", "lp", "supervision_rate", "push_rate", "epochs"]
+plot_params_results(fileName=fileName, paramsToPlot=None, savePlots=True)
+#subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
 
 # plot_gammas_vs_hthresholds(fileName, savePlots=False)
 

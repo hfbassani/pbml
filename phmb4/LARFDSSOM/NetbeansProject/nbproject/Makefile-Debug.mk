@@ -58,8 +58,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-Wno-comment
-CXXFLAGS=-Wno-comment
+CCFLAGS=-Wno-comment -std=c++11
+CXXFLAGS=-Wno-comment -std=c++11
 
 # Fortran Compiler Flags
 FFLAGS=

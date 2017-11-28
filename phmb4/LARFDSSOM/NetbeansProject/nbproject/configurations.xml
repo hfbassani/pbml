@@ -267,7 +267,7 @@
             <pElem>../../../Libs/MatMatrix</pElem>
             <pElem>../../../Libs/Parameters</pElem>
           </incDir>
-          <commandLine>-Wno-comment</commandLine>
+          <commandLine>-Wno-comment -std=c++11</commandLine>
         </ccTool>
         <linkerTool>
           <commandLine>-L/usr/X11/lib -static-libstdc++</commandLine>
@@ -1182,7 +1182,7 @@
             <pElem>../Cluster</pElem>
             <pElem>../SOM</pElem>
           </incDir>
-          <commandLine>-Wno-comment</commandLine>
+          <commandLine>-Wno-comment -std=c++11</commandLine>
         </ccTool>
         <linkerTool>
           <commandLine>-L/usr/X11/lib -static-libstdc++</commandLine>
