@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   main.cpp
  * Author: hans
  *
@@ -22,33 +22,33 @@
 
 using namespace std;
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, bool isSubspaceClustering, bool isFilterNoise, bool sorted);
+void runExperiments (std::vector<float> params, string filePath, string outputPath,
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted);
 std::vector<float> loadParametersFile(string path);
 std::vector<string> loadStringFile(string path);
+int findLast(const string str, string delim);
+string getFileName(string filePath);
+
 
 int main(int argc, char** argv) {
-    
+
     dbgThreshold(1);
-    
+
     dbgOut(1) << "Running LARFDSSOM" << endl;
-    
+
     string inputPath = "";
-    string fileNamesPath = "";
     string resultPath = "";
     string parametersFile = "";
-    
+
     bool isSubspaceClustering = true;
     bool isFilterNoise = true;
     bool isSorted = false;
-    
+
     int c;
-    while ((c = getopt(argc, argv, "i:n:r:p:sfS")) != -1) {
+    while ((c = getopt(argc, argv, "i:r:p:sfS")) != -1) {
         switch (c) {
             case 'i':
                 inputPath.assign(optarg);
-                break;
-            case 'n':
-                fileNamesPath.assign(optarg);
                 break;
             case 'r':
                 resultPath.assign(optarg);
@@ -63,35 +63,35 @@ int main(int argc, char** argv) {
                 isFilterNoise = false;
                 break;
             case 'S':
-                isSorted = true;
+                //TODO: merge from branch hybrid-tests
+//                isSorted = true;
                 break;
         }
     }
-    
+
     std::vector<string> inputFiles = loadStringFile(inputPath);
-    std::vector<string> fileNames = loadStringFile(fileNamesPath);
     std::vector<float> params = loadParametersFile(parametersFile);
-        
+
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
-        runExperiments(params, inputFiles[i], resultPath, fileNames[i], isSubspaceClustering, isFilterNoise, isSorted);
+        runExperiments(params, inputFiles[i], resultPath, isSubspaceClustering, isFilterNoise, isSorted);
     }
 }
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, 
+void runExperiments (std::vector<float> params, string filePath, string outputPath,
         bool isSubspaceClustering, bool isFilterNoise, bool sorted) {
-    
+
     LARFDSSOM som(1);
     SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
-    
+
     ClusteringMeshSOM clusteringSOM(dssom);
     clusteringSOM.readFile(filePath);
     clusteringSOM.sorted = sorted;
-    
+
     clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
-    clusteringSOM.setFilterNoise(isFilterNoise);    
-    
-    int numberOfParameters = 9;
-    
+    clusteringSOM.setFilterNoise(isFilterNoise);
+
+    int numberOfParameters = 10;
+
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         som.a_t = params[i];
         som.lp = params[i + 1];
@@ -102,16 +102,18 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7];
         som.epochs = params[i + 8];
-        
-        string index = to_string((i/numberOfParameters));
-        
+
+        string index = std::to_string((i/numberOfParameters));
+
+        srand(params[i + 9] + time(NULL));
         som.maxNodeNumber = 70;
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(som.epochs);
         som.finishMapFixed(sorted);
-        clusteringSOM.writeClusterResults(outputPath + fileName + "_" + index + ".results");
-        
+
+        clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
+
     }
 }
 
@@ -135,4 +137,26 @@ std::vector<string> loadStringFile(string path) {
         params.push_back(text.c_str());
     }
     return params;
+}
+
+string getFileName(string filePath) {
+
+    int start = findLast(filePath, "/");
+    int end = findLast(filePath, ".");
+
+    return filePath.substr(start + 1, end - start - 1);
+}
+
+int findLast(string str, string delim) {
+    std::vector<int> splits;
+
+    int current, previous = 0;
+    current = str.find(delim);
+    while (current != std::string::npos) {
+        splits.push_back(current);
+        previous = current + 1;
+        current = str.find(delim, previous);
+    }
+
+    return splits[splits.size() - 1];
 }

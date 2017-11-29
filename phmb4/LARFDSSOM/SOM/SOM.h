@@ -112,7 +112,7 @@ public:
     }
     
     SOM& trainning(int epochs = 1) {
-        for (int epoch=0; epoch<epochs; epochs++)
+        for (int epoch = 0; epoch < epochs ; epoch++)
             for (int row = 0 ; row < data.rows() ; ++row)
                 trainningStep(rand()%data.rows());
                 
