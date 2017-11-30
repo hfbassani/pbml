@@ -56,3 +56,5 @@ See [params-gen](https://github.com/hfbassani/pbml/tree/master/params-gen/)
 ### Metrics Calculation
 
 See [clustering-analysis](https://github.com/hfbassani/pbml/tree/master/clustering-analysis/)
+
+### You can run the .jar file without the need to open the project. Just follow this [link](https://github.com/hfbassani/pbml/tree/master/Executables).
