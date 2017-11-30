@@ -231,13 +231,17 @@ public:
     }
 
     //*
-    LARFDSSOM& finishMap() {
+    LARFDSSOM& finishMap(bool sorted) {
 
         dbgOut(1) << "Finishing map..." << endl;
         do {
             resetWins();
             maxNodeNumber = meshNodeSet.size();
-            trainning(age_wins);
+            if (!sorted) {
+                trainning(age_wins);
+            } else {
+                orderedTrainning(age_wins);
+            }
             
             resetWins();
 
@@ -265,33 +269,29 @@ public:
     }
     /**/
     
+    void runTrainingStep(bool sorted) {
+        if (sorted) {
+            trainningStep(step%data.rows());
+        } else {
+            trainningStep(rand()%data.rows());
+        }
+    }
+    
     LARFDSSOM& finishMapFixed(bool sorted) {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
-            if (sorted) {
-                trainningStep(step%data.rows());
-            } else {
-                trainningStep(rand()%data.rows());
-            }
+            runTrainingStep(sorted);
         }
         maxNodeNumber = meshNodeSet.size(); //fix mesh max size
         
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         
         //step equal to 2
-        if (sorted) {
-            trainningStep(step%data.rows());
-        } else {
-            trainningStep(rand()%data.rows());
-        }
+        runTrainingStep(sorted);
         
         while (step!=1) {
-            if (sorted) {
-                trainningStep(step%data.rows());
-            } else {
-                trainningStep(rand()%data.rows());
-            }
+            runTrainingStep(sorted);
         }
         
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;

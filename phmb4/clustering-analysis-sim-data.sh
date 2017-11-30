@@ -1,0 +1,1 @@
+java -jar ClusteringAnalysis.jar "CE" ../Datasets/Simulated/ ../original-larfdssom/resultsSim_Parameters_XLS_sort_no_finish/ results/ resultsSim_Parameters_XLS_sort_no_finish -n ../Parameters/parametersNameOrig -p ../Parameters/Parameters_XLS -r 500

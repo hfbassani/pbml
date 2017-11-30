@@ -63,8 +63,7 @@ int main(int argc, char** argv) {
                 isFilterNoise = false;
                 break;
             case 'S':
-                //TODO: merge from branch hybrid-tests
-//                isSorted = true;
+                isSorted = true;
                 break;
         }
     }
