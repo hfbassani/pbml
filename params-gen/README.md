@@ -30,3 +30,5 @@ This project was developed with the object to sample parameters between a range 
 ## OBS:
 
  if you want to change the range values or whatever else, feel free to update MyParameters.h
+ 
+ ### You can run the .jar file without the need to open the project. Just follow this [link](https://github.com/hfbassani/pbml/tree/master/Executables).
