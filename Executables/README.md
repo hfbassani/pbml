@@ -1,9 +1,10 @@
 # Running executables
 
+first of all, navigate to the directory containing the binaries.
+
 ## Creating Parameters File 
 
-  1. Navigate to the directory containing the binaries
-  2. Run the program:
+  1. Run the program:
 
   ```sh
   $ ./params-gen -f ../phmb4/Parameters/OrigRealSeed -n 1 -r 500 -o
@@ -21,7 +22,7 @@
   ```
   This example will run the LARFDSSOM using the parameters files create above, saving the outputs in the results directory that you create.
 
-## Calculate your metrics
+## Calculating your metrics
 
   1. Create a output_metrics directory for the output of the program
   2. Run the program:
