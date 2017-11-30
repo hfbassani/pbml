@@ -23,9 +23,13 @@
     
 3. You must create a results folder
 
+### Parameters Generation 
+  
+See [params-gen](https://github.com/hfbassani/pbml/tree/master/params-gen/)
+    
 ### Running:
 
-1. Make sure you fully fill the requirements.
+1. Make sure you fill the requirements.
 2. Open the NetbeansProject with Netbeans
 3. Set the arguments for the program:
 
@@ -40,19 +44,14 @@
 
   -f[optional]: this flag disables the noisy filtering and all samples will be assigned to a cluster.
   ```
-  
-  For example, to run experiments for the [these](https://github.com/hfbassani/pbml/tree/master/Datasets/Realdata) real datasets, you must use -s and -f flags, so that the arguments will be like follows:
+  For example, to run experiments for [these](https://github.com/hfbassani/pbml/tree/master/Datasets/Realdata) real datasets, you must use -s and -f flags, so that the arguments will be as follows:
   
   ```
   -i ../../Parameters/inputPathsReal -r teste_orig/ -p ../../Parameters/OrigRealSeed_0 -s
   ```
   
-  After that, you can run yours metrics based on the results file.
+  After that, you can run your metrics based on the results file.
   
-### Parameters Generation 
-  
-See [params-gen](https://github.com/hfbassani/pbml/tree/master/params-gen/)
-    
 ### Metrics Calculation
 
 See [clustering-analysis](https://github.com/hfbassani/pbml/tree/master/clustering-analysis/)
