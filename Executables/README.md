@@ -1,6 +1,6 @@
 # Running executables
 
-First, navigate to the directory containing all the binaries. Then, follow the instructions below:
+First, navigate to the directory containing all the executables. Then, follow the instructions below:
 
 ## Creating Parameters File
 

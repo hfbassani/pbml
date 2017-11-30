@@ -184,6 +184,8 @@ public class ClusteringAnalysis {
                     measures.add(measure);
                 }
 
+                System.out.println("\n" + filename);
+
                 for (int i = 0 ; i < measureNames.length ; ++i) {
 
                     ArrayList<Double> measureValues = new ArrayList<>();
@@ -203,7 +205,7 @@ public class ClusteringAnalysis {
                     double mean = average.isPresent() ? average.getAsDouble() : 0;
                     means.add(mean);
 
-                    String output = filename + "\nBest " + measureNames[i] + ": " + best + "\nBest Parameter Set Index: " + bestParameterSetIndex + "\nMean: " + mean + "\nClusters Found: " + clusters.get(bestParameterSetIndex);
+                    String output = "\nBest " + measureNames[i] + ": " + best + "\nBest Parameter Set Index: " + bestParameterSetIndex + "\nMean: " + mean + "\nClusters Found: " + clusters.get(bestParameterSetIndex);
                     outputLines.add(output);
                     System.out.println(output);
                 }
@@ -238,14 +240,17 @@ public class ClusteringAnalysis {
 
         /**********************************************/
 
-        // Adding final values first
+        List<Double> bestValuesSorted = new ArrayList<>();
 
+        // Adding final values first
         String line = "max_value";
         for (int i = 0; i < measureNames.length; ++i) {
 
             int j = 0;
             while(j < qtdInputFiles) {
-                line += "," + Double.toString(bestValues.get(i + (j * measureNames.length)));
+                double values = bestValues.get(i + (j * measureNames.length));
+                bestValuesSorted.add(values);
+                line += "," + Double.toString(values);
                 ++j;
             }
         }
@@ -284,6 +289,22 @@ public class ClusteringAnalysis {
         }
         outputLines.add(line);
 
+        int start = 0;
+        int end = bestValues.size() / measureNames.length;
+        for (int i = 0 ; i < measureNames.length ; ++i) {
+            line = measureNames[i];
+
+            List<Double> measureValues = bestValuesSorted.subList(start, end);
+
+            line += "," + Double.toString(mean(measureValues)) + " (" + Double.toString(sample_stdev(measureValues)) + ")";
+            System.out.println("\n" + measureNames[i] + " mean(std):" + Double.toString(mean(measureValues)) + " (" + Double.toString(sample_stdev(measureValues)) + ")" );
+
+            outputLines.add(line);
+
+            start = end;
+            end += measureValues.size();
+        }
+
         /**********************************************/
 
         // Adding header line
@@ -318,6 +339,38 @@ public class ClusteringAnalysis {
         }
 
         saveFile(outputLines, outputDir + outputFileName + ".csv");
+    }
+
+    public static double mean (List<Double> values) {
+
+        double mean = 0;
+
+        for (int i =0 ; i < values.size() ; ++i) {
+            mean += values.get(i);
+        }
+
+        return mean > 0 ? mean / values.size() : mean;
+    }
+
+    public static double sample_stdev (List<Double> values) {
+        // Step 1:
+        double mean = mean(values);
+        double temp = 0;
+
+        for (int i = 0; i < values.size(); i++)
+        {
+            // Step 2:
+            double squrDiffToMean = Math.pow(values.get(i) - mean, 2);
+
+            // Step 3:
+            temp += squrDiffToMean;
+        }
+
+        // Step 4:
+        double meanOfDiffs = temp / (values.size() - 1);
+
+        // Step 5:
+        return Math.sqrt(meanOfDiffs);
     }
 
     public static void saveFile(List<String> lines, String path) {
