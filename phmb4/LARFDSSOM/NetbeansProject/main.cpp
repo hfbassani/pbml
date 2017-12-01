@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   main.cpp
  * Author: hans
  *
@@ -22,23 +22,24 @@
 
 using namespace std;
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName,
-        float supervisionRate, bool isSubspaceClustering, bool isFilterNoise, bool sorted);
+void runExperiments (std::vector<float> params, string filePath, string outputPath, float supervisionRate,
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted);
 std::vector<float> loadParametersFile(string path);
 std::vector<string> loadStringFile(string path);
+int findLast(const string str, string delim);
+string getFileName(string filePath);
+
 
 int main(int argc, char** argv) {
-    
-//    srand (time(NULL));
+
     dbgThreshold(1);
-    
+
     dbgOut(1) << "Running LARFDSSOM" << endl;
-    
+
     string inputPath = "";
-    string fileNamesPath = "";
     string resultPath = "";
     string parametersFile = "";
-    
+
     bool isSubspaceClustering = true;
     bool isFilterNoise = true;
     bool isSorted = false;
@@ -46,13 +47,11 @@ int main(int argc, char** argv) {
     float supervisionRate = -1;
     
     int c;
-    while ((c = getopt(argc, argv, "i:n:r:p:l:sfS")) != -1) {
+    while ((c = getopt(argc, argv, "i:r:p:l:sfS")) != -1) {
+
         switch (c) {
             case 'i':
                 inputPath.assign(optarg);
-                break;
-            case 'n':
-                fileNamesPath.assign(optarg);
                 break;
             case 'r':
                 resultPath.assign(optarg);
@@ -74,26 +73,25 @@ int main(int argc, char** argv) {
                 break;
         }
     }
-    
+
     std::vector<string> inputFiles = loadStringFile(inputPath);
-    std::vector<string> fileNames = loadStringFile(fileNamesPath);
     std::vector<float> params = loadParametersFile(parametersFile);
-        
+
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
-        runExperiments(params, inputFiles[i], resultPath, fileNames[i], supervisionRate, isSubspaceClustering, isFilterNoise, isSorted);
+        runExperiments(params, inputFiles[i], resultPath, supervisionRate, isSubspaceClustering, isFilterNoise, isSorted);
     }
 }
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, string fileName, 
-        float supervisionRate, bool isSubspaceClustering, bool isFilterNoise, bool sorted) {
-    
+void runExperiments (std::vector<float> params, string filePath, string outputPath, float supervisionRate,
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted) {
+
     LARFDSSOM som(1);
     SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
-    
+
     ClusteringMeshSOM clusteringSOM(dssom);
     clusteringSOM.readFile(filePath);
     clusteringSOM.sorted = sorted;
-    
+
     clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
     clusteringSOM.setFilterNoise(isFilterNoise);    
     
@@ -109,7 +107,6 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7];
         som.epochs = params[i + 8];
-        
         som.push_rate = params[i + 9] * som.e_b;
         
         if (supervisionRate < 0) 
@@ -128,7 +125,8 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.reset(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(som.epochs);
         som.finishMapFixed(sorted, clusteringSOM.groups);
-        clusteringSOM.writeClusterResults(outputPath + fileName + "_" + index + ".results");
+        clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
+
     }
 }
 
@@ -152,4 +150,26 @@ std::vector<string> loadStringFile(string path) {
         params.push_back(text.c_str());
     }
     return params;
+}
+
+string getFileName(string filePath) {
+
+    int start = findLast(filePath, "/");
+    int end = findLast(filePath, ".");
+
+    return filePath.substr(start + 1, end - start - 1);
+}
+
+int findLast(string str, string delim) {
+    std::vector<int> splits;
+
+    int current, previous = 0;
+    current = str.find(delim);
+    while (current != std::string::npos) {
+        splits.push_back(current);
+        previous = current + 1;
+        current = str.find(delim, previous);
+    }
+
+    return splits[splits.size() - 1];
 }

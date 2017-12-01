@@ -237,13 +237,18 @@ public:
     }
 
     //*
-    LARFDSSOM& finishMap(std::vector<int> groups) {
+    LARFDSSOM& finishMap(bool sorted, std::vector<int> groups) {
 
         dbgOut(1) << "Finishing map..." << endl;
         do {
             resetWins();
             maxNodeNumber = meshNodeSet.size();
-            trainning(age_wins, groups);
+            
+            if (!sorted) {
+                trainning(age_wins, groups);
+            } else {
+                orderedTrainning(age_wins, groups);
+            }
             
             resetWins();
 
@@ -271,33 +276,29 @@ public:
     }
     /**/
     
+    void runTrainingStep(bool sorted, std::vector<int> groups) {
+        if (sorted) {
+            trainningStep(step%data.rows(), groups);
+        } else {
+            trainningStep(rand()%data.rows(), groups);
+        }
+    }
+    
     LARFDSSOM& finishMapFixed(bool sorted, std::vector<int> groups) {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
-            if (sorted) {
-                trainningStep(step%data.rows(), groups);
-            } else {
-                trainningStep(rand()%data.rows(), groups);
-            }
+            runTrainingStep(sorted, groups);
         }
         maxNodeNumber = meshNodeSet.size(); //fix mesh max size
         
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         
         //step equal to 2
-        if (sorted) {
-            trainningStep(step%data.rows(), groups);
-        } else {
-            trainningStep(rand()%data.rows(), groups);
-        }
+        runTrainingStep(sorted, groups);
         
         while (step!=1) {
-            if (sorted) {
-                trainningStep(step%data.rows(), groups);
-            } else {
-                trainningStep(rand()%data.rows(), groups);
-            }
+            runTrainingStep(sorted, groups);
         }
         
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
