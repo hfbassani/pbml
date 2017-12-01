@@ -28,7 +28,7 @@ First, navigate to the directory containing all the executables. Then, follow th
   2. Run the program:
 
   ```sh
-  java -jar ClusteringAnalysis.jar "CE:Accuracy" ../Datasets/Realdata results output_metrics "metrics_larfdssom" -p ../phmb4/Parameters/OrigRealSeed_0 -n ../phmb4/Parameters/parametersNameOrig -r 500 -t
+  java -jar ClusteringAnalysis.jar "CE:Accuracy" ../Datasets/Realdata results output_metrics -p ../phmb4/Parameters/OrigRealSeed_0 -n ../phmb4/Parameters/parametersNameOrig -r 500 -t
   ```
 
   This example will calculate the Clustering Error and Accuracy of LARFDSSOM's results, saving the output (a .csv file) in the output_metrics directory that you create.

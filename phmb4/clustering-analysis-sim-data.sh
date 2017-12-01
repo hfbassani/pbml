@@ -1,1 +1,1 @@
-java -jar ClusteringAnalysis.jar "CE" ../Datasets/Simulated/ ../original-larfdssom/resultsSim_Parameters_XLS_sort_no_finish/ results/ resultsSim_Parameters_XLS_sort_no_finish -n ../Parameters/parametersNameOrig -p ../Parameters/Parameters_XLS -r 500
+java -jar ClusteringAnalysis.jar "CE:Accuracy" ../Datasets/Simulated/ LARFDSSOM/NetbeansProject/test/ LARFDSSOM/NetbeansProject/ -p Parameters/OrigRealSeed_0 -n Parameters/parametersNameOrig -r 500

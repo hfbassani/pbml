@@ -36,7 +36,7 @@ public class ClusteringAnalysis {
     static ArrayList<Cluster> trueClusters;
 
     static final String INPUT_MESSAGE = "Usage: 'Metrics (CE:F1Measure)' 'Datafiles directory' 'Results directory' " +
-            "'Output directory' 'Output file name' [-t] [-e extension] [-n 'Parameter Names File'] [-p 'Parameters File'] -r 'number of experiments'";
+            "'Output directory' [-t] [-e extension] [-n 'Parameter Names File'] [-p 'Parameters File'] -r 'number of experiments'";
 
     public static void main(String[] args) {
 
@@ -54,10 +54,10 @@ public class ClusteringAnalysis {
                 inputDir = handleDirectoryString(args[i]);
             } else if (i == 2) {
                 resultsDir = handleDirectoryString(args[i]);
+                String[] dirSplit = resultsDir.split("/");
+                outputFileName = dirSplit[dirSplit.length - 1];
             } else if (i == 3) {
                 outputDir = handleDirectoryString(args[i]);
-            } else if (i == 4) {
-                outputFileName = args[i];
             } else if (args[i].compareTo("-t") == 0) {
                 showErrorMessage(args, i);
                 allTrue = true;
