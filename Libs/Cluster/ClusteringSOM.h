@@ -278,11 +278,11 @@ public:
                 }
 
             }
-            //GAMBI INIT
+            /*/GAMBI INIT
             temp2 = nodoNow->w.toString();
 
 
-            //GAMBI END
+            //GAMBI END*/
 
             MatVector<float> relevances;
             relevances = nodoNow->ds;
@@ -355,12 +355,10 @@ public:
                     }
 
                 }
-                //GAMBI INIT
-                output_matrix[indice][1] += "  " + rowOfData.toString();
-                //output_matrix[indice][1] += "  " + temp;
+                
+                output_matrix[indice][1] += "  " + temp;
 
-                //GAMBI END
-
+                
 
             }
 
