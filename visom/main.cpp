@@ -24,6 +24,7 @@
 #include "MyParameters/MyParameters.h"
 #include "OutputMetrics/OutputMetrics.h"
 #include <string>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -174,7 +175,7 @@ int main(int argc, char** argv) {
     }
 
     dbgOut(1) << "Running VILARFDSSOM for file: " << filename << endl;
-
+    mkdir("output/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     srand(time(0));
     srand(seed);
     //cout << "Loading False data in Memory..." << endl;
