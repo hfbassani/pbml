@@ -19,6 +19,7 @@
 #include "ArffData.h"
 #include "ClusteringSOM.h"
 #include "LARFDSSOM.h"
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -68,6 +69,10 @@ int main(int argc, char** argv) {
         }
     }
 
+    if (mkdir(resultPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0) {
+        dbgOut(1) << "Results Directory Created" << endl;
+    }
+    
     std::vector<string> inputFiles = loadStringFile(inputPath);
     std::vector<float> params = loadParametersFile(parametersFile);
 
