@@ -96,14 +96,14 @@ public:
     }
 
     void cleanUpTrainingData() {
-        trainingData->clear();
+        trainingData->clear();            
         groups.clear();
         groupLabels.clear();
     }
 
     bool readFile(const std::string &filename) {
 
-        if (trainingData == NULL && !allocated) {
+        if ((trainingData == NULL && !allocated) || trainingData->rows() == 0) {
             trainingData = new MatMatrix<float>();
             allocated = true;
         }

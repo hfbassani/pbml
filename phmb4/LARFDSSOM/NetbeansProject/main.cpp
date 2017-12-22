@@ -11,8 +11,6 @@
 #include <time.h>
 #include <limits>
 #include <unistd.h>
-#include "MatMatrix.h"
-#include "MatVector.h"
 #include "Defines.h"
 #include "DebugOut.h"
 #include "ClusteringMetrics.h"
@@ -25,10 +23,13 @@ using namespace std;
 
 void runExperiments (std::vector<float> params, string filePath, string outputPath, float supervisionRate,
         bool isSubspaceClustering, bool isFilterNoise, bool sorted);
+void runTestTrainExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, float supervisionRate,
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted);
+
 std::vector<float> loadParametersFile(string path);
 std::vector<string> loadStringFile(string path);
-int findLast(const string str, string delim);
 string getFileName(string filePath);
+int findLast(const string str, string delim);
 
 
 int main(int argc, char** argv) {
@@ -38,6 +39,7 @@ int main(int argc, char** argv) {
     dbgOut(1) << "Running LARFDSSOM" << endl;
 
     string inputPath = "";
+    string testPath = "";
     string resultPath = "";
     string parametersFile = "";
 
@@ -45,14 +47,19 @@ int main(int argc, char** argv) {
     bool isFilterNoise = true;
     bool isSorted = false;
     
+    bool runTrainTest = false;
+    
     float supervisionRate = -1;
     
     int c;
-    while ((c = getopt(argc, argv, "i:r:p:l:sfS")) != -1) {
+    while ((c = getopt(argc, argv, "i:t:r:p:l:sfSc")) != -1) {
 
         switch (c) {
             case 'i':
                 inputPath.assign(optarg);
+                break;
+            case 't':
+                testPath.assign(optarg);
                 break;
             case 'r':
                 resultPath.assign(optarg);
@@ -72,6 +79,9 @@ int main(int argc, char** argv) {
             case 'S':
                 isSorted = true;
                 break;
+            case 'c':
+                runTrainTest = true;
+                break;
         }
     }
 
@@ -80,10 +90,15 @@ int main(int argc, char** argv) {
     }
     
     std::vector<string> inputFiles = loadStringFile(inputPath);
+    std::vector<string> testFiles = loadStringFile(testPath);
     std::vector<float> params = loadParametersFile(parametersFile);
 
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
-        runExperiments(params, inputFiles[i], resultPath, supervisionRate, isSubspaceClustering, isFilterNoise, isSorted);
+        if(!runTrainTest) {
+            runExperiments(params, inputFiles[i], resultPath, supervisionRate, isSubspaceClustering, isFilterNoise, isSorted);
+        } else {
+            runTestTrainExperiments(params, inputFiles[i], testFiles[i], resultPath, supervisionRate, isSubspaceClustering, isFilterNoise, isSorted);
+        }
     }
 }
 
@@ -135,6 +150,56 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     }
 }
 
+void runTestTrainExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, float supervisionRate,
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted) {
+    LARFDSSOM som(1);
+    SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
+
+    ClusteringMeshSOM clusteringSOM(dssom);
+    clusteringSOM.readFile(filePath);
+    clusteringSOM.sorted = sorted;
+
+    clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
+    clusteringSOM.setFilterNoise(isFilterNoise);    
+    
+    int numberOfParameters = 12;
+    
+    for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
+        som.a_t = params[i];
+        som.lp = params[i + 1];
+        som.dsbeta = params[i + 2];
+        som.age_wins = params[i + 3];
+        som.e_b = params[i + 4];
+        som.e_n = params[i + 5] * som.e_b;
+        som.epsilon_ds = params[i + 6];
+        som.minwd = params[i + 7];
+        som.epochs = params[i + 8];
+        som.push_rate = params[i + 9] * som.e_b;
+        
+        if (supervisionRate < 0) 
+            som.supervisionRate = params[i + 10];
+        else 
+            som.supervisionRate = supervisionRate;
+        
+        string index = std::to_string((i/numberOfParameters));
+        
+        som.unsupervisionRate = 1.0 - som.supervisionRate;
+                  
+        srand(params[i + 11] + time(NULL));
+        som.noCls = std::min_element(clusteringSOM.groups.begin(), clusteringSOM.groups.end())[0] - 1;
+        som.maxNodeNumber = 140;
+        som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
+        som.reset(clusteringSOM.getInputSize());
+        clusteringSOM.trainSOM(som.epochs);
+        som.finishMapFixed(sorted, clusteringSOM.groups);
+        
+        clusteringSOM.cleanUpTrainingData();
+        clusteringSOM.readFile(testPath);
+        clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
+
+    }
+}
+
 std::vector<float> loadParametersFile(string path) {
     std::ifstream file(path.c_str());
     std::string text;
@@ -178,3 +243,58 @@ int findLast(string str, string delim) {
 
     return splits[splits.size() - 1];
 }
+
+//bool proccessData(const std::string &filename) {
+//    
+//    MatMatrix<float> *data;
+//    MatMatrix<float> *trainData;
+//    std::vector<int> trainGroups;
+//    std::map<int, int> trainGroupLabels; 
+//    
+//    MatMatrix<float> *testData;
+//    std::vector<int> testGroups;
+//    std::map<int, int> testGroupLabels; 
+//    
+//    std::vector<int> indexes;
+//    std::vector<int> dataGroups;
+//    std::map<int, int> dataGroupLabels; 
+//    
+//    data = new MatMatrix<float>();
+//    trainData = new MatMatrix<float>();
+//    testData = new MatMatrix<float>();
+//
+//    if (ArffData::readArff(filename, *data, dataGroupLabels, dataGroups)) {
+//        ArffData::rescaleCols01(*data);
+//    }
+//    
+//    indexes = fillIntVector(data->rows());
+//    
+//    int rangeTrain = round(data->rows() * 0.7);
+//    
+//    MatVector<float> row;
+//    for(int i = 0 ; i < rangeTrain ; ++i) {
+//        data->getRow(indexes[i], row);
+//        trainData->concatRows(row);
+//        trainGroups.push_back(dataGroups[indexes[i]]);
+//    }
+//    
+//    for(int i = rangeTrain ; i < data->rows() ; ++i) {
+//        data->getRow(indexes[i], row);
+//        testData->concatRows(row);
+//        testGroups.push_back(dataGroups[indexes[i]]);
+//    }
+//    
+//    std::cout << '\n';
+//    
+//}
+//
+//std::vector<int> fillIntVector (const int size) {
+//    srand(time(NULL));
+//    std::vector<int> vec;
+//    
+//    for (int i = 0 ; i < size ; ++i) vec.push_back(i);
+//    
+//    std::random_shuffle(vec.begin(), vec.end());
+//    
+//    return vec;
+//}
