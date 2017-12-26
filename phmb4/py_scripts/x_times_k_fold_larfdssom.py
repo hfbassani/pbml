@@ -51,4 +51,22 @@ for file in files:
                 testFile['class'] = test_labels
                 testFile.to_csv(join(outputFolder, "test_{0}_x{1}_k{2}.arff".format(file[:-5], x + 1,fold + 1)), sep=',', encoding='utf-8', index=False, header=None)
 
+                trueTestfile = open(join(outputFolder, "test_{0}_x{1}_k{2}.true".format(file[:-5], x + 1, fold + 1)), 'w+')
+
+                dim = test_data.shape[1]
+
+                trueTestfile.write("DIM={0};{1} TRUE\n".format(dim, file[:-5].upper()))
+
+                unique_labels = sorted(map(int, list(set(test_labels))))
+                for label in unique_labels:
+                    line = " ".join(map(str, [1] * dim))
+
+                    newIndexes = np.where(test_labels == str(label))[0]
+
+                    line += " "
+                    line += " ".join(map(str,newIndexes))
+                    line += "\n"
+
+                    trueTestfile.write(line)
+
                 fold += 1
