@@ -286,13 +286,13 @@ public:
     
     LARFDSSOM& finishMapFixed(bool sorted, std::vector<int> groups) {
 
-        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
+//        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
             runTrainingStep(sorted, groups);
         }
         maxNodeNumber = meshNodeSet.size(); //fix mesh max size
         
-        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
+//        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         
         //step equal to 2
         runTrainingStep(sorted, groups);
@@ -301,9 +301,36 @@ public:
             runTrainingStep(sorted, groups);
         }
         
-        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
+//        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         
         return *this;
+    }
+    
+    void checkNodeClasses (const std::string &filename) {
+        TPNodeSet::iterator it;
+        it = Mesh<TNode>::meshNodeSet.begin();
+        it++;
+        int count = 0;
+        for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
+            if ((*it)->cls == noCls) {
+                count++;
+            }
+        }
+        
+        if (count > 0) {
+            std::ofstream file;
+            file.open(filename.c_str());
+
+            if (!file.is_open()) {
+                dbgOut(0) << "Error openning output file" << endl;
+                return;
+            }
+
+            file << "Finishing with " << count << " of " << meshNodeSet.size() << " nodes unknown (" << (float)count / meshNodeSet.size() << " %)" << endl;
+            dbgOut(1) << "Finishing with " << count << " of " << meshNodeSet.size() << " nodes unknown (" << (float)count / meshNodeSet.size() << " %)" <<  endl;
+            
+            file.close();
+        }
     }
     
     void printWinners() {
@@ -383,7 +410,7 @@ public:
             int size = meshNodeSet.size();
             //remove os perdedores
             removeLoosers();
-            dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
+//            dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
             //reseta o número de vitórias
             resetWins();
             //Passo 8.2:Adiciona conexões entre nodos semelhantes
@@ -576,6 +603,12 @@ public:
         return winner;
     }
 
+    inline int getWinnerClass(const TVector &w) {
+        TNode *winner = getWinner(w);
+
+        return winner->cls;
+    }
+    
     inline TNode* getWinner(const TVector &w) {
         TNode *winner = 0;
         TNumber temp = 0;

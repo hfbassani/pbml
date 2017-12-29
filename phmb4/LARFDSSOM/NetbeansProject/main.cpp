@@ -192,7 +192,7 @@ void runTestTrainExperiments (std::vector<float> params, string filePath, string
         som.reset(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(som.epochs);
         som.finishMapFixed(sorted, clusteringSOM.groups);
-        
+        som.checkNodeClasses(outputPath + getFileName(testPath) + "_" + index + ".results.noclass");
         clusteringSOM.cleanUpTrainingData();
         clusteringSOM.readFile(testPath);
         clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");

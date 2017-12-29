@@ -307,4 +307,5 @@ visom/test*
 visom/Test*
 
 *.results
+*.noclass
 phmb4/py_scripts/plots/

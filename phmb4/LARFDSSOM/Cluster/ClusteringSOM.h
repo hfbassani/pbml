@@ -89,6 +89,8 @@ public:
 
     virtual void getWinners(const MatVector<float> &sample, std::vector<int> &winners) = 0;
 
+    virtual int getWinnerClass(const MatVector<float> &sample) = 0;
+    
     virtual int getWinner(const MatVector<float> &sample) = 0;
 
     virtual bool isNoise(const MatVector<float> &sample) {
@@ -167,7 +169,7 @@ public:
             if (isSubspaceClustering) {
                 getWinners(sample, winners);
             } else {
-                winners.push_back(getWinner(sample));
+                winners.push_back(getWinnerClass(sample));
             }
 
             for (int j = 0; j < winners.size(); j++) {
@@ -938,6 +940,10 @@ public:
     int getWinner(const MatVector<float> &sample) {
         DSNode *winner = som->getWinner(sample);
         return getNodeIndex(*winner);
+    }
+    
+    int getWinnerClass(const MatVector<float> &sample) {
+        return som->getWinnerClass(sample);
     }
 
     void getWinners(const MatVector<float> &sample, std::vector<int> &winners) {

@@ -41,6 +41,10 @@ public:
 //    MatVector<int> reinforcementIndexes;
 //    MatVector<int> supervisedIndexes;
     
+    virtual inline int getWinnerClass(const TVector &w) {
+        return noCls;
+    }
+    
     virtual inline TNode* getWinner(const TVector &w) {
         TNode *winner = 0;
         TNumber temp = 0;
