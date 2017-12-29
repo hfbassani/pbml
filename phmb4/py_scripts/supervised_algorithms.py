@@ -45,17 +45,22 @@ def run_mlp(train_X, train_Y, test_X, test_Y, neurons=100, hidden_layers=1, lr=0
 
     return accuracy
 
-def todo (folder, paramsFolder):
+def todo (folder, paramsFolder, numDatasets):
     testFolder = folder.replace("_Train", "_Test")
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
     outputFile = open("output.results", 'w+')
 
+    arffFiles = []
     svm_acc = []
     mlp_acc = []
     for file in files:
         if ".arff" in file:
+            arffFiles.append(file)
+            svm_acc.append([])
+            mlp_acc.append([])
+
             train_X, meta_trainX = arff.loadarff(open(join(folder, file), 'rb'))
             train_X = pd.DataFrame(train_X)
             train_Y = train_X['class']
@@ -84,11 +89,11 @@ def todo (folder, paramsFolder):
             params = open(paramsFolder, 'r')
             params = np.array(params.readlines())
 
-            for paramsSet in range(0, len(params), 11):
+            for paramsSet in range(0, 11, 11):
                 c = float(params[paramsSet])
                 kernel = getKernel(int(params[paramsSet + 1]))
                 degree = int(params[paramsSet + 2])
-                svm_acc.append(run_svm(train_X, train_Y, test_X, test_Y, c, kernel, degree))
+                svm_acc[len(svm_acc) - 1].append(run_svm(train_X, train_Y, test_X, test_Y, c, kernel, degree))
 
                 neurons = int(params[paramsSet + 3])
                 hidden_layers = int(params[paramsSet + 4])
@@ -98,18 +103,81 @@ def todo (folder, paramsFolder):
                 activation = getActivation(int(params[paramsSet + 8]))
                 lr_decay = getDecay(int(params[paramsSet + 9]))
                 solver = getSolver(int(params[paramsSet + 10]))
-                mlp_acc.append(run_mlp(train_X, train_Y, test_X, test_Y, neurons, hidden_layers, lr,
+                mlp_acc[len(mlp_acc) - 1].append(run_mlp(train_X, train_Y, test_X, test_Y, neurons, hidden_layers, lr,
                                        momentum, mlp_epochs, activation, lr_decay, solver))
 
 
             outputText = "{0}\nSVM: {1}({2})[{3}]\nMLP: {4}({5})[{6}]\n\n".format(file,
-                                                                        np.mean(svm_acc), np.std(svm_acc, ddof=1), np.argmax(svm_acc),
-                                                                        np.mean(mlp_acc), np.std(mlp_acc, ddof=1), np.argmax(mlp_acc))
+                                                                        np.mean(svm_acc[len(svm_acc) - 1]), np.std(svm_acc[len(svm_acc) - 1], ddof=1), np.argmax(svm_acc[len(svm_acc) - 1]),
+                                                                        np.mean(mlp_acc[len(mlp_acc) - 1]), np.std(mlp_acc[len(mlp_acc) - 1], ddof=1), np.argmax(mlp_acc[len(mlp_acc) - 1]))
             print outputText
             outputFile.write(outputText)
 
-            svm_acc = []
-            mlp_acc = []
+    nRow = len(svm_acc) / numDatasets
+    outputFile.write("----> SVM Means (stds)\n")
+    for i in range(nRow):
+        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
+        for j in range(0, len(svm_acc), nRow):
+            outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(svm_acc[j + i]), np.std(svm_acc[j + i], ddof=1)))
+        outputFile.write("\n")
+
+    outputFile.write("Mean (std)\t")
+    for i in range(0, len(svm_acc), nRow):
+        m_means = []
+        for j in range(nRow):
+            m_means.append(np.mean(svm_acc[j + i]))
+        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
+
+    outputFile.write("\n\n")
+
+    outputFile.write("----> SVM Bests\n")
+    for i in range(nRow):
+        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
+        for j in range(0, len(svm_acc), nRow):
+            outputFile.write("{0:.4f}\t\t\t".format(np.amax(svm_acc[j + i])))
+        outputFile.write("\n")
+
+    outputFile.write("Mean (std)\t")
+    for i in range(0, len(svm_acc), nRow):
+        m_means = []
+        for j in range(nRow):
+            m_means.append(np.amax(svm_acc[j + i]))
+        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
+
+    outputFile.write("\n\n")
+
+
+
+    outputFile.write("----> MLP Means (stds)\n")
+    for i in range(nRow):
+        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
+        for j in range(0, len(svm_acc), nRow):
+            outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(mlp_acc[j + i]), np.std(mlp_acc[j + i], ddof=1)))
+        outputFile.write("\n")
+
+    outputFile.write("Mean (std)\t")
+    for i in range(0, len(mlp_acc), nRow):
+        m_means = []
+        for j in range(nRow):
+            m_means.append(np.mean(mlp_acc[j + i]))
+        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
+
+    outputFile.write("\n\n")
+
+    outputFile.write("----> MLP Bests\n")
+    for i in range(nRow):
+        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
+        for j in range(0, len(svm_acc), nRow):
+            outputFile.write("{0:.4f}\t\t\t".format(np.amax(mlp_acc[j + i])))
+        outputFile.write("\n")
+
+    outputFile.write("Mean (std)\t")
+    for i in range(0, len(mlp_acc), nRow):
+        m_means = []
+        for j in range(nRow):
+            m_means.append(np.amax(mlp_acc[j + i]))
+        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
+
 
 def getKernel(kernel):
     if kernel == 1:
@@ -148,9 +216,11 @@ def getSolver(solver):
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Train Data Directory', required=True)
 parser.add_argument('-p', help='Parameters', required=True)
+parser.add_argument('-n', help='Number of Datasets', required=True, type=int)
 args = parser.parse_args()
 
 folder = args.i
 params = args.p
+n = args.n
 
-todo(folder, params)
+todo(folder, params, n)
