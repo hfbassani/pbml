@@ -31,7 +31,6 @@ std::vector<string> loadStringFile(string path);
 string getFileName(string filePath);
 int findLast(const string str, string delim);
 
-
 int main(int argc, char** argv) {
 
     dbgThreshold(1);
@@ -243,58 +242,3 @@ int findLast(string str, string delim) {
 
     return splits[splits.size() - 1];
 }
-
-//bool proccessData(const std::string &filename) {
-//    
-//    MatMatrix<float> *data;
-//    MatMatrix<float> *trainData;
-//    std::vector<int> trainGroups;
-//    std::map<int, int> trainGroupLabels; 
-//    
-//    MatMatrix<float> *testData;
-//    std::vector<int> testGroups;
-//    std::map<int, int> testGroupLabels; 
-//    
-//    std::vector<int> indexes;
-//    std::vector<int> dataGroups;
-//    std::map<int, int> dataGroupLabels; 
-//    
-//    data = new MatMatrix<float>();
-//    trainData = new MatMatrix<float>();
-//    testData = new MatMatrix<float>();
-//
-//    if (ArffData::readArff(filename, *data, dataGroupLabels, dataGroups)) {
-//        ArffData::rescaleCols01(*data);
-//    }
-//    
-//    indexes = fillIntVector(data->rows());
-//    
-//    int rangeTrain = round(data->rows() * 0.7);
-//    
-//    MatVector<float> row;
-//    for(int i = 0 ; i < rangeTrain ; ++i) {
-//        data->getRow(indexes[i], row);
-//        trainData->concatRows(row);
-//        trainGroups.push_back(dataGroups[indexes[i]]);
-//    }
-//    
-//    for(int i = rangeTrain ; i < data->rows() ; ++i) {
-//        data->getRow(indexes[i], row);
-//        testData->concatRows(row);
-//        testGroups.push_back(dataGroups[indexes[i]]);
-//    }
-//    
-//    std::cout << '\n';
-//    
-//}
-//
-//std::vector<int> fillIntVector (const int size) {
-//    srand(time(NULL));
-//    std::vector<int> vec;
-//    
-//    for (int i = 0 ; i < size ; ++i) vec.push_back(i);
-//    
-//    std::random_shuffle(vec.begin(), vec.end());
-//    
-//    return vec;
-//}
