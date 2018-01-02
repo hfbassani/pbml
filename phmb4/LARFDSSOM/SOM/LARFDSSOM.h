@@ -604,7 +604,19 @@ public:
     }
 
     inline int getWinnerClass(const TVector &w) {
-        TNode *winner = getWinner(w);
+        TNode *winner = getFirstWinner(w);
+        
+        if (winner->cls == noCls) {
+            TNode *newWinner = winner;
+            while((newWinner = getNextWinner(newWinner)) != NULL) { // saiu do raio da ativação -> não há um novo vencedor
+                if (newWinner->cls != noCls) { // novo vencedor valido encontrado
+                    break;
+                }
+            }
+
+            if (newWinner != NULL) 
+                return newWinner->cls;
+        }
 
         return winner->cls;
     }

@@ -151,20 +151,21 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
 }
 
 void runTestTrainExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, float supervisionRate,
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted) {
-    LARFDSSOM som(1);
-    SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
-
-    ClusteringMeshSOM clusteringSOM(dssom);
-    clusteringSOM.readFile(filePath);
-    clusteringSOM.sorted = sorted;
-
-    clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
-    clusteringSOM.setFilterNoise(isFilterNoise);    
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted) { 
     
     int numberOfParameters = 12;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
+        LARFDSSOM som(1);
+        SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
+
+        ClusteringMeshSOM clusteringSOM(dssom);
+        clusteringSOM.readFile(filePath);
+        clusteringSOM.sorted = sorted;
+
+        clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
+        clusteringSOM.setFilterNoise(isFilterNoise);   
+    
         som.a_t = params[i];
         som.lp = params[i + 1];
         som.dsbeta = params[i + 2];
@@ -186,16 +187,19 @@ void runTestTrainExperiments (std::vector<float> params, string filePath, string
         som.unsupervisionRate = 1.0 - som.supervisionRate;
                   
         srand(params[i + 11] + time(NULL));
+        
         som.noCls = std::min_element(clusteringSOM.groups.begin(), clusteringSOM.groups.end())[0] - 1;
         som.maxNodeNumber = 140;
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(som.epochs);
         som.finishMapFixed(sorted, clusteringSOM.groups);
+        
         som.checkNodeClasses(outputPath + getFileName(testPath) + "_" + index + ".results.noclass");
         clusteringSOM.cleanUpTrainingData();
         clusteringSOM.readFile(testPath);
         clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
+        clusteringSOM.writeClassificationResults(outputPath + getFileName(testPath) + "_" + index + ".resultsacc");
 
     }
 }

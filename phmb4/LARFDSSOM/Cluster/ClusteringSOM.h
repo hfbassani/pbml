@@ -130,7 +130,7 @@ public:
 
         train(*trainingData, epochs);
     }
-
+    
     bool writeClusterResults(const std::string &filename) {
 
         std::ofstream file;
@@ -169,8 +169,55 @@ public:
             if (isSubspaceClustering) {
                 getWinners(sample, winners);
             } else {
-                winners.push_back(getWinnerClass(sample));
+                winners.push_back(getWinner(sample));
             }
+
+            for (int j = 0; j < winners.size(); j++) {
+                file << i << "\t";
+                file << winners[j];
+                file << endl;
+            }
+        }
+
+        file.close();
+        return true;
+    }
+
+    bool writeClassificationResults(const std::string &filename) {
+        std::ofstream file;
+        file.open(filename.c_str());
+
+        if (!file.is_open()) {
+            dbgOut(0) << "Error openning output file" << endl;
+            return false;
+        }
+
+        int meshSize = getMeshSize();
+        int inputSize = getInputSize();
+
+        file << meshSize << "\t" << inputSize << endl;
+
+        for (int i = 0; i < meshSize; i++) {
+            MatVector<float> relevances;
+            getRelevances(i, relevances);
+
+            file << i << "\t";
+            for (int j = 0; j < inputSize; j++) {
+                file << relevances[j];
+                if (j != inputSize - 1)
+                    file << "\t";
+            }
+            file << endl;
+        }
+
+        for (int i = 0; i < trainingData->rows(); i++) {
+            MatVector<float> sample;
+            trainingData->getRow(i, sample);
+//            if (filterNoise && isNoise(sample))
+//                continue;
+
+            std::vector<int> winners;
+            winners.push_back(getWinnerClass(sample));
 
             for (int j = 0; j < winners.size(); j++) {
                 file << i << "\t";

@@ -89,7 +89,7 @@ def todo (folder, paramsFolder, numDatasets):
             params = open(paramsFolder, 'r')
             params = np.array(params.readlines())
 
-            for paramsSet in range(0, 11, 11):
+            for paramsSet in range(0, len(params), 11):
                 c = float(params[paramsSet])
                 kernel = getKernel(int(params[paramsSet + 1]))
                 degree = int(params[paramsSet + 2])
