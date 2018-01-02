@@ -35,6 +35,15 @@ public:
     LHSParameter pushRate;
     LHSParameter supervisionRate;
     LHSParameter seed;
+    
+    // LVQ
+    LHSParameter nnodes;
+    LHSParameter at_p;
+    LHSParameter at_n;
+    LHSParameter at_w;
+    LHSParameter lvq_tau;
+    LHSParameter lvq_epochs;
+    LHSParameter lvq_seed;
 
     MyParameters(bool real) {
         comments = "Test float Parameters";
@@ -57,6 +66,14 @@ public:
         addParameterD(pushRate, "pushRate rate");
         addParameterD(supervisionRate, "supervision rate");
         addParameterD(seed, "seed");
+        
+        addParameterD(nnodes, "Number of nodes created in map");
+        addParameterD(at_p, "Learning rate positive");
+        addParameterD(at_n, "Learning rate negative");
+        addParameterD(at_w, "Learning rate relevances");
+        addParameterD(lvq_tau, "decay rate");
+        addParameterD(lvq_epochs, "LVQ Epochs");
+        addParameterD(lvq_seed, "LVQ Seed");
 
         //Set default ranges and values
         N = 150;
@@ -87,6 +104,14 @@ public:
         pushRate.setRange(0, 0.2) = 0;
         supervisionRate.setRange(0, 1) = 0;
         seed.setRange(0, 100) = 0;
+        
+        nnodes.setRange(10, 30) = 10;
+        at_p.setRange(0.4, 0.5) = 0.4;
+        at_n.setRange(0.01, 0.05) = 0.01;
+        at_w.setRange(0.15, 0.2) = 0.15;
+        lvq_tau.setRange(0.000001, 0.00002) = 0.000001;
+        lvq_epochs.setRange(5000, 10000) = 5000;
+        lvq_seed.setRange(0, 10000) = 0;
 
         //Add parameters to latin hypercube sampling:
         addParameterToLHS(a_t);
@@ -104,6 +129,14 @@ public:
         addParameterToLHS(pushRate);
         addParameterToLHS(supervisionRate);
         addParameterToLHS(seed);
+        
+        addParameterToLHS(nnodes);
+        addParameterToLHS(at_p);
+        addParameterToLHS(at_n);
+        addParameterToLHS(at_w);
+        addParameterToLHS(lvq_tau);
+        addParameterToLHS(lvq_epochs);
+        addParameterToLHS(lvq_seed);
     }
 };
 
