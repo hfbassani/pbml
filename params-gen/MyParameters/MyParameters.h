@@ -35,6 +35,22 @@ public:
     LHSParameter pushRate;
     LHSParameter supervisionRate;
     LHSParameter seed;
+    
+    //SVM
+    LHSParameter c;
+    LHSParameter kernel;
+    LHSParameter degree;
+    
+    //MLP
+    LHSParameter neurons;
+    LHSParameter hidden_layers;
+    LHSParameter lr;
+    LHSParameter momentum;
+    LHSParameter mlp_epochs;
+    LHSParameter activation;
+    LHSParameter lr_decay;
+    LHSParameter solver;
+    
 
     MyParameters(bool real) {
         comments = "Test float Parameters";
@@ -57,6 +73,19 @@ public:
         addParameterD(pushRate, "pushRate rate");
         addParameterD(supervisionRate, "supervision rate");
         addParameterD(seed, "seed");
+        
+        addParameterD(c, "seed");
+        addParameterD(kernel, "seed");
+        addParameterD(degree, "seed");
+        
+        addParameterD(neurons, "seed");
+        addParameterD(hidden_layers, "seed");
+        addParameterD(lr, "seed");
+        addParameterD(momentum, "seed");
+        addParameterD(mlp_epochs, "seed");
+        addParameterD(activation, "seed");
+        addParameterD(lr_decay, "seed");
+        addParameterD(solver, "seed");
 
         //Set default ranges and values
         N = 150;
@@ -87,6 +116,19 @@ public:
         pushRate.setRange(0, 0.2) = 0;
         supervisionRate.setRange(0, 1) = 0;
         seed.setRange(0, 100) = 0;
+        
+        c.setRange(0.1, 10) = 0.1;
+        kernel.setRange(1, 4) = 1;
+        degree.setRange(3, 5) = 3;
+        
+        neurons.setRange(1, 100) = 1;
+        hidden_layers.setRange(1, 3) = 1;
+        lr.setRange(0.001, 0.1) = 0.001;
+        momentum.setRange(0.85, 0.95) = 0.85;
+        mlp_epochs.setRange(200, 400) = 200;
+        activation.setRange(1, 3) = 1;
+        lr_decay.setRange(1, 3) = 1;
+        solver.setRange(1, 3) = 1;
 
         //Add parameters to latin hypercube sampling:
         addParameterToLHS(a_t);
@@ -104,6 +146,20 @@ public:
         addParameterToLHS(pushRate);
         addParameterToLHS(supervisionRate);
         addParameterToLHS(seed);
+        
+        
+        addParameterToLHS(c);
+        addParameterToLHS(kernel);
+        addParameterToLHS(degree);
+        
+        addParameterToLHS(neurons);
+        addParameterToLHS(hidden_layers);
+        addParameterToLHS(lr);
+        addParameterToLHS(momentum);
+        addParameterToLHS(mlp_epochs);
+        addParameterToLHS(activation);
+        addParameterToLHS(lr_decay);
+        addParameterToLHS(solver);
     }
 };
 

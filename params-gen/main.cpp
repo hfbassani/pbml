@@ -19,6 +19,7 @@ using namespace std;
 void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters);
 void createParametersFileHybrid(MyParameters * params, string fileName, int qtdParameters);
 void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters);
+void createParametersMLP_SVM(MyParameters * params, string fileName, int qtdParameters);
 
 std::vector<float> loadParametersFile(int number);
 
@@ -31,9 +32,10 @@ int main(int argc, char** argv) {
     bool originalVersion = false;
     bool simulatedData = false;
     bool hybridVersion = false;
+    bool SVMMLP = false;
     
     int c;
-    while ((c = getopt(argc, argv, "f:n:r:soh")) != -1) {
+    while ((c = getopt(argc, argv, "f:n:r:sohd")) != -1) {
         switch (c) {
             case 'f':
                 filename.assign(optarg);
@@ -52,6 +54,9 @@ int main(int argc, char** argv) {
                 break;
             case 'h':
                 hybridVersion = true;
+                break;
+            case 'd':
+                SVMMLP = true;
                 break;
         }
     }
@@ -75,6 +80,8 @@ int main(int argc, char** argv) {
             createParametersFileOriginalLARFDSSOM(&params, filename + "_" + std::to_string(i), qtd_parameter);   
         } else if(hybridVersion){
             createParametersFileHybrid(&params, filename + "_" + std::to_string(i), qtd_parameter);
+        } else if(SVMMLP){
+            createParametersMLP_SVM(&params, filename + "_" + std::to_string(i), qtd_parameter);
         } else {
             createParametersFileExperiments(&params, filename + "_" + std::to_string(i), qtd_parameter);
         }
@@ -165,6 +172,31 @@ void createParametersFileExperiments(MyParameters * params, string fileName, int
         file << params->h_threshold << "\n";
         file << params->tau << "\n";
         file << params->seed << "\n";
+    }
+    
+    file.close();
+}
+
+void createParametersMLP_SVM(MyParameters * params, string fileName, int qtdParameters) {
+    std::ofstream file;
+    file.open(fileName.c_str());
+
+    cout << "createParametersMLP_SVM" << endl;
+    
+    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
+        file << params->c << "\n";
+        file << round(params->kernel) << "\n";
+        file << round(params->degree) << "\n";
+        
+        
+        file << round(params->neurons) << "\n";;
+        file << round(params->hidden_layers) << "\n";
+        file << params->lr << "\n";
+        file << params->momentum << "\n";
+        file << round(params->mlp_epochs) << "\n";
+        file << round(params->activation) << "\n";
+        file << round(params->lr_decay) << "\n";
+        file << round(params->solver) << "\n";
     }
     
     file.close();
