@@ -196,7 +196,6 @@ public:
         return dist;
     }
     
-    
     //Calculo das distancias Quadraticas
     //Artigo Hammer, 2005. Supervised Neural Gas with General Similarity Measure
     
@@ -223,7 +222,6 @@ public:
         return dist;
     }
 
-    
     virtual GRLVQ& getWinnerRunnerUpWeight(const TVector &w, TNode* &winner, TNode* &runnerUp, int cls) {
         TNumber dw = std::numeric_limits<TNumber>::max();
         TNumber dr = std::numeric_limits<TNumber>::max();
@@ -253,6 +251,7 @@ public:
 
         return *this;
     }
+    
     GRLVQ& trainning(int N = 1) {
         int i = 0;
        
@@ -347,6 +346,12 @@ public:
             }
         }
         learningDecay();
+    }
+    
+    virtual int getWinnerClass(const TVector &w) {
+        TNode *winner = getWinner(w);
+
+        return winner->cls;
     }
     
     virtual GRLVQ& updateDistanceMeasure(const TVector &w, const TNode &winner, const TNode &runnerUp){

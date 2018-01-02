@@ -121,6 +121,8 @@ public:
 
     virtual LVQ& updateMap(const TVector &w, int cls) = 0;
 
+    virtual int getWinnerClass(const TVector &w) = 0;
+    
     LVQ& trainningEach2(int N = 1) {
         MatVector<int> vindex(data.rows());
         vindex.range(0, vindex.size() - 1);

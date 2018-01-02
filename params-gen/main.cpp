@@ -20,6 +20,7 @@ void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileNam
 void createParametersFileHybrid(MyParameters * params, string fileName, int qtdParameters);
 void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters);
 void createParametersMLP_SVM(MyParameters * params, string fileName, int qtdParameters);
+void createLVQParameters(MyParameters * params, string fileName, int qtdParameters);
 
 std::vector<float> loadParametersFile(int number);
 
@@ -32,10 +33,12 @@ int main(int argc, char** argv) {
     bool originalVersion = false;
     bool simulatedData = false;
     bool hybridVersion = false;
+
     bool SVMMLP = false;
+    bool lvq = false;
     
     int c;
-    while ((c = getopt(argc, argv, "f:n:r:sohd")) != -1) {
+    while ((c = getopt(argc, argv, "f:n:r:sohdl")) != -1) {
         switch (c) {
             case 'f':
                 filename.assign(optarg);
@@ -57,6 +60,8 @@ int main(int argc, char** argv) {
                 break;
             case 'd':
                 SVMMLP = true;
+            case 'l':
+                lvq = true;
                 break;
         }
     }
@@ -82,6 +87,8 @@ int main(int argc, char** argv) {
             createParametersFileHybrid(&params, filename + "_" + std::to_string(i), qtd_parameter);
         } else if(SVMMLP){
             createParametersMLP_SVM(&params, filename + "_" + std::to_string(i), qtd_parameter);
+        } else if(lvq){
+            createLVQParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
         } else {
             createParametersFileExperiments(&params, filename + "_" + std::to_string(i), qtd_parameter);
         }
@@ -148,6 +155,25 @@ void createParametersFileHybrid(MyParameters * params, string fileName, int qtdP
         file << params->pushRate << "\n";
         file << params->supervisionRate << "\n";
         file << params->seed << "\n";
+    }
+    
+    file.close();
+}
+
+void createLVQParameters(MyParameters * params, string fileName, int qtdParameters) {
+    std::ofstream file;
+    file.open(fileName.c_str());
+
+    cout << "createLVQParameters" << endl;
+    
+    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
+        file << round(params->nnodes) << "\n";
+        file << params->at_p << "\n";
+        file << params->at_n << "\n";
+        file << params->at_w << "\n";
+        file << params->lvq_tau << "\n";
+        file << round(params->lvq_epochs) << "\n";
+        file << round(params->lvq_seed) << "\n";
     }
     
     file.close();
