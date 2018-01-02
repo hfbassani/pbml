@@ -19,12 +19,16 @@ def eval (resultsPath, truePath, r, outputPath):
             data = data['class']
             accs = []
             for i in range(r):
-                results = open(join(resultsPath, "{0}_{1}.results".format(file[:-5], i)), 'rb')
+                results = open(join(resultsPath, "{0}_{1}.resultsacc".format(file[:-5], i)), 'rb')
                 results = results.readlines()
+                print join(resultsPath, "{0}_{1}.resultsacc".format(file[:-5], i))
                 skipRows = (int)(results[0].split("\t")[0])
 
-                results = pd.read_csv(join(resultsPath, "{0}_{1}.results".format(file[:-5], i)),
+                results = pd.read_csv(join(resultsPath, "{0}_{1}.resultsacc".format(file[:-5], i)),
                                       sep="\t", skiprows=skipRows + 1, header=None)
+
+                # PAY ATTENTION
+                results = results.ix[results[len(results.columns) - 1] >= 0]
 
                 indexes = np.array(results.iloc[:,0])
                 labels = np.array(results.iloc[:,1])
@@ -34,7 +38,10 @@ def eval (resultsPath, truePath, r, outputPath):
                     if labels[j] == int(data[indexes[j]]):
                         corrects += 1
 
-                accs.append(float(corrects)/len(indexes))
+                if len(indexes) > 0:
+                    accs.append(float(corrects)/len(indexes))
+                else:
+                    accs.append(-1.0)
 
             accs.append(np.amax(accs))
             accs.append(np.argmax(accs))
