@@ -14,6 +14,7 @@
 #include <random>
 #include "Mesh.h"
 #include "MatVector.h"
+#include "DSNode.h"
 
 
 template<class T> class SOM :public Mesh<T>{
@@ -38,11 +39,9 @@ public:
     float unsupervisionRate;
     
     int noCls;
-//    MatVector<int> reinforcementIndexes;
-//    MatVector<int> supervisedIndexes;
-    
-    virtual inline int getWinnerClass(const TVector &w) {
-        return noCls;
+        
+    virtual inline DSNode* getWinnerResult(const TVector &w) {
+        return (DSNode *) getWinner(w);
     }
     
     virtual inline TNode* getWinner(const TVector &w) {

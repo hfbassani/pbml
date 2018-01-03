@@ -41,7 +41,6 @@ public:
     int wins;
     TPNodeConnectionMap nodeMap;
     TNumber act;
-    int cls;
 
     inline int neighbors() {
         return nodeMap.size();
@@ -602,8 +601,8 @@ public:
 
         return winner;
     }
-
-    inline int getWinnerClass(const TVector &w) {
+    
+    virtual inline DSNode* getWinnerResult(const TVector &w) {
         TNode *winner = getFirstWinner(w);
         
         if (winner->cls == noCls) {
@@ -614,11 +613,11 @@ public:
                 }
             }
 
-            if (newWinner != NULL) 
-                return newWinner->cls;
+            if (newWinner != NULL && newWinner->cls != noCls) 
+                return newWinner;
         }
 
-        return winner->cls;
+        return winner;
     }
     
     inline TNode* getWinner(const TVector &w) {

@@ -88,10 +88,10 @@ public:
     virtual void getWeights(int node_i, MatVector<float> &weights) = 0;
 
     virtual void getWinners(const MatVector<float> &sample, std::vector<int> &winners) = 0;
-
-    virtual int getWinnerClass(const MatVector<float> &sample) = 0;
     
     virtual int getWinner(const MatVector<float> &sample) = 0;
+    
+    virtual std::vector<int> getWinnerResult(const MatVector<float> &sample) = 0;
 
     virtual bool isNoise(const MatVector<float> &sample) {
         return false;
@@ -166,62 +166,22 @@ public:
                 continue;
 
             std::vector<int> winners;
+            std::vector<int> result;
             if (isSubspaceClustering) {
                 getWinners(sample, winners);
             } else {
-                winners.push_back(getWinner(sample));
+                result = getWinnerResult(sample);
+                winners.push_back(result[0]);
             }
 
             for (int j = 0; j < winners.size(); j++) {
                 file << i << "\t";
                 file << winners[j];
-                file << endl;
-            }
-        }
-
-        file.close();
-        return true;
-    }
-
-    bool writeClassificationResults(const std::string &filename) {
-        std::ofstream file;
-        file.open(filename.c_str());
-
-        if (!file.is_open()) {
-            dbgOut(0) << "Error openning output file" << endl;
-            return false;
-        }
-
-        int meshSize = getMeshSize();
-        int inputSize = getInputSize();
-
-        file << meshSize << "\t" << inputSize << endl;
-
-        for (int i = 0; i < meshSize; i++) {
-            MatVector<float> relevances;
-            getRelevances(i, relevances);
-
-            file << i << "\t";
-            for (int j = 0; j < inputSize; j++) {
-                file << relevances[j];
-                if (j != inputSize - 1)
-                    file << "\t";
-            }
-            file << endl;
-        }
-
-        for (int i = 0; i < trainingData->rows(); i++) {
-            MatVector<float> sample;
-            trainingData->getRow(i, sample);
-//            if (filterNoise && isNoise(sample))
-//                continue;
-
-            std::vector<int> winners;
-            winners.push_back(getWinnerClass(sample));
-
-            for (int j = 0; j < winners.size(); j++) {
-                file << i << "\t";
-                file << winners[j];
+                
+                if (result.size() > 0) {
+                    file<< "\t" << result[1];
+                }
+                
                 file << endl;
             }
         }
@@ -989,8 +949,13 @@ public:
         return getNodeIndex(*winner);
     }
     
-    int getWinnerClass(const MatVector<float> &sample) {
-        return som->getWinnerClass(sample);
+    std::vector<int> getWinnerResult(const MatVector<float> &sample) {
+        DSNode *winner = som->getWinnerResult(sample);
+        std::vector<int> result;
+        result.push_back(getNodeIndex(*winner));
+        result.push_back(winner->cls);
+        
+        return result;
     }
 
     void getWinners(const MatVector<float> &sample, std::vector<int> &winners) {

@@ -28,6 +28,7 @@ public:
 
     TVector a;
     TVector ds;
+    int cls;
 
     DSNode(int idIn, const TVector &v) : NodeW(idIn, v) {
         ds.size(v.size());

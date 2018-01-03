@@ -198,8 +198,6 @@ void runTestTrainExperiments (std::vector<float> params, string filePath, string
         clusteringSOM.cleanUpTrainingData();
         clusteringSOM.readFile(testPath);
         clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
-        clusteringSOM.writeClassificationResults(outputPath + getFileName(testPath) + "_" + index + ".resultsacc");
-
     }
 }
 
