@@ -1,5 +1,4 @@
 import argparse
-from sklearn import model_selection
 from sklearn import svm
 from sklearn import neural_network
 from sklearn import metrics
@@ -7,7 +6,6 @@ from sklearn import preprocessing
 import pandas as pd
 import numpy as np
 from scipy.io import arff
-from sklearn.model_selection import KFold
 from os import listdir
 from os.path import isfile, join
 import os
