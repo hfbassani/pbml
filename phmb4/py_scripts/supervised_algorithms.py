@@ -48,7 +48,7 @@ def todo (folder, paramsFolder, numDatasets):
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
-    outputFile = open("output.results", 'w+')
+    outputFile = open("svm_mlp.results", 'w+')
 
     arffFiles = []
     svm_acc = []

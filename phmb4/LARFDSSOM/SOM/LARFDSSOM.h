@@ -173,7 +173,7 @@ public:
             
         while (itMesh != meshNodeSet.end()) {
             if (*itMesh != node) {
-                if (wdist(*node, *(*itMesh))<minwd) {
+                if (checkConnectivity(node, *itMesh)) {
                     if (!isConnected(node, *itMesh))
                     connect(node, *itMesh);
                 } else {
@@ -186,6 +186,16 @@ public:
         return *this;
     }
     
+    bool checkConnectivity(TNode *node1, TNode *node2) {
+        
+        if((node1->cls == noCls || node2->cls == noCls || node1->cls == node2->cls) && wdist(*node1, *node2)<minwd) {
+            return true;
+        }
+        
+        return false;
+        
+    }
+    
     LARFDSSOM& updateAllConnections() {
 
         //Conecta todos os nodos semelhantes
@@ -195,7 +205,7 @@ public:
             
             while (itMesh2 != meshNodeSet.end()) {
                 if (*itMesh1!= *itMesh2) {
-                    if (wdist(*(*itMesh1), *(*itMesh2))<minwd) {
+                    if (checkConnectivity(*itMesh1, *itMesh2)) {
                         if (!isConnected(*itMesh1, *itMesh2))
                         connect(*itMesh1, *itMesh2);
                     } else {
@@ -418,7 +428,7 @@ public:
         }
     }
     
-    LARFDSSOM& updateMap(const TVector &w) {
+    LARFDSSOM& updateMap(const TVector &w, int cls) {
 
         using namespace std;
         TNode *winner1 = 0;
@@ -435,11 +445,16 @@ public:
             TNumber a = activation(*winner1, w); //DS activation
             //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
             //e o limite de nodos não tiver sido atingido
-
+                      
             if ((a < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
                 createNodeMap(w, noCls);
                 
             } else if (a >= a_t) { // caso contrário
+                
+//                if (winner1->cls != noCls && cls != winner1->cls) {
+//                    dbgOut(1) << "deu errado aqui heeeeen" << endl;
+//                }
+                
                 winner1->wins++;
                 // Atualiza o peso do vencedor
                 updateNode(*winner1, w, e_b);
@@ -482,7 +497,7 @@ public:
                 // cria um novo nodo na posição da amostra
                 createNodeMap(w, cls);
 
-            } else if (winner1->act >= a_t) {
+            } else  {
                 winner1->wins++;
                 winner1->cls = cls;
                 updateNode(*winner1, w, e_b);
@@ -534,11 +549,11 @@ public:
 //            TNode *nodeNew = createNode(nodeID++, wNew);
 //            nodeNew->cls = cls;
 //            nodeNew->wins = 0;
-
-//                TVector aNew(winner1->a);
-//                nodeNew->a = aNew;
-//                TVector dsNew(winner1->ds);
-//                nodeNew->ds = dsNew;
+//
+//            TVector aNew(winner1->a);
+//            nodeNew->a = aNew;
+//            TVector dsNew(winner1->ds);
+//            nodeNew->ds = dsNew;
 //                
 //                nodeNew->act = winner1->act;
 //                nodeNew->step = winner1->step;
@@ -547,8 +562,14 @@ public:
             // puxar o vencedor
 //            updateNode(*nodeNew, w, e_b);
 
-//            updateNode(*winner1, w, -push_rate);
-        }
+            updateNode(*winner1, w, -push_rate);
+        } 
+//        else {
+//            float a = activation(*winner1, w);
+//            if (a >= a_t) {
+//                updateNode(*winner1, w, -push_rate);
+//            }
+//        }
     }
 
     virtual TNode *getFirstWinner(const TVector &w){

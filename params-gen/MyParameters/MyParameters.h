@@ -106,11 +106,11 @@ public:
         //Set default ranges and values
         N = 150;
         if (real) {
-            a_t.setRange(0.70, 0.999) = 0.70;
-            lp.setRange(0.01, 0.1) = 0.01;
+            a_t.setRange(0.80, 0.999) = 0.80;
+            lp.setRange(0.001, 0.01) = 0.001;
             dsbeta.setRange(0.001, 0.5) = 0.001;
             age_wins.setRange(1, 100) = 1;
-            e_b.setRange(0.0001, 0.01) = 0.0001;
+            e_b.setRange(0.01, 0.1) = 0.01;
             e_n.setRange(0.002, 1.0) = 0.002;
             epsilon_ds.setRange(0.01, 0.1) = 0.01;
             minwd.setRange(0.001, 0.5) = 0.001;
@@ -129,7 +129,7 @@ public:
         gamma.setRange(0.14, 4.0) = 0.14;
         h_threshold.setRange(0.001, 0.8) = 0.001;
         tau.setRange(0.00001, 0.01) = 0.00001;
-        pushRate.setRange(0, 0.2) = 0;
+        pushRate.setRange(0.35, 0.8) = 0.35;
         supervisionRate.setRange(0, 1) = 0;
         seed.setRange(0, 100) = 0;
         
@@ -141,7 +141,7 @@ public:
         hidden_layers.setRange(1, 3) = 1;
         lr.setRange(0.001, 0.1) = 0.001;
         momentum.setRange(0.85, 0.95) = 0.85;
-        mlp_epochs.setRange(200, 400) = 200;
+        mlp_epochs.setRange(100, 200) = 100;
         activation.setRange(1, 3) = 1;
         lr_decay.setRange(1, 3) = 1;
         solver.setRange(1, 3) = 1;

@@ -16,6 +16,7 @@
 #include "ArffData.h"
 #include "MatVector.h"
 
+#include "Mesh.h"
 #include "SOM.h"
 #include "DSNode.h"
 #include "ClusteringMetrics.h"
@@ -68,6 +69,8 @@ public:
     }
 
     virtual int getMeshSize() = 0;
+    
+    virtual std::vector<int> getNodeClasses() = 0;
 
     int getInputSize() {
         return trainingData->cols();
@@ -322,7 +325,7 @@ public:
         return out.str();
     }
 
-    std::string outClassInfo() {
+    std::string outClassInfo(std::vector<int> &groups, std::map<int, int> &groupLabels) {
 
         std::stringstream out;
         out << std::setprecision(2) << std::fixed;
@@ -337,20 +340,24 @@ public:
         nodeHits.fill(0);
         nodeClusterSize.fill(0);
 
-        for (int k = 0; k < trainingData->rows(); k++) {
+        for (int k = 0; k < groups.size(); k++) {
             MatVector<float> sample;
             trainingData->getRow(k, sample);
-            if (isNoise(sample)) {
+            if (filterNoise && isNoise(sample)) {
                 noise++;
                 continue;
             }
 
+            std::vector<int> result = getWinnerResult(sample);
             int classIndex = sample.size() - 1;
-            int winner = getWinner(sample);
-            MatVector<float> weights;
-            getWeights(winner, weights);
-
-            if (fabs(sample[classIndex] - weights[classIndex]) < 0.5) {
+            int winner = result[0];
+//            MatVector<float> weights;
+//            getWeights(winner, weights);
+            
+//            dbgOut(1) << groups[k] << endl;
+            
+            int cls = result[1];
+            if (fabs(groups[k] - cls) < 0.5) {
                 hits++;
                 nodeHits[winner]++;
             }
@@ -358,14 +365,14 @@ public:
             total++;
             nodeClusterSize[winner]++;
         }
-
+        
         for (int i = 0; i < meshSize; i++) {
 
             MatVector<float> weights;
             getWeights(i, weights);
 
             out << getNodeId(i) << ": ";
-            out << "\t" << weights[weights.size() - 1];
+//            out << "\t" << weights[weights.size() - 1];
             out << "\t" << nodeHits[i] << "/" << nodeClusterSize[i];
             out << "\t" << nodeHits[i] / (float) nodeClusterSize[i];
             out << endl;
@@ -396,10 +403,12 @@ public:
             }
 
             std::vector<int> winners;
+            std::vector<int> result;
             if (isSubspaceClustering) {
                 getWinners(sample, winners);
             } else {
-                winners.push_back(getWinner(sample));
+                result = getWinnerResult(sample);
+                winners.push_back(result[0]);
             }
 
             for (int w = 0; w < winners.size(); w++) {
@@ -410,6 +419,9 @@ public:
         /** print confusion matrix **/
         MatVector<int> rowSums(confusionMatrix.rows());
         MatVector<int> colSums(confusionMatrix.cols());
+        
+        std::vector<int> cluClasses = getNodeClasses();
+        
         rowSums.fill(0);
         colSums.fill(0);
         dbgOut(0) << "cluster\\class\t|";
@@ -417,7 +429,7 @@ public:
             dbgOut(1) << "\tcla" << groupLabels[c];
         dbgOut(0) << "\t| Sum" << endl;
         for (int r = 0; r < confusionMatrix.rows(); r++) {
-            dbgOut(0) << "clu" << r << "\t\t|";
+            dbgOut(0) << "clu" << r << " (cls: " << cluClasses[r] << ")\t|";
             for (int c = 0; c < confusionMatrix.cols(); c++) {
                 dbgOut(0) << "\t" << confusionMatrix[r][c];
                 rowSums[r] += confusionMatrix[r][c];
@@ -910,6 +922,17 @@ public:
         return som->meshNodeSet.size();
     }
 
+    std::vector<int> getNodeClasses() {
+        std::vector<int> nodeClasses;
+        SOM<DSNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            nodeClasses.push_back((*it)->cls);
+        }
+        
+        return nodeClasses;
+    }
+    
     void train(MatMatrix<float> &trainingData, int epochs) {
         som->data = trainingData;
 

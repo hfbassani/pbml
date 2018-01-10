@@ -60,6 +60,9 @@ public:
         }
         file << std::endl;
         
+        file << cls;
+        file << std::endl;
+        
     }
     
     void read(std::istream &file) {
@@ -102,6 +105,12 @@ public:
                 ds.append(value);
             i++;
         }
+        
+        int nodeClass;
+        getline(file, line);
+        std::stringstream parserCLS(line);
+        parserCLS >> nodeClass;
+        cls = nodeClass;
     }
 };
 

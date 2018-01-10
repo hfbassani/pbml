@@ -105,7 +105,7 @@ public:
         return *this;
     }
 
-    virtual SOM& updateMap(const TVector &w) = 0;
+    virtual SOM& updateMap(const TVector &w, int cls) = 0;
     
     virtual SOM& updateMapSup(const TVector &w, int cls) = 0;
 
@@ -156,7 +156,7 @@ public:
     
     SOM& trainningStep(TVector &v) {
 
-        updateMap(v);
+        updateMap(v, noCls);
         
         return *this;
     }
@@ -171,8 +171,9 @@ public:
 //            dbgOut(1) << "supervised" << endl << endl;
             updateMapSup(v, cls);
         } else { //unsupervised
-//            dbgOut(1) << "unsupervised" << endl << endl;
-            updateMap(v); 
+//            dbgOut(1) << "unsupervised rate:" << unsupervisionRate << endl;
+//            dbgOut(1) << "random number:" << rate << endl;
+            updateMap(v, cls); 
         }
     }
 

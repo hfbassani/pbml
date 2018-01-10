@@ -180,7 +180,7 @@ def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
     ax.set_yticks(np.linspace(0, 1, num=11))
 
 def get_headers(fileName):
-    headers = pd.read_csv(fileName, nrows=4, header=None)
+    headers = pd.read_csv(fileName, nrows=7, header=None)
     headers = headers.transpose()
     headers = headers.rename(columns=headers.iloc[0])
     headers = headers.drop([0])
@@ -190,7 +190,7 @@ def get_headers(fileName):
     return headers
 
 def get_params_and_results(fileName):
-    results = pd.read_csv(fileName, skiprows=7, header=None)
+    results = pd.read_csv(fileName, skiprows=8, header=None)
 
     firstParamIndex = results.iloc[0]
     firstParamIndex = firstParamIndex[firstParamIndex == "a_t"].index[0]
@@ -317,14 +317,16 @@ def plot_gammas_vs_hthresholds(filename, savePlots=False):
 
 #-------------------------------------------------------------------#
 if not os.path.isdir(image_path): os.mkdir(image_path)
-fileName = "../outputMetrics/HybridParamsLowLP2HighAT_0.csv"
+fileName = "../outputMetrics/test_wide_ranges.csv"
 
 # plot_synthetic_data_graphs(fileName=fileName, savePlots=True)
 #subplot_synthetic_data_graphs(fileName=fileName, savePlots=True)
 
-paramsToPlot = ["a_t", "lp", "dsbeta", "age_wins", "e_b", "e_n", "epsilon_ds", "minwd",
-                "epochs", "push_rate", "supervision_rate"]
-plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
+#paramsToPlot = ["a_t", "lp", "dsbeta", "age_wins", "e_b", "e_n", "epsilon_ds", "minwd",
+#                "epochs", "push_rate", "supervision_rate"]
+paramsToPlot = ["a_t", "lp", "e_b"]
+#                "epochs", "push_rate", "supervision_rate"]#, "lp", "push_rate", "supervision_rate"]
+plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=False)
 #subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
 
 # plot_gammas_vs_hthresholds(fileName, savePlots=False)
