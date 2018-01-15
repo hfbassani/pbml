@@ -501,7 +501,8 @@ public:
                 winner1->wins++;
                 winner1->cls = cls;
                 updateNode(*winner1, w, e_b);
-
+                
+                updateConnections(winner1);
                 TPNodeConnectionMap::iterator it;
                 for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
                     TNode* node = it->first;
@@ -529,16 +530,19 @@ public:
             newWinner->cls = cls;
             newWinner->wins++;
             // puxar o novo vencedor
+            updateConnections(newWinner);
             updateNode(*newWinner, w, e_b);
-
+            
+            updateConnections(winner1); 
+            // empurrar o primeiro winner que tem classe diferente da amostra
+            updateNode(*winner1, w, -push_rate);
+            
             TPNodeConnectionMap::iterator it;
             for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
                 TNode* node = it->first;
                 updateNode(*node, w, e_n);
             }
 
-            // empurrar o primeiro winner que tem classe diferente da amostra
-            updateNode(*winner1, w, -push_rate);
 
         } else if (meshNodeSet.size() < maxNodeNumber) {
 
@@ -562,7 +566,7 @@ public:
             // puxar o vencedor
 //            updateNode(*nodeNew, w, e_b);
 
-            updateNode(*winner1, w, -push_rate);
+//            updateNode(*winner1, w, -push_rate);
         } 
 //        else {
 //            float a = activation(*winner1, w);
