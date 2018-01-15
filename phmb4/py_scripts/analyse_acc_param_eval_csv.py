@@ -13,7 +13,6 @@ def analyse (folder, rows):
     files = sorted(files)
 
     datasets = []
-    folds = []
     headers = []
     for file in files:
         if ".csv" in file:
@@ -29,14 +28,28 @@ def analyse (folder, rows):
             if len(datasets) <= 0:
                 results = pd.read_csv(join(folder, file), skiprows=headerRows, header=None)
 
-                datasets = results.iloc[0]#[1:]
-                datasets = datasets[1: datasets[datasets == "a_t"].index[0]]
+                datasets = results.iloc[0]
+                firstParamIndex = datasets[datasets == "a_t"].index[0]
+                datasets = datasets[1: firstParamIndex]
+
+                params = results.drop(results.columns[range(firstParamIndex)], axis=1)
+                params = params.rename(columns=params.iloc[0])
+                params = params.drop([0])
+                params = params.astype(np.float64)
+                params = params.reset_index(drop=True)
+
+                results = results.drop(results.columns[range(firstParamIndex, len(results.columns))], axis=1)
+                results = results.drop(results.columns[0], axis=1)
+                results = results.rename(columns=results.iloc[0])
+                results = results.drop([0])
         else:
             file
 
+    index_sets = []
     line = " \t" + "\t".join(datasets) + "\n"
     for i in range(len(headers)):
         local_max_mean = headers[i]["max_mean"]
+        index_sets.append(np.array(headers[i]["index_set"]))
         local_num_index_set = headers[i]["index_set"]
 
         line += files[i] + "\n"
@@ -44,6 +57,16 @@ def analyse (folder, rows):
         line += "index_set\t" + "\t".join(map(str, local_num_index_set)) + "\n"
         # line += "mean_value\t" + "\t".join(map(str, means_mean_value)) + "\n\n"
         # line += "\t" + "\t".join(map(str, std_max_values)) + "\n"
+
+    datasets_arr = np.array(datasets)
+    index_sets = np.array(index_sets).transpose()
+    for i in range(len(datasets_arr)):
+        line += datasets_arr[i] + "\n"
+        unique_indexes = map(int, np.unique(index_sets[i]))
+        for index in unique_indexes:
+            line += str(index) + "," + ",".join(map(str, params.iloc[index])) + "\n"
+
+        line += "\n"
 
     outputFile = open(join(folder, "analysis.csv"), "w+")
     outputFile.write(line)
