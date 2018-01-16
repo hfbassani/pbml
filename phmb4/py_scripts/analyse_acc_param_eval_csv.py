@@ -58,10 +58,12 @@ def analyse (folder, rows):
         # line += "mean_value\t" + "\t".join(map(str, means_mean_value)) + "\n\n"
         # line += "\t" + "\t".join(map(str, std_max_values)) + "\n"
 
+    line += "\n"
+
     datasets_arr = np.array(datasets)
     index_sets = np.array(index_sets).transpose()
     for i in range(len(datasets_arr)):
-        line += datasets_arr[i] + "\n"
+        line += datasets_arr[i] + "," + ",".join(params.columns) + "\n"
         unique_indexes = map(int, np.unique(index_sets[i]))
         for index in unique_indexes:
             line += str(index) + "," + ",".join(map(str, params.iloc[index])) + "\n"
