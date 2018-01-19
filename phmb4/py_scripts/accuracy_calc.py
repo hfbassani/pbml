@@ -5,7 +5,6 @@ from scipy.io import arff
 from sklearn import metrics
 from os import listdir
 from os.path import isfile, join
-import os
 
 def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=None):
 

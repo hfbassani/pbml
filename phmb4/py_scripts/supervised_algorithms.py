@@ -8,8 +8,6 @@ import numpy as np
 from scipy.io import arff
 from os import listdir
 from os.path import isfile, join
-import os
-
 
 def run_svm(train_X, train_Y, test_X, test_Y, c=1.0, kernel='rbf', degree=3):
     # clf = svm.SVR()
@@ -111,71 +109,47 @@ def todo (folder, paramsFolder, numDatasets):
             print outputText
             outputFile.write(outputText)
 
-    nRow = len(svm_acc) / numDatasets
-    outputFile.write("----> SVM Means (stds)\n")
+    writeMeans(svm_acc, numDatasets, arffFiles, outputFile, "SVM")
+    writeBests(svm_acc, numDatasets, arffFiles, outputFile, "SVM")
+
+    writeMeans(mlp_acc, numDatasets, arffFiles, outputFile, "MLP")
+    writeBests(mlp_acc, numDatasets, arffFiles, outputFile, "MLP")
+
+def writeMeans (accs, numDatasets, arffFiles, outputFile, title):
+    nRow = len(accs) / numDatasets
+    outputFile.write("----> {0} Means (stds)\n".format(title))
     for i in range(nRow):
         outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
-        for j in range(0, len(svm_acc), nRow):
-            outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(svm_acc[j + i]), np.std(svm_acc[j + i], ddof=1)))
+        for j in range(0, len(accs), nRow):
+            outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(accs[j + i]), np.std(accs[j + i], ddof=1)))
         outputFile.write("\n")
 
     outputFile.write("Mean (std)\t")
-    for i in range(0, len(svm_acc), nRow):
+    for i in range(0, len(accs), nRow):
         m_means = []
         for j in range(nRow):
-            m_means.append(np.mean(svm_acc[j + i]))
+            m_means.append(np.mean(accs[j + i]))
         outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
 
     outputFile.write("\n\n")
 
-    outputFile.write("----> SVM Bests\n")
+def writeBests (accs, numDatasets, arffFiles, outputFile, title):
+    nRow = len(accs) / numDatasets
+    outputFile.write("----> {0} Bests\n".format(title))
     for i in range(nRow):
         outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
-        for j in range(0, len(svm_acc), nRow):
-            outputFile.write("{0:.4f}\t\t\t".format(np.amax(svm_acc[j + i])))
+        for j in range(0, len(accs), nRow):
+            outputFile.write("{0:.4f}\t\t\t".format(np.amax(accs[j + i])))
         outputFile.write("\n")
 
     outputFile.write("Mean (std)\t")
-    for i in range(0, len(svm_acc), nRow):
+    for i in range(0, len(accs), nRow):
         m_means = []
         for j in range(nRow):
-            m_means.append(np.amax(svm_acc[j + i]))
+            m_means.append(np.amax(accs[j + i]))
         outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
 
     outputFile.write("\n\n")
-
-
-
-    outputFile.write("----> MLP Means (stds)\n")
-    for i in range(nRow):
-        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
-        for j in range(0, len(svm_acc), nRow):
-            outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(mlp_acc[j + i]), np.std(mlp_acc[j + i], ddof=1)))
-        outputFile.write("\n")
-
-    outputFile.write("Mean (std)\t")
-    for i in range(0, len(mlp_acc), nRow):
-        m_means = []
-        for j in range(nRow):
-            m_means.append(np.mean(mlp_acc[j + i]))
-        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
-
-    outputFile.write("\n\n")
-
-    outputFile.write("----> MLP Bests\n")
-    for i in range(nRow):
-        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
-        for j in range(0, len(svm_acc), nRow):
-            outputFile.write("{0:.4f}\t\t\t".format(np.amax(mlp_acc[j + i])))
-        outputFile.write("\n")
-
-    outputFile.write("Mean (std)\t")
-    for i in range(0, len(mlp_acc), nRow):
-        m_means = []
-        for j in range(nRow):
-            m_means.append(np.amax(mlp_acc[j + i]))
-        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
-
 
 def getKernel(kernel):
     if kernel == 1:

@@ -80,11 +80,11 @@ def analyse (folder, rows):
 
         line += files[i] + "\n"
         line += "means_max_values\t" + "\t".join(map(str, means_max_values)) + "\n"
+        line += "std_max_values\t" + "\t".join(map(str, std_max_values)) + "\n"
         line += "means_num_nodes\t" + "\t".join(map(str, means_num_nodes)) + "\n"
         line += "means_num_noisy_samples\t" + "\t".join(map(str, means_num_noisy_samples)) + "\n"
         line += "means_num_unlabeled_samples\t" + "\t".join(map(str, means_num_unlabeled_samples)) + "\n\n"
         # line += "mean_value\t" + "\t".join(map(str, means_mean_value)) + "\n\n"
-        # line += "\t" + "\t".join(map(str, std_max_values)) + "\n"
 
     outputFile = open(join(folder + ".csv"), "w+")
     outputFile.write(line)
