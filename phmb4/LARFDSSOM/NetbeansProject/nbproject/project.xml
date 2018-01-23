@@ -17,6 +17,7 @@
                 <sourceRootElem>../../../Libs/Defines</sourceRootElem>
                 <sourceRootElem>../../../Libs/MatMatrix</sourceRootElem>
                 <sourceRootElem>../../../Libs/Parameters</sourceRootElem>
+                <sourceRootElem>../../../Libs/CImg</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

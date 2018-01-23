@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="100">
+<configurationDescriptor version="94">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Arquivos de cabeçalho"
@@ -13,6 +13,11 @@
     <logicalFolder name="ResourceFiles"
                    displayName="Arquivos de recurso"
                    projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="CImg" displayName="CImg" projectFiles="true">
+      <itemPath>../../../Libs/CImg/CImg.h</itemPath>
+      <itemPath>../../../Libs/CImg/DisplayMap.cpp</itemPath>
+      <itemPath>../../../Libs/CImg/DisplayMap.h</itemPath>
     </logicalFolder>
     <logicalFolder name="Cluster" displayName="Cluster" projectFiles="true">
       <itemPath>../Cluster/Cluster.cpp</itemPath>
@@ -246,6 +251,7 @@
     <Elem>../../../Libs/Defines</Elem>
     <Elem>../../../Libs/MatMatrix</Elem>
     <Elem>../../../Libs/Parameters</Elem>
+    <Elem>../../../Libs/CImg</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -266,13 +272,23 @@
             <pElem>../../../Libs/Defines</pElem>
             <pElem>../../../Libs/MatMatrix</pElem>
             <pElem>../../../Libs/Parameters</pElem>
+            <pElem>../../../Libs/CImg</pElem>
           </incDir>
           <commandLine>-Wno-comment -std=c++11</commandLine>
         </ccTool>
         <linkerTool>
-          <commandLine>-L/usr/X11/lib -static-libstdc++</commandLine>
+          <linkerLibItems>
+            <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
+          </linkerLibItems>
+          <commandLine>-L/usr/X11/lib -static-libstdc++ -lX11</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../../../Libs/CImg/CImg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../Libs/CImg/DisplayMap.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../Libs/CImg/DisplayMap.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../../Libs/Data/ArffData.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../../../Libs/Data/ArffData.h" ex="false" tool="3" flavor2="0">
@@ -1188,6 +1204,12 @@
           <commandLine>-L/usr/X11/lib -static-libstdc++</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../../../Libs/CImg/CImg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../Libs/CImg/DisplayMap.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../Libs/CImg/DisplayMap.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../../Libs/Data/ArffData.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../../../Libs/Data/ArffData.h" ex="false" tool="3" flavor2="0">
@@ -2106,6 +2128,12 @@
           <commandLine>-m64 -L/usr/X11/lib -static-libstdc++</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../../../Libs/CImg/CImg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../Libs/CImg/DisplayMap.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../Libs/CImg/DisplayMap.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../../Libs/Data/ArffData.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../../../Libs/Data/ArffData.h" ex="false" tool="3" flavor2="0">
