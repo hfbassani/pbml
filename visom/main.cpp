@@ -235,9 +235,9 @@ int main(int argc, char** argv) {
     //runCompleteTest(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
     //runStudyOfCase(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
-    runTestAfterTraining(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    //runTestAfterTraining(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
-    //runStudyOfCaseAfterTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
+    runStudyOfCaseAfterTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
 
     dbgOut(1) << "Done." << endl;
 }
@@ -380,8 +380,8 @@ void runStudyOfCase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNod
 }
 
 void runStudyOfCaseAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM) {
-    int experiment = 33;
-    int fileNumber = 4;
+    int experiment = 14;
+    int fileNumber = 0;
     string filename = "sentences_" + std::to_string(fileNumber) + ".txt";
 
     cout << "f-" << fileNumber << " e-" << experiment;
@@ -389,25 +389,39 @@ void runStudyOfCaseAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
     //Testa com todos os arquivos de entrada depois que arede já foi treinada
     som->readSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
 
-    for (int i = som->d_min; i <= som->d_max; i++) { // For para tamanhos de entrada
+    for (int i = 6; i <= som->d_max; i++) { // For para tamanhos de entrada
 
         //Taxa de true positive
         MatMatrix<float> data = loadTrueData(i, fileNumber);
         clusteringSOM.setData(data);
         som->resetSize(clusteringSOM.getInputSize());
-        taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("output/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, som->a_t));
-
+        for (float at_min = 0.80; at_min <= 0.99; at_min+=0.01 ){
+            taxaTrue.concatRows(clusteringSOM.writeClusterResultsArticle("output/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, 0.9994));
+        }
         //Taxa de false negative
-        MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
-        clusteringSOM.setData(dataFalse);
-        som->resetSize(clusteringSOM.getInputSize());
-        taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + filename, dataFalse, featuresDict, dssom, som->a_t));
+        //MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
+        //clusteringSOM.setData(dataFalse);
+        //som->resetSize(clusteringSOM.getInputSize());
+        //taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + filename, dataFalse, featuresDict, dssom, som->a_t));
 
     }
 
-    outputM.PATH = "output/";
-    outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
-    dbgOut(1) << std::to_string(experiment) << "% Concluido do arquivo " << fileNumber << endl;
+    //outputM.PATH = "output/";
+    //outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
+    //dbgOut(1) << std::to_string(experiment) << "% Concluido do arquivo " << fileNumber << endl;
+    std::ofstream file1;
+    std::string name = "metrics_article.txt";
+    file1.open(name.c_str(), std::ios_base::app);
+    for (int row = 0; row < taxaTrue.rows(); row++){
+        int tp = taxaTrue[row][3];
+        int fp = taxaTrue[row][4];
+        int tn = taxaTrue[row][5];
+        int fn = taxaTrue[row][6];
+        float precision = tp/(tp+fp+0.00000000000001);
+        float recall = tp/(tp+fn+0.00000000000001);
+        file1 << "tp = " << taxaTrue[row][3] << " | fp = " << taxaTrue[row][4] << " | tn = " << taxaTrue[row][5] << " | fn = " << taxaTrue[row][6] << std::endl;
+        file1 << "precision = " << precision << " | recall = " << recall << " | f-measure = " << (2 * precision * recall)/(precision + recall);
+    }
 }
 
 void learningTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM) {
