@@ -83,6 +83,10 @@ public:
     void setAverages(MatMatrix<float>* averages) {
         this->averages = averages;
     }
+    
+    void setTrainingData(MatMatrix<float>* trainingData) {
+        this->trainingData = trainingData;
+    }
 
     void setDrawNodes(bool drawNodes) {
         this->drawNodes = drawNodes;
@@ -338,12 +342,19 @@ private:
         size = 1;
     }
     
+    virtual void getClassIndex(MatVector<float> &dataVector, int &index, int &size) {
+        index = 1;
+        size = 1;
+    }
+        
     virtual void plotMap(CImg<unsigned char> *image, bool drawNodes, bool drawConections) {
     }
 
     virtual void buildImage(int X, int Y, MatVector<float> *dataVector, bool clean = true) {
 
         unsigned char bmuColor[3];
+        unsigned char contourColor[3];
+        
         int width = (image->width() - 2 * padding);
         int height = (image->height() - 2 * padding);
 
@@ -380,11 +391,20 @@ private:
                     bmuColor[0] = r;
                     bmuColor[1] = g;
                     bmuColor[2] = b;
+                    
+                    getClassIndex(row, index, size);
+                    if (size==0) size = 1;
+                    h = HUE_START + index*MAX_HUE / (size);
+                    HSVtoRGB(&r, &g, &b, h, 255, 255);
+                    contourColor[0] = r;
+                    contourColor[1] = g;
+                    contourColor[2] = b;
 
+                    image->draw_circle(padding + (*trainingData)[i][X] * width + gitterx, padding + (*trainingData)[i][Y] * height + gittery, 3, contourColor);
                     image->draw_circle(padding + (*trainingData)[i][X] * width + gitterx, padding + (*trainingData)[i][Y] * height + gittery, 2, bmuColor);
                 }
                 else
-                     image->draw_circle(padding + (*trainingData)[i][X] * width + gitterx, padding + (*trainingData)[i][Y] * height + gittery, 2, contour);
+                    image->draw_circle(padding + (*trainingData)[i][X] * width + gitterx, padding + (*trainingData)[i][Y] * height + gittery, 2, contour);
             }
         }
 
@@ -402,6 +422,7 @@ private:
 
     void drawTrueClusters(int X, int Y) {
         unsigned char color[3];
+        unsigned char contourColor[3];
         int r, g, b;
         int width = (image->width() - 2 * padding);
         int height = (image->height() - 2 * padding);
@@ -435,6 +456,17 @@ private:
 
                 MatVector<float> sample;
                 trainingData->getRow(indices[i], sample);
+                
+                int index, size;
+                getClassIndex(sample, index, size);
+                if (size==0) size = 1;
+                h = HUE_START + index*MAX_HUE / (size);
+                HSVtoRGB(&r, &g, &b, h, 255, 255);
+                contourColor[0] = r;
+                contourColor[1] = g;
+                contourColor[2] = b;
+
+                image->draw_circle(padding + sample[X] * width + gitterx, padding + sample[Y] * height + gittery, 3, contourColor);
                 image->draw_circle(padding + sample[X] * width + gitterx, padding + sample[Y] * height + gittery, 2, color);
             }
         }

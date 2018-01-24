@@ -29,11 +29,32 @@ public:
     DisplaySSHSOM(LARFDSSOM *som, MatMatrix<float> *trainingData, MatMatrix<float> *averages = NULL, map<int, int> *groupLabels = NULL, int padding = 20, int gitter = 0, bool bmucolor = true, bool trueClustersColor = true, bool filterNoise = false):DisplayMap(trainingData, averages, groupLabels, padding, gitter, bmucolor, trueClustersColor, filterNoise) {
         this->som = som;
     }
+    
+    virtual void getColorIndex(MatVector<float> &dataVector, int &index, int &size) {
+        som->enumerateNodes();
+        size = som->meshNodeSet.size();
+        DSNode *bmu = som->getWinner(dataVector);
+        index = bmu->getId();
+    }
+    
+    virtual void getClassIndex(MatVector<float> &dataVector, int &index, int &size) {
+        if (groupLabels!=NULL) {
+            size = groupLabels->size();
+        }
+        DSNode *bmu = som->getWinner(dataVector);
+        index = bmu->cls;
+    }
 
     virtual void plotMap(CImg<unsigned char> *image, bool drawNodes, bool drawConections) {
         
-        som->enumerateNodes();
+        int nclass = 2;
+        if (groupLabels!=NULL) {
+            nclass = groupLabels->size();
+        }
+        
         unsigned char bmuColor[3];
+        unsigned char contour[3];
+        
         int width = (image->width() - 2 * padding);
         int height = (image->height() - 2 * padding);
 
@@ -49,6 +70,18 @@ public:
                 bmuColor[0] = r;
                 bmuColor[1] = g;
                 bmuColor[2] = b;
+                
+                if (bmu->cls!=som->noCls) {
+                    h = HUE_START + bmu->cls*MAX_HUE / (nclass);
+                    HSVtoRGB(&r, &g, &b, h, 255, 255);
+                    contour[0] = r;
+                    contour[1] = g;
+                    contour[2] = b;
+                } else {
+                    contour[0] = 0;
+                    contour[1] = 0;
+                    contour[2] = 0;
+                }
 
                 image->draw_circle(padding + bmu->w[X] * width, padding + bmu->w[Y] * height, 4, contour);
                 image->draw_circle(padding + bmu->w[X] * width, padding + bmu->w[Y] * height, 3, bmuColor);
@@ -94,9 +127,9 @@ int findLast(const string str, string delim);
 
 int main(int argc, char** argv) {
 
-    dbgThreshold(1);
+    dbgThreshold(0);
 
-    dbgOut(1) << "Running LARFDSSOM" << endl;
+    dbgOut(0) << "Running LARFDSSOM" << endl;
 
     string inputPath = "";
     string testPath = "";
@@ -180,10 +213,10 @@ void evaluate (string filePath, string somPath, bool subspaceClustering, bool fi
     LARFDSSOM som(1);
     SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
     som.noCls = -1;
-    som.readSOM("/home/pedro/Documents/git/pbml/phmb4/LARFDSSOM/NetbeansProject/test_folds_pls_jesus_breast2/som_train_breast_x2_k2_282");
+    som.readSOM("/home/pedro/Documents/Experiments/test-train/nn-1/hyb-eval-orig-nn-l100/som_train_diabetes_x3_k1_155");
     
     ClusteringMeshSOM clusteringSOM(dssom);
-    clusteringSOM.readFile("/home/pedro/Documents/git/pbml/Datasets/Realdata_3Times3Folds_TestBreast/test_breast_x2_k2.arff");
+    clusteringSOM.readFile("/home/pedro/Documents/git/pbml/Datasets/Realdata_3Times3Folds_Test/test_diabetes_x3_k1.arff");
     clusteringSOM.sorted = sorted;
     
     
@@ -192,7 +225,7 @@ void evaluate (string filePath, string somPath, bool subspaceClustering, bool fi
     
 //    clusteringSOM.writeClusterResults("/home/pedro/Documents/teste.results");
     clusteringSOM.outConfusionMatrix(clusteringSOM.groups, clusteringSOM.groupLabels);
-    clusteringSOM.outClusters();
+    clusteringSOM.outClassInfo(clusteringSOM.groups, clusteringSOM.groupLabels);
 }
 
 void runExperiments (std::vector<float> params, string filePath, string outputPath, float supervisionRate,
@@ -257,29 +290,18 @@ void runTestTrainExperiments (std::vector<float> params, string filePath, string
 
         clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
         clusteringSOM.setFilterNoise(isFilterNoise);   
-    							
-//        som.a_t = 0.850051;//params[i];
-//        som.lp = 0.00683292;//params[i + 1];
-//        som.dsbeta = 0.135774;//params[i + 2];
-//        som.age_wins = 63;//params[i + 3];
-//        som.e_b = 0.00657346;//params[i + 4];
-//        som.e_n = 0.0288698 * som.e_b;
-//        som.epsilon_ds = 0.0237034;params[i + 6];
-//        som.minwd = 0.324148;//0;//params[i + 7]; 
-//        som.epochs = 19;//params[i + 8];
-//        som.push_rate = 0.132613 * som.e_b;
         
-//        som.a_t = 0.893248;//params[i];
-//        som.lp = 0.00693669;//params[i + 1];
-//        som.dsbeta = 0.274298;//params[i + 2];
-//        som.age_wins = 49;//params[i + 3];
-//        som.e_b = 0.0591604;//params[i + 4];
-//        som.e_n = 0.474905 * som.e_b;
-//        som.epsilon_ds = 0.0482915;params[i + 6];
-//        som.minwd = 0.0571491;//0;//params[i + 7]; 
-//        som.epochs = 96;//params[i + 8];
-//        som.push_rate = 0.422377 * som.e_b;
-                
+//        som.a_t = 0.955972;
+//        som.lp = 0.00490012;
+//        som.dsbeta = 0.289741;
+//        som.age_wins = 85;
+//        som.e_b = 0.0117624;
+//        som.e_n = 0.52995 * som.e_b;
+//        som.epsilon_ds = 0.0734201;
+//        som.minwd = 0.167225; 
+//        som.epochs = 36;
+//        som.push_rate = 0.214239 * som.e_b;
+                        
         som.a_t = params[i];
         som.lp = params[i + 1];
         som.dsbeta = params[i + 2];
@@ -292,25 +314,28 @@ void runTestTrainExperiments (std::vector<float> params, string filePath, string
         som.push_rate = params[i +9] * som.e_b;
         
         if (supervisionRate < 0) 
-            som.supervisionRate = params[i + 10];//0.823789
+            som.supervisionRate = params[i + 10];//0.273906
         else 
             som.supervisionRate = supervisionRate;
         
         string index = std::to_string((i/numberOfParameters));
         
         som.unsupervisionRate = 1.0 - som.supervisionRate;
-
-//        srand(21.2613 + time(NULL));
-//        srand(59.7078 + i);
+                  
+//        srand(51.3146);
         srand(params[i + 11]);
 
         som.noCls = std::min_element(clusteringSOM.groups.begin(), clusteringSOM.groups.end())[0] - 1;
-        som.maxNodeNumber = clusteringSOM.trainingData->size();
+        som.maxNodeNumber = clusteringSOM.getNumSamples();
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         //clusteringSOM.trainSOM(som.epochs);
+        som.data = *clusteringSOM.trainingData;
         
         DisplaySSHSOM dm(&som, clusteringSOM.trainingData);
+        dm.setTrueClustersData(clusteringSOM.groups);
+        dm.setGroupLabels(&clusteringSOM.groupLabels);
+        dm.setTrueClustersColor(true);
         
         for (int epoch = 0; epoch < som.epochs; epoch++)
             for (int row = 0 ; row < clusteringSOM.trainingData->rows() ; ++row) {
@@ -320,18 +345,24 @@ void runTestTrainExperiments (std::vector<float> params, string filePath, string
         
         som.finishMapFixed(sorted, clusteringSOM.groups);
         som.saveSOM(outputPath + "som_" + getFileName(filePath) + "_" + index);
-        
-        dm.displayLoop();
-        dm.close();
 
-//        som.checkNodeClasses(outputPath + getFileName(testPath) + "_" + index + ".results.noclass");
+        clusteringSOM.outConfusionMatrix(clusteringSOM.groups, clusteringSOM.groupLabels);
+        clusteringSOM.outClassInfo(clusteringSOM.groups, clusteringSOM.groupLabels);
+        //dm.displayLoop();
+
         clusteringSOM.cleanUpTrainingData();
         clusteringSOM.readFile(testPath);
         clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
 
-//        som.enumerateNodes();
-//        dbgOut(1) << clusteringSOM.outClassInfo(clusteringSOM.groups, clusteringSOM.groupLabels) << endl;
-//        clusteringSOM.outConfusionMatrix(clusteringSOM.groups, clusteringSOM.groupLabels);
+        dm.setTrainingData(clusteringSOM.trainingData);
+        dm.setTrueClustersData(clusteringSOM.groups);
+        dm.setGroupLabels(&clusteringSOM.groupLabels);
+
+        clusteringSOM.outConfusionMatrix(clusteringSOM.groups, clusteringSOM.groupLabels);
+        clusteringSOM.outClassInfo(clusteringSOM.groups, clusteringSOM.groupLabels);
+
+        dm.displayLoop();
+        dm.close();
     }
 }
 

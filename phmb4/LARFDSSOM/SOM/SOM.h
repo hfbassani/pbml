@@ -126,13 +126,12 @@ public:
         return *this;
     }
     
-    SOM& trainning(int epochs = 1, std::vector<int> groups = NULL) {
-//        trainningStep(rand()%data.rows(), groups);
-        
-        for (int epoch = 0 ; epoch < epochs ; epoch++)
+    SOM& trainning(int epochs = 1, std::vector<int> groups = NULL) {        
+        for (int epoch = 0 ; epoch < epochs ; epoch++) {
             for (int row = 0 ; row < data.rows() ; ++row)
                 trainningStep(rand()%data.rows(), groups);
-                
+        }
+            
         return *this;
     }
     
@@ -168,7 +167,7 @@ public:
         double rate = distribution(generator);
         
         if (rate <= supervisionRate) { //supervised
-//            dbgOut(1) << "supervised" << endl << endl;
+//            dbgOut(1) << "supervised" << endl;
             updateMapSup(v, cls);
         } else { //unsupervised
 //            dbgOut(1) << "unsupervised rate:" << unsupervisionRate << endl;
