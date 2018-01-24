@@ -71,6 +71,8 @@ public:
     virtual int getMeshSize() = 0;
     
     virtual std::vector<int> getNodeClasses() = 0;
+    
+    virtual std::vector<int> getNodeIds() = 0;
 
     int getInputSize() {
         return trainingData->cols();
@@ -342,6 +344,7 @@ public:
 
         for (int k = 0; k < groups.size(); k++) {
             MatVector<float> sample;
+            total++;
             trainingData->getRow(k, sample);
             if (filterNoise && isNoise(sample)) {
                 noise++;
@@ -362,7 +365,6 @@ public:
                 nodeHits[winner]++;
             }
 
-            total++;
             nodeClusterSize[winner]++;
         }
         
@@ -371,15 +373,21 @@ public:
             MatVector<float> weights;
             getWeights(i, weights);
 
-            out << getNodeId(i) << ": ";
+            dbgOut(0) << getNodeId(i) << ": ";
 //            out << "\t" << weights[weights.size() - 1];
-            out << "\t" << nodeHits[i] << "/" << nodeClusterSize[i];
-            out << "\t" << nodeHits[i] / (float) nodeClusterSize[i];
-            out << endl;
+            dbgOut(0) << "\t" << nodeHits[i] << "/" << nodeClusterSize[i];
+            
+            float sizeDiv = 0;
+            
+            if (nodeClusterSize[i] > 0) {
+                sizeDiv = nodeHits[i] / (float) nodeClusterSize[i];
+            }
+            dbgOut(0) << "\t" << sizeDiv;
+            dbgOut(0) << endl;
         }
 
-        out << "Classification acuracy:\t" << hits / (float) total << endl;
-        out << "Total noise:\t" << noise / (float) trainingData->rows() << endl;
+        dbgOut(0) << "Classification acuracy:\t" << hits / (float) trainingData->rows() << endl;
+        dbgOut(0) << "Total noise:\t" << noise / (float) trainingData->rows() << endl;
 
         return out.str();
     }
@@ -403,12 +411,14 @@ public:
             }
 
             std::vector<int> winners;
+            std::vector<int> idss;
             std::vector<int> result;
             if (isSubspaceClustering) {
                 getWinners(sample, winners);
             } else {
                 result = getWinnerResult(sample);
                 winners.push_back(result[0]);
+                idss.push_back(result[2]);
             }
 
             for (int w = 0; w < winners.size(); w++) {
@@ -421,15 +431,16 @@ public:
         MatVector<int> colSums(confusionMatrix.cols());
         
         std::vector<int> cluClasses = getNodeClasses();
+        std::vector<int> cluIds = getNodeIds();
         
         rowSums.fill(0);
         colSums.fill(0);
         dbgOut(0) << "cluster\\class\t|";
         for (int c = 0; c < confusionMatrix.cols(); c++)
-            dbgOut(1) << "\tcla" << groupLabels[c];
+            dbgOut(0) << "\tcla" << groups[c];
         dbgOut(0) << "\t| Sum" << endl;
         for (int r = 0; r < confusionMatrix.rows(); r++) {
-            dbgOut(0) << "clu" << r << " (cls: " << cluClasses[r] << ")\t|";
+            dbgOut(0) << "Node " << cluIds[r] << " (" << cluClasses[r] <<")\t|";
             for (int c = 0; c < confusionMatrix.cols(); c++) {
                 dbgOut(0) << "\t" << confusionMatrix[r][c];
                 rowSums[r] += confusionMatrix[r][c];
@@ -933,11 +944,28 @@ public:
         return nodeClasses;
     }
     
+    std::vector<int> getNodeIds() {
+        std::vector<int> nodeIds;
+        SOM<DSNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            nodeIds.push_back((*it)->getId());
+        }
+        
+        return nodeIds;
+    }
+    
     void train(MatMatrix<float> &trainingData, int epochs) {
         som->data = trainingData;
 
         if (!sorted) {
-            som->trainning(epochs, groups);
+//            som->trainning(epochs, groups);
+            for (int epoch = 0 ; epoch < epochs ; epoch++) {
+                for (int row = 0 ; row < som->data.rows() ; ++row)
+                    som->trainningStep(rand()%som->data.rows(), groups);
+                
+                outConfusionMatrix(groups, groupLabels);
+            }
         } else {
             som->orderedTrainning(epochs, groups);
         }
@@ -977,6 +1005,7 @@ public:
         std::vector<int> result;
         result.push_back(getNodeIndex(*winner));
         result.push_back(winner->cls);
+        result.push_back(winner->getId());
         
         return result;
     }

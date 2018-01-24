@@ -233,6 +233,7 @@ public:
 
             if ((*itMesh)->wins < step*lp) {
                 //dbgOut(1) << (*itMesh)->getId() << ": " << (*itMesh)->wins << "\t<\t" << step*lp << endl;
+                dbgOut(0) << "Removeu nodo " << (*itMesh)->getId() << " (cls: " << (*itMesh)->cls << ")" << endl;
                 eraseNode((*itMesh));
                 itMesh = meshNodeSet.begin();
             } else {
@@ -404,10 +405,10 @@ public:
     void createNodeMap (const TVector& w, int cls) {
         // cria um novo nodo na posição da amostra
         TVector wNew(w);
-        TNode *nodeNew = createNode(nodeID, wNew);
-        nodeID++;
+        TNode *nodeNew = createNode(nodeID++, wNew);
         nodeNew->cls = cls;
-        nodeNew->wins = 0;
+        nodeNew->wins = 0;//lp * step;
+        dbgOut(1) << "New Node  " <<  nodeNew->getId() << " ("<< nodeNew->cls << "): " << cls << endl;
 
         updateConnections(nodeNew);
     }
@@ -415,7 +416,7 @@ public:
     void ageWinsCriterion(){
         //Passo 9:Se atingiu age_wins
         if (step >= age_wins) {
-
+            
             int size = meshNodeSet.size();
             //remove os perdedores
             removeLoosers();
@@ -493,9 +494,11 @@ public:
             
         } else { // winner1 representativo e da mesma classe da amostra 
             
+            dbgOut(1) << "Vencedor  " <<  winner1->getId() << " ("<< winner1->cls << "): " << cls << endl;
             if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
                 // cria um novo nodo na posição da amostra
                 createNodeMap(w, cls);
+                
 
             } else  {
                 winner1->wins++;
@@ -527,6 +530,7 @@ public:
         }
 
         if (newWinner != NULL) { // novo winner de acordo com o raio de a_t
+            dbgOut(1) << "Novo vencedor " <<  newWinner->getId() << " ("<< newWinner->cls << "): " << cls << endl;
             newWinner->cls = cls;
             newWinner->wins++;
             // puxar o novo vencedor
@@ -545,6 +549,7 @@ public:
 
 
         } else if (meshNodeSet.size() < maxNodeNumber) {
+            dbgOut(1) << "Não ha vencedor -> cria novo nodo" << endl;
 
             // cria um novo nodo na posição da amostra
             createNodeMap(w, cls);
