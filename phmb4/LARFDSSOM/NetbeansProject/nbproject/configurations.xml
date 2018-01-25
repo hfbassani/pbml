@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="94">
+<configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Arquivos de cabeçalho"
@@ -1190,18 +1190,19 @@
         <ccTool>
           <developmentMode>6</developmentMode>
           <incDir>
+            <pElem>../SOM</pElem>
+            <pElem>../Cluster</pElem>
             <pElem>../../../Libs/Data</pElem>
             <pElem>../../../Libs/Debug</pElem>
             <pElem>../../../Libs/Defines</pElem>
             <pElem>../../../Libs/MatMatrix</pElem>
             <pElem>../../../Libs/Parameters</pElem>
-            <pElem>../Cluster</pElem>
-            <pElem>../SOM</pElem>
+            <pElem>../../../Libs/CImg</pElem>
           </incDir>
           <commandLine>-Wno-comment -std=c++11</commandLine>
         </ccTool>
         <linkerTool>
-          <commandLine>-L/usr/X11/lib -static-libstdc++</commandLine>
+          <commandLine>-L/usr/X11/lib -static-libstdc++ -lX11 -lpthread</commandLine>
         </linkerTool>
       </compileType>
       <item path="../../../Libs/CImg/CImg.h" ex="false" tool="3" flavor2="0">
@@ -2120,6 +2121,7 @@
             <pElem>../../../Libs/Defines</pElem>
             <pElem>../../../Libs/MatMatrix</pElem>
             <pElem>../../../Libs/Parameters</pElem>
+            <pElem>../../../Libs/CImg</pElem>
           </incDir>
           <commandLine>-m64 -g -Wno-comment</commandLine>
         </ccTool>

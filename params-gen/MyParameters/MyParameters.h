@@ -59,6 +59,19 @@ public:
     LHSParameter lvq_tau;
     LHSParameter lvq_epochs;
     LHSParameter lvq_seed;
+    
+    //Label Spreading
+    LHSParameter kernel_spreading;
+    LHSParameter gamma_spreading;
+    LHSParameter neighbors_spreading;
+    LHSParameter alpha_spreading;
+    LHSParameter epochs_spreading;
+    
+    //Label Prop
+    LHSParameter kernel_propagation;
+    LHSParameter gamma_propagation;
+    LHSParameter neighbors_propagation;
+    LHSParameter epochs_propagation;
 
     MyParameters(bool real) {
         comments = "Test float Parameters";
@@ -103,6 +116,19 @@ public:
         addParameterD(lvq_epochs, "LVQ Epochs");
         addParameterD(lvq_seed, "LVQ Seed");
 
+        //Label Spreading
+        addParameterD(kernel_spreading, "kernel_spreading");
+        addParameterD(gamma_spreading, "gamma_spreading");
+        addParameterD(neighbors_spreading, "neighbors_spreading");
+        addParameterD(alpha_spreading, "alpha_spreading");
+        addParameterD(epochs_spreading, "epochs_spreading");
+    
+        //Label Prop
+        addParameterD(kernel_propagation, "kernel_propagation");
+        addParameterD(gamma_propagation, "gamma_propagation");
+        addParameterD(neighbors_propagation, "neighbors_propagation");
+        addParameterD(epochs_propagation, "epochs_propagation");
+    
         //Set default ranges and values
         N = 150;
         if (real) {
@@ -153,6 +179,17 @@ public:
         lvq_tau.setRange(0.000001, 0.00002) = 0.000001;
         lvq_epochs.setRange(5000, 10000) = 5000;
         lvq_seed.setRange(0, 10000) = 0;
+        
+        kernel_spreading.setRange(1, 2) = 1;
+        gamma_spreading.setRange(10, 30) = 10;
+        neighbors_spreading.setRange(1, 100) = 1;
+        alpha_spreading.setRange(0, 1.0) = 0.0;
+        epochs_spreading.setRange(20, 100) = 20;
+    
+        kernel_propagation.setRange(1, 2) = 1;
+        gamma_propagation.setRange(10, 30) = 10;
+        neighbors_propagation.setRange(1, 100) = 1;
+        epochs_propagation.setRange(20, 100) = 20;
 
         //Add parameters to latin hypercube sampling:
         addParameterToLHS(a_t);
@@ -191,6 +228,19 @@ public:
         addParameterToLHS(lvq_tau);
         addParameterToLHS(lvq_epochs);
         addParameterToLHS(lvq_seed);
+        
+        
+        addParameterToLHS(kernel_spreading);
+        addParameterToLHS(gamma_spreading);
+        addParameterToLHS(neighbors_spreading);
+        addParameterToLHS(alpha_spreading);
+        addParameterToLHS(epochs_spreading);
+    
+        //Label Prop
+        addParameterToLHS(kernel_propagation);
+        addParameterToLHS(gamma_propagation);
+        addParameterToLHS(neighbors_propagation);
+        addParameterToLHS(epochs_propagation);
     }
 };
 

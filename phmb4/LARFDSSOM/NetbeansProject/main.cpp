@@ -348,7 +348,7 @@ void runTestTrainExperiments (std::vector<float> params, string filePath, string
 
         clusteringSOM.outConfusionMatrix(clusteringSOM.groups, clusteringSOM.groupLabels);
         clusteringSOM.outClassInfo(clusteringSOM.groups, clusteringSOM.groupLabels);
-        //dm.displayLoop();
+        dm.displayLoop();
 
         clusteringSOM.cleanUpTrainingData();
         clusteringSOM.readFile(testPath);
