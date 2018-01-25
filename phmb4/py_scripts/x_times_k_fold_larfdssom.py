@@ -5,6 +5,7 @@ from scipy.io import arff
 from sklearn.model_selection import KFold
 from os import listdir
 from os.path import isfile, join
+from sklearn import preprocessing
 import os
 
 def get_type(type):
@@ -69,6 +70,9 @@ def create_xtimes_kfolds(xTimes, kFolds, folder, outputFolder):
             del data['class']
 
             data = np.array(data)
+            scaler = preprocessing.MinMaxScaler()
+            scaler.fit(data)
+            data = scaler.transform(data)
             labels = np.array(labels)
 
             for x in xrange(xTimes):

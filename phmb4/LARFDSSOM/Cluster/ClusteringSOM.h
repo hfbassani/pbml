@@ -116,7 +116,7 @@ public:
         }
 
         if (ArffData::readArff(filename, *trainingData, groupLabels, groups)) {
-            ArffData::rescaleCols01(*trainingData);
+//            ArffData::rescaleCols01(*trainingData);
             return true;
         }
         return false;
@@ -334,7 +334,6 @@ public:
 
         int meshSize = getMeshSize();
         int hits = 0;
-        int total = 0;
         int noise = 0;
 
         MatVector<int> nodeHits(meshSize);
@@ -344,7 +343,6 @@ public:
 
         for (int k = 0; k < groups.size(); k++) {
             MatVector<float> sample;
-            total++;
             trainingData->getRow(k, sample);
             if (filterNoise && isNoise(sample)) {
                 noise++;
@@ -352,7 +350,6 @@ public:
             }
 
             std::vector<int> result = getWinnerResult(sample);
-            int classIndex = sample.size() - 1;
             int winner = result[0];
 //            MatVector<float> weights;
 //            getWeights(winner, weights);
@@ -437,7 +434,7 @@ public:
         colSums.fill(0);
         dbgOut(0) << "cluster\\class\t|";
         for (int c = 0; c < confusionMatrix.cols(); c++)
-            dbgOut(0) << "\tcla" << groups[c];
+            dbgOut(0) << "\tcla" << groupLabels[c];
         dbgOut(0) << "\t| Sum" << endl;
         for (int r = 0; r < confusionMatrix.rows(); r++) {
             dbgOut(0) << "Node " << cluIds[r] << " (" << cluClasses[r] <<")\t|";
