@@ -444,6 +444,8 @@ public:
         int tn = 0;
         int fp = 0; 
         int fn = 0;
+        int tem = 0;
+        int nTem = 0;
         int somTam = som->size();
         float a;
         int at_know = 0, at_all = 0, at_Unknown = 0;
@@ -536,14 +538,16 @@ public:
                 }else{
                     fn++;
                 }
-                
+                tem++;
             }else{
                 if(a >= at_min){
                     fp++;
                 }else{
                     tn++;
                 }
+                nTem++;
             }
+            
             for (int j = 0; j < winners.size(); j++) {
                 int aux = winners[j];
                 int indice = 0, atual;
@@ -568,7 +572,7 @@ public:
         activations.append(fp);
         activations.append(tn);
         activations.append(fn);
-        dbgOut(1) << endl;
+        dbgOut(1) << "Palavras = " << tem << " Nao palavras = " << nTem << endl;
         return activations;
     }
     
