@@ -356,10 +356,10 @@ public:
                     }
 
                 }
-                
+
                 output_matrix[indice][1] += "  " + temp;
 
-                
+
 
             }
 
@@ -419,30 +419,35 @@ public:
         dbgOut(1) << endl;
         return activations;
     }
-    bool haveWord(MatVector<std::string>  input, char* word){
+
+    bool haveWord(MatVector<std::string> input, char* word) {
         char *res;
-        
-        for(int i = 0; i < input.size(); i++){
-            res = strstr(word ,input[i].c_str());
-            if(res != NULL){		
-                return true;	 
+
+        for (int i = 0; i < input.size(); i++) {
+            res = strstr(word, input[i].c_str());
+            if (res != NULL) {
+                return true;
             }
         }
         return false;
-        
+
     }
+
     MatVector<int> writeClusterResultsArticle(const std::string &filename, MatMatrix<float> &data, std::string &featuresDict,
             SOM<DSNode> *som, float at_min) {
         std::ifstream inputFile("input/c1_cat_phonems.txt");
         std::string text;
         MatVector<std::string> dictOfWords;
+#ifdef SAVE_NOT_WORDS
+        MatVector<int> indiceNotWords;
+#endif
         while (!inputFile.eof()) {
             getline(inputFile, text);
             dictOfWords.append(text);
         }
         int tp = 0;
         int tn = 0;
-        int fp = 0; 
+        int fp = 0;
         int fn = 0;
         int tem = 0;
         int nTem = 0;
@@ -519,30 +524,33 @@ public:
             uint index;
             a = activation(winner, sample, &index);
 
-            
+
             std::string temp;
             MatVector<float> rowOfData;
             data.getRow(i, rowOfData);
             for (int begin = 0, end = 11, j = 0; end < rowOfData.size(); begin += 12, end += 12, j++) {
                 features.copy(rowOfData, begin, end);
                 pf.translateFeaturesPhoneme(features, phonemes);
-                
+
                 temp += phonemes;
-                
+
             }
-            
-            
-            if( haveWord(dictOfWords, (char *)temp.c_str()) ){
-                if(a >= at_min){
+
+
+            if (haveWord(dictOfWords, (char *) temp.c_str())) {
+                if (a >= at_min) {
                     tp++;
-                }else{
+                } else {
                     fn++;
                 }
-                tem++;
-            }else{
-                if(a >= at_min){
+
+            } else {
+#ifdef SAVE_NOT_WORDS
+                indiceNotWords.append(i);
+#endif
+                if (a >= at_min) {
                     fp++;
-                }else{
+                } else {
                     tn++;
                 }
                 nTem++;
@@ -559,7 +567,7 @@ public:
                     }
 
                 }
-                
+
                 output_matrix[indice][1] += "  " + temp;
 
             }
@@ -572,10 +580,20 @@ public:
         activations.append(fp);
         activations.append(tn);
         activations.append(fn);
-        dbgOut(1) << "Palavras = " << tem << " Nao palavras = " << nTem << endl;
+#ifdef SAVE_NOT_WORDS
+        std::ofstream file_words;
+        file_words.open("notWords.txt");
+        for (int i = 0; i < indiceNotWords.size(); i++) {
+            for (int j = 0; j < data.cols(); j++) {
+                file_words << data[indiceNotWords[i]][j] << "\t";
+            }
+            file_words << "\n";
+        }
+#endif
+        dbgOut(1) << endl;
         return activations;
     }
-    
+
     int map(float x, float in_min, float in_max, float out_min, float out_max) {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
