@@ -389,14 +389,17 @@ void runStudyOfCaseAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
     //Testa com todos os arquivos de entrada depois que arede já foi treinada
     som->readSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
 
-    for (int i = 6; i <= som->d_max; i++) { // For para tamanhos de entrada
+    for (int i = 6; i <= 6; i++) { // For para tamanhos de entrada
 
         //Taxa de true positive
         MatMatrix<float> data = loadTrueData(i, fileNumber);
         clusteringSOM.setData(data);
         som->resetSize(clusteringSOM.getInputSize());
-        for (float at_min = 0.80; at_min <= 0.99; at_min+=0.01 ){
-            taxaTrue.concatRows(clusteringSOM.writeClusterResultsArticle("output/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, 0.9994));
+        float at_min = 0.50;
+        for (int qtd = 0; qtd < 1; qtd++ ){
+            std::cout << "|";
+            taxaTrue.concatRows(clusteringSOM.writeClusterResultsArticle("output/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, at_min));
+            at_min += 0.005;
         }
         //Taxa de false negative
         //MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
@@ -420,7 +423,7 @@ void runStudyOfCaseAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
         float precision = tp/(tp+fp+0.00000000000001);
         float recall = tp/(tp+fn+0.00000000000001);
         file1 << "tp = " << taxaTrue[row][3] << " | fp = " << taxaTrue[row][4] << " | tn = " << taxaTrue[row][5] << " | fn = " << taxaTrue[row][6] << std::endl;
-        file1 << "precision = " << precision << " | recall = " << recall << " | f-measure = " << (2 * precision * recall)/(precision + recall);
+        file1 << "precision = " << precision << " | recall = " << recall << " | f-measure = " << (2 * precision * recall)/(precision + recall) << std::endl;
     }
 }
 
