@@ -7,6 +7,7 @@ import numpy as np
 from scipy.io import arff
 from os import listdir
 from os.path import isfile, join
+import random
 
 def run_LabelPropagation(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20, n_neighbors=7, max_iter=1000):
 
@@ -28,12 +29,12 @@ def run_LabelSpreading(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20,
 
     return accuracy
 
-def todo (folder, paramsFolder, numDatasets):
+def todo (folder, paramsFolder, numDatasets, output, supervision):
     testFolder = folder.replace("_Train", "_Test")
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
-    outputFile = open("semi.results", 'w+')
+    outputFile = open("semi{0}-l{1}.results".format(output, supervision), 'w+')
 
     arffFiles = []
     spreading_acc = []
@@ -62,9 +63,9 @@ def todo (folder, paramsFolder, numDatasets):
             test_Y = np.array(test_Y)
 
             alldata = np.append(train_X, test_X, axis=0)
-            scaler = preprocessing.MinMaxScaler()
-            scaler.fit(alldata)
-            alldata = scaler.transform(alldata)
+            # scaler = preprocessing.MinMaxScaler()
+            # scaler.fit(alldata)
+            # alldata = scaler.transform(alldata)
 
             train_X = alldata[:len(train_X)]
             test_X = alldata[len(train_X):]
@@ -78,7 +79,12 @@ def todo (folder, paramsFolder, numDatasets):
                 n_neighbors_spreading = int(params[paramsSet + 2])
                 alpha_spreading = float(params[paramsSet + 3])
                 max_iter_spreading = int(params[paramsSet + 4])
-                spreading_acc[len(spreading_acc) - 1].append(run_LabelSpreading(train_X, train_Y, test_X, test_Y,
+
+                rng = np.random.RandomState(random.randint(1, 200000))
+                random_unlabeled_points = rng.rand(len(train_Y)) > supervision
+                labels_spread = np.copy(train_Y)
+                labels_spread[random_unlabeled_points] = str(-1)
+                spreading_acc[len(spreading_acc) - 1].append(run_LabelSpreading(train_X, labels_spread, test_X, test_Y,
                                                                                 kernel=kernel_spreading,
                                                                                 gamma=gamma_spreading,
                                                                                 n_neighbors=n_neighbors_spreading,
@@ -89,7 +95,12 @@ def todo (folder, paramsFolder, numDatasets):
                 gamma_propagation = float(params[paramsSet + 6])
                 n_neighbors_propagation = int(params[paramsSet + 7])
                 max_iter_propagation = int(params[paramsSet + 8])
-                propagation_acc[len(propagation_acc) - 1].append(run_LabelPropagation(train_X, train_Y, test_X, test_Y,
+
+                rng = np.random.RandomState(random.randint(1, 200000))
+                random_unlabeled_points = rng.rand(len(train_Y)) > supervision
+                labels_prop = np.copy(train_Y)
+                labels_prop[random_unlabeled_points] = str(-1)
+                propagation_acc[len(propagation_acc) - 1].append(run_LabelPropagation(train_X, labels_prop, test_X, test_Y,
                                                                                       kernel=kernel_propagation,
                                                                                       gamma=gamma_propagation,
                                                                                       n_neighbors=n_neighbors_propagation,
@@ -153,10 +164,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Train Data Directory', required=True)
 parser.add_argument('-p', help='Parameters', required=True)
 parser.add_argument('-n', help='Number of Datasets', required=True, type=int)
+parser.add_argument('-o', help='Output', required=True)
+parser.add_argument('-s', help='Percentage of Supervision', required=True, type=float)
 args = parser.parse_args()
 
 folder = args.i
 params = args.p
 n = args.n
+output = args.o
+supervision = args.s
 
-todo(folder, params, n)
+todo(folder, params, n, output, supervision)
