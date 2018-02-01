@@ -8,6 +8,7 @@ import numpy as np
 from scipy.io import arff
 from os import listdir
 from os.path import isfile, join
+import random
 
 def run_svm(train_X, train_Y, test_X, test_Y, c=1.0, kernel='rbf', degree=3):
     # clf = svm.SVR()
@@ -41,12 +42,12 @@ def run_mlp(train_X, train_Y, test_X, test_Y, neurons=100, hidden_layers=1, lr=0
 
     return accuracy
 
-def todo (folder, paramsFolder, numDatasets):
+def todo (folder, paramsFolder, numDatasets, output, supervision_rate):
     testFolder = folder.replace("_Train", "_Test")
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
-    outputFile = open("svm_mlp.results", 'w+')
+    outputFile = open("svm_mlp{0}-l{1}.results".format(output, supervision_rate), 'w+')
 
     arffFiles = []
     svm_acc = []
@@ -75,12 +76,24 @@ def todo (folder, paramsFolder, numDatasets):
             test_Y = np.array(test_Y)
 
             alldata = np.append(train_X, test_X, axis=0)
-            scaler = preprocessing.MinMaxScaler()
-            scaler.fit(alldata)
-            alldata = scaler.transform(alldata)
+            # scaler = preprocessing.MinMaxScaler()
+            # scaler.fit(alldata)
+            # alldata = scaler.transform(alldata)
 
             train_X = alldata[:len(train_X)]
             test_X = alldata[len(train_X):]
+
+            while True:
+                rng = np.random.RandomState(random.randint(1, 200000))
+                random_labeled_points = rng.rand(len(train_X)) < supervision_rate
+                curr_train_X = train_X[random_labeled_points]
+                curr_train_Y = train_Y[random_labeled_points]
+
+                if len(curr_train_X) > 0:
+                    break;
+
+            train_X = curr_train_X
+            train_Y = curr_train_Y
 
             params = open(paramsFolder, 'r')
             params = np.array(params.readlines())
@@ -189,10 +202,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Train Data Directory', required=True)
 parser.add_argument('-p', help='Parameters', required=True)
 parser.add_argument('-n', help='Number of Datasets', required=True, type=int)
+parser.add_argument('-s', help='Percentage of Supervision', required=True, type=float)
+parser.add_argument('-o', help='Output', required=True)
 args = parser.parse_args()
 
 folder = args.i
 params = args.p
 n = args.n
+output = args.o
+supervision = args.s
 
-todo(folder, params, n)
+todo(folder, params, n, output, supervision)
