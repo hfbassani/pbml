@@ -956,15 +956,9 @@ public:
         som->data = trainingData;
 
         if (!sorted) {
-//            som->trainning(epochs, groups);
-            for (int epoch = 0 ; epoch < epochs ; epoch++) {
-                for (int row = 0 ; row < som->data.rows() ; ++row)
-                    som->trainningStep(rand()%som->data.rows(), groups);
-                
-                outConfusionMatrix(groups, groupLabels);
-            }
+            som->trainning(epochs, groups, groupLabels);
         } else {
-            som->orderedTrainning(epochs, groups);
+            som->orderedTrainning(epochs, groups, groupLabels);
         }
     }
 
@@ -1057,7 +1051,7 @@ public:
 
     void train(MatMatrix<float> &trainingData, int N) {
         som->data = trainingData;
-        som->trainning(N, groups);
+        som->trainning(N, groups, groupLabels);
     }
 
     void getRelevances(int node_i, MatVector<float> &relevances) {

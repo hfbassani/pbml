@@ -102,8 +102,8 @@ std::vector<string> loadStringFile(string path) {
 
 bool readFile(const std::string &filename, MatMatrix<float> &data, vector<int> &classes, map<int,int> &labels){
     
-    if (ArffData::readArff(filename, data, labels, classes)) {
-        ArffData::rescaleCols01(data);
+    if (ArffData::readArffBD(filename, data, labels, classes)) {
+        //ArffData::rescaleCols01(data);
         return true;
     }
     

@@ -85,11 +85,15 @@ def todo (folder, paramsFolder, numDatasets, output, supervision_rate):
 
             while True:
                 rng = np.random.RandomState(random.randint(1, 200000))
-                random_labeled_points = rng.rand(len(train_X)) < supervision_rate
-                curr_train_X = train_X[random_labeled_points]
-                curr_train_Y = train_Y[random_labeled_points]
+                random_unlabeled_points = rng.rand(len(train_X)) < supervision_rate
 
-                if len(curr_train_X) > 0:
+                labels_spread = np.copy(train_Y)
+                labels_spread[random_unlabeled_points] = str(-1)
+
+                curr_train_X = train_X[random_unlabeled_points]
+                curr_train_Y = train_Y[random_unlabeled_points]
+
+                if len(curr_train_X) >= int(round(len(train_X) * supervision_rate)):
                     break;
 
             train_X = curr_train_X
@@ -99,10 +103,10 @@ def todo (folder, paramsFolder, numDatasets, output, supervision_rate):
             params = np.array(params.readlines())
 
             for paramsSet in range(0, len(params), 11):
-                c = float(params[paramsSet])
-                kernel = getKernel(int(params[paramsSet + 1]))
-                degree = int(params[paramsSet + 2])
-                svm_acc[len(svm_acc) - 1].append(run_svm(train_X, train_Y, test_X, test_Y, c, kernel, degree))
+                # c = float(params[paramsSet])
+                # kernel = getKernel(int(params[paramsSet + 1]))
+                # degree = int(params[paramsSet + 2])
+                # svm_acc[len(svm_acc) - 1].append(run_svm(train_X, train_Y, test_X, test_Y, c, kernel, degree))
 
                 neurons = int(params[paramsSet + 3])
                 hidden_layers = int(params[paramsSet + 4])
@@ -116,14 +120,14 @@ def todo (folder, paramsFolder, numDatasets, output, supervision_rate):
                                        momentum, mlp_epochs, activation, lr_decay, solver))
 
 
-            outputText = "{0}\nSVM: {1}({2})[{3}]\nMLP: {4}({5})[{6}]\n\n".format(file,
-                                                                        np.mean(svm_acc[len(svm_acc) - 1]), np.std(svm_acc[len(svm_acc) - 1], ddof=1), np.argmax(svm_acc[len(svm_acc) - 1]),
+            outputText = "{0}\nMLP: {1}({2})[{3}]\n\n".format(file,
+                                                                        # np.mean(svm_acc[len(svm_acc) - 1]), np.std(svm_acc[len(svm_acc) - 1], ddof=1), np.argmax(svm_acc[len(svm_acc) - 1]),
                                                                         np.mean(mlp_acc[len(mlp_acc) - 1]), np.std(mlp_acc[len(mlp_acc) - 1], ddof=1), np.argmax(mlp_acc[len(mlp_acc) - 1]))
             print outputText
             outputFile.write(outputText)
 
-    writeMeans(svm_acc, numDatasets, arffFiles, outputFile, "SVM")
-    writeBests(svm_acc, numDatasets, arffFiles, outputFile, "SVM")
+    # writeMeans(svm_acc, numDatasets, arffFiles, outputFile, "SVM")
+    # writeBests(svm_acc, numDatasets, arffFiles, outputFile, "SVM")
 
     writeMeans(mlp_acc, numDatasets, arffFiles, outputFile, "MLP")
     writeBests(mlp_acc, numDatasets, arffFiles, outputFile, "MLP")
