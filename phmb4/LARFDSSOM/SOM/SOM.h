@@ -33,11 +33,7 @@ public:
     int step;
     int counter_i;
     int dimw;//dimensão do vetor de pessos
-    
-    float supervisionRate;
-    float reinforcementRate;
-    float unsupervisionRate;
-    
+        
     int noCls;
         
     virtual inline DSNode* getWinnerResult(const TVector &w) {
@@ -126,29 +122,36 @@ public:
         return *this;
     }
     
-    SOM& trainning(int epochs = 1, std::vector<int> groups = NULL) {        
+    SOM& trainning(int epochs = 1, std::vector<int> groups = NULL, std::map<int, int> &groupLabels = NULL) {        
         for (int epoch = 0 ; epoch < epochs ; epoch++) {
             for (int row = 0 ; row < data.rows() ; ++row)
-                trainningStep(rand()%data.rows(), groups);
+                trainningStep(rand()%data.rows(), groups, groupLabels);
         }
             
         return *this;
     }
     
-    SOM& orderedTrainning(int epochs = 1, std::vector<int> groups = NULL) {
+    SOM& orderedTrainning(int epochs = 1, std::vector<int> groups = NULL, std::map<int, int> &groupLabels = NULL) {
         for (int epoch = 0 ; epoch < epochs ; epoch++)
             for (int row = 0 ; row < data.rows() ; ++row)
-                trainningStep(row, groups);
+                trainningStep(row, groups, groupLabels);
         
         return *this;
     }
    
-    SOM& trainningStep(int row = 1, std::vector<int> groups = NULL) {
+    SOM& trainningStep(int row = 1, std::vector<int> groups = NULL, std::map<int, int> &groupLabels = NULL) {
         TVector v(data.cols());
         for (uint l = 0; l < data.cols(); l++)
                 v[l] = data[row][l];
         
-        chooseTrainingType(v, groups[row]);
+        int curr_class = 999;
+        for (std::map<int, int>::iterator it = groupLabels.begin(); it != groupLabels.end(); it++) {
+            if (it->second == groups[row]) {
+                curr_class = it->second;
+            }
+        }
+        
+        chooseTrainingType(v, curr_class);
         
         return *this;
     }
@@ -161,17 +164,14 @@ public:
     }
     
     void chooseTrainingType(TVector &v, int cls) {
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        std::default_random_engine generator (seed);
-        std::uniform_real_distribution<double> distribution (0.0,1.0);
-        double rate = distribution(generator);
+        //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        //std::default_random_engine generator (seed);
+        //std::uniform_real_distribution<double> distribution (0.0,1.0);
+        //double rate = distribution(generator);
         
-        if (rate <= supervisionRate) { //supervised
-//            dbgOut(1) << "supervised" << endl;
+        if (cls != noCls) { 
             updateMapSup(v, cls);
-        } else { //unsupervised
-//            dbgOut(1) << "unsupervised rate:" << unsupervisionRate << endl;
-//            dbgOut(1) << "random number:" << rate << endl;
+        } else { 
             updateMap(v, cls); 
         }
     }

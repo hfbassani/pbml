@@ -232,13 +232,12 @@ public:
                 break;
 
             if ((*itMesh)->wins < step*lp) {
-                //dbgOut(1) << (*itMesh)->getId() << ": " << (*itMesh)->wins << "\t<\t" << step*lp << endl;
-                dbgOut(0) << "Removeu nodo " << (*itMesh)->getId() << " (cls: " << (*itMesh)->cls << ")" << endl;
                 eraseNode((*itMesh));
                 itMesh = meshNodeSet.begin();
+                
             } else {
-                //dbgOut(1) << (*itMesh)->getId() << ": " << (*itMesh)->wins << "\t>=\t" << step*lp << endl;
                 itMesh++;
+                
             }
         }
 
@@ -247,7 +246,7 @@ public:
     }
 
     //*
-    LARFDSSOM& finishMap(bool sorted, std::vector<int> groups) {
+    LARFDSSOM& finishMap(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
 
         dbgOut(1) << "Finishing map..." << endl;
         do {
@@ -255,9 +254,9 @@ public:
             maxNodeNumber = meshNodeSet.size();
             
             if (!sorted) {
-                trainning(age_wins, groups);
+                trainning(age_wins, groups, groupLabels);
             } else {
-                orderedTrainning(age_wins, groups);
+                orderedTrainning(age_wins, groups, groupLabels);
             }
             
             resetWins();
@@ -286,32 +285,32 @@ public:
     }
     /**/
     
-    void runTrainingStep(bool sorted, std::vector<int> groups) {
+    void runTrainingStep(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
         if (sorted) {
-            trainningStep(step%data.rows(), groups);
+            trainningStep(step%data.rows(), groups, groupLabels);
         } else {
-            trainningStep(rand()%data.rows(), groups);
+            trainningStep(rand()%data.rows(), groups, groupLabels);
         }
     }
     
-    LARFDSSOM& finishMapFixed(bool sorted, std::vector<int> groups) {
+    LARFDSSOM& finishMapFixed(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
 
-//        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
+        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
-            runTrainingStep(sorted, groups);
+            runTrainingStep(sorted, groups, groupLabels);
         }
         maxNodeNumber = meshNodeSet.size(); //fix mesh max size
         
-//        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
+        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         
         //step equal to 2
-        runTrainingStep(sorted, groups);
+        runTrainingStep(sorted, groups, groupLabels);
         
         while (step!=1) {
-            runTrainingStep(sorted, groups);
+            runTrainingStep(sorted, groups, groupLabels);
         }
         
-//        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
+        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         
         return *this;
     }
@@ -408,7 +407,6 @@ public:
         TNode *nodeNew = createNode(nodeID++, wNew);
         nodeNew->cls = cls;
         nodeNew->wins = 0;//lp * step;
-        dbgOut(1) << "New Node  " <<  nodeNew->getId() << " ("<< nodeNew->cls << "): " << cls << endl;
 
         updateConnections(nodeNew);
     }
@@ -417,14 +415,10 @@ public:
         //Passo 9:Se atingiu age_wins
         if (step >= age_wins) {
             
-            int size = meshNodeSet.size();
-            //remove os perdedores
             removeLoosers();
-//            dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
-            //reseta o número de vitórias
             resetWins();
-            //Passo 8.2:Adiciona conexões entre nodos semelhantes
             updateAllConnections();
+            
             step = 0;
         }
     }
@@ -451,10 +445,6 @@ public:
                 createNodeMap(w, noCls);
                 
             } else if (a >= a_t) { // caso contrário
-                
-//                if (winner1->cls != noCls && cls != winner1->cls) {
-//                    dbgOut(1) << "deu errado aqui heeeeen" << endl;
-//                }
                 
                 winner1->wins++;
                 // Atualiza o peso do vencedor
@@ -494,12 +484,10 @@ public:
             
         } else { // winner1 representativo e da mesma classe da amostra 
             
-            dbgOut(1) << "Vencedor  " <<  winner1->getId() << " ("<< winner1->cls << "): " << cls << endl;
             if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
                 // cria um novo nodo na posição da amostra
                 createNodeMap(w, cls);
                 
-
             } else  {
                 winner1->wins++;
                 winner1->cls = cls;
@@ -530,9 +518,10 @@ public:
         }
 
         if (newWinner != NULL) { // novo winner de acordo com o raio de a_t
-            dbgOut(1) << "Novo vencedor " <<  newWinner->getId() << " ("<< newWinner->cls << "): " << cls << endl;
+            
             newWinner->cls = cls;
             newWinner->wins++;
+            
             // puxar o novo vencedor
             updateConnections(newWinner);
             updateNode(*newWinner, w, e_b);
@@ -549,8 +538,7 @@ public:
 
 
         } else if (meshNodeSet.size() < maxNodeNumber) {
-            dbgOut(1) << "Não ha vencedor -> cria novo nodo" << endl;
-
+            
             // cria um novo nodo na posição da amostra
             createNodeMap(w, cls);
 
@@ -573,12 +561,6 @@ public:
 
 //            updateNode(*winner1, w, -push_rate);
         } 
-//        else {
-//            float a = activation(*winner1, w);
-//            if (a >= a_t) {
-//                updateNode(*winner1, w, -push_rate);
-//            }
-//        }
     }
 
     virtual TNode *getFirstWinner(const TVector &w){

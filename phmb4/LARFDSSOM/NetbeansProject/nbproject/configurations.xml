@@ -18,6 +18,7 @@
       <itemPath>../../../Libs/CImg/CImg.h</itemPath>
       <itemPath>../../../Libs/CImg/DisplayMap.cpp</itemPath>
       <itemPath>../../../Libs/CImg/DisplayMap.h</itemPath>
+      <itemPath>../SOM/DisplaySSHSOM.h</itemPath>
     </logicalFolder>
     <logicalFolder name="Cluster" displayName="Cluster" projectFiles="true">
       <itemPath>../Cluster/Cluster.cpp</itemPath>
@@ -1164,6 +1165,8 @@
       </item>
       <item path="../SOM/DSNode.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../SOM/DisplaySSHSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../SOM/Mesh.h" ex="false" tool="3" flavor2="0">
@@ -2085,6 +2088,8 @@
       <item path="../SOM/DSNode.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../SOM/DSNode.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../SOM/DisplaySSHSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -3010,6 +3015,8 @@
       <item path="../SOM/DSNode.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../SOM/DSNode.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../SOM/DisplaySSHSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
