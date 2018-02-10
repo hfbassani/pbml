@@ -103,14 +103,20 @@ public:
     }
 
     void cleanUpTrainingData() {
-        trainingData->clear();            
+        
+        if (allocated) {
+            delete trainingData;
+            trainingData = NULL;
+            allocated = false;
+        }
+        
         groups.clear();
         groupLabels.clear();
     }
 
     bool readFile(const std::string &filename) {
 
-        if ((trainingData == NULL && !allocated) || trainingData->rows() == 0) {
+        if (trainingData == NULL && !allocated) {
             trainingData = new MatMatrix<float>();
             allocated = true;
         }

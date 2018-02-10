@@ -281,7 +281,7 @@
           <linkerLibItems>
             <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
           </linkerLibItems>
-          <commandLine>-L/usr/X11/lib -static-libstdc++ -lX11</commandLine>
+          <commandLine>-L/usr/X11/lib -static-libstdc++ -lX11 -lpthread</commandLine>
         </linkerTool>
       </compileType>
       <item path="../../../Libs/CImg/CImg.h" ex="false" tool="3" flavor2="0">

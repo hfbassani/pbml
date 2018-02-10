@@ -77,7 +77,7 @@ LDLIBSOPTIONS=-lpthread
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/netbeansproject: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/netbeansproject ${OBJECTFILES} ${LDLIBSOPTIONS} -L/usr/X11/lib -static-libstdc++ -lX11
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/netbeansproject ${OBJECTFILES} ${LDLIBSOPTIONS} -L/usr/X11/lib -static-libstdc++ -lX11 -lpthread
 
 ${OBJECTDIR}/_ext/631b9f52/DisplayMap.o: ../../../Libs/CImg/DisplayMap.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/631b9f52
