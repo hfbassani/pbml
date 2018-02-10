@@ -15,6 +15,7 @@
 #include "Mesh.h"
 #include "MatVector.h"
 #include "DSNode.h"
+#include "SSSOMNode.h"
 
 
 template<class T> class SOM :public Mesh<T>{
@@ -36,8 +37,8 @@ public:
         
     int noCls;
         
-    virtual inline DSNode* getWinnerResult(const TVector &w) {
-        return (DSNode *) getWinner(w);
+    virtual inline SSSOMNode* getWinnerResult(const TVector &w) {
+        return (SSSOMNode *) getWinner(w);
     }
     
     virtual inline TNode* getWinner(const TVector &w) {

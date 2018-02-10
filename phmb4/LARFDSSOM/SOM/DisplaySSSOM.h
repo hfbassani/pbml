@@ -11,28 +11,28 @@
  * Created on 8 de Fevereiro de 2018, 14:29
  */
 
-#ifndef DISPLAYSSHSOM_H
-#define DISPLAYSSHSOM_H
+#ifndef DISPLAYSSSOM_H
+#define DISPLAYSSSOM_H
 
 #include <stdlib.h>
 #include <fstream>
-#include "LARFDSSOM.h"
+#include "SSSOM.h"
 #include "DisplayMap.h"
 
-class DisplaySSHSOM: public DisplayMap {
+class DisplaySSSOM: public DisplayMap {
 
-    LARFDSSOM *som;
+    SSSOM *som;
 
 public:
     
-    DisplaySSHSOM(LARFDSSOM *som, MatMatrix<float> *trainingData, MatMatrix<float> *averages = NULL, map<int, int> *groupLabels = NULL, int padding = 20, int gitter = 0, bool bmucolor = true, bool trueClustersColor = true, bool filterNoise = false):DisplayMap(trainingData, averages, groupLabels, padding, gitter, bmucolor, trueClustersColor, filterNoise) {
+    DisplaySSSOM(SSSOM *som, MatMatrix<float> *trainingData, MatMatrix<float> *averages = NULL, map<int, int> *groupLabels = NULL, int padding = 20, int gitter = 0, bool bmucolor = true, bool trueClustersColor = true, bool filterNoise = false):DisplayMap(trainingData, averages, groupLabels, padding, gitter, bmucolor, trueClustersColor, filterNoise) {
         this->som = som;
     }
     
     virtual void getColorIndex(MatVector<float> &dataVector, int &index, int &size) {
         som->enumerateNodes();
         size = som->meshNodeSet.size();
-        DSNode *bmu = som->getWinner(dataVector);
+        SSSOMNode *bmu = som->getWinner(dataVector);
         index = bmu->getId();
     }
     
@@ -40,7 +40,7 @@ public:
         if (groupLabels!=NULL) {
             size = groupLabels->size();
         }
-        DSNode *bmu = som->getWinner(dataVector);
+        SSSOMNode *bmu = som->getWinner(dataVector);
         index = bmu->cls;
     }
 
@@ -60,7 +60,7 @@ public:
         if (drawNodes) {
             MatMatrix<float> centers;
             som->outputCenters(centers);
-            for (DSNode *bmu = som->getFirstNode(); !som->finished(); bmu = som->getNextNode()) {
+            for (SSSOMNode *bmu = som->getFirstNode(); !som->finished(); bmu = som->getNextNode()) {
                 int r, g, b;
                 int size = som->size()-1;
                 if (size==0) size = 1;
@@ -96,7 +96,7 @@ public:
             
             //Draw connections
             if (drawConnections) {
-                LARFDSSOM::TPConnectionSet::iterator it;
+                SSSOM::TPConnectionSet::iterator it;
                 for (it = som->meshConnectionSet.begin(); it != som->meshConnectionSet.end(); it++) {
                     float x0 = (*it)->node[0]->w[X];
                     float y0 = (*it)->node[0]->w[Y];
@@ -114,5 +114,5 @@ public:
     }
 };
 
-#endif /* DISPLAYSSHSOM_H */
+#endif /* DISPLAYSSSOM_H */
 

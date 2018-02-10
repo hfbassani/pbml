@@ -19,6 +19,7 @@
 #include "Mesh.h"
 #include "SOM.h"
 #include "DSNode.h"
+#include "SSSOMNode.h"
 #include "ClusteringMetrics.h"
 
 
@@ -69,10 +70,6 @@ public:
     }
 
     virtual int getMeshSize() = 0;
-    
-    virtual std::vector<int> getNodeClasses() = 0;
-    
-    virtual std::vector<int> getNodeIds() = 0;
 
     int getInputSize() {
         return trainingData->cols();
@@ -95,13 +92,11 @@ public:
     virtual void getWinners(const MatVector<float> &sample, std::vector<int> &winners) = 0;
     
     virtual int getWinner(const MatVector<float> &sample) = 0;
-    
-    virtual std::vector<int> getWinnerResult(const MatVector<float> &sample) = 0;
 
     virtual bool isNoise(const MatVector<float> &sample) {
         return false;
     }
-
+    
     void cleanUpTrainingData() {
         
         if (allocated) {
@@ -142,8 +137,7 @@ public:
         train(*trainingData, epochs);
     }
     
-    bool writeClusterResults(const std::string &filename) {
-
+    virtual bool writeClusterResults(const std::string &filename) {
         std::ofstream file;
         file.open(filename.c_str());
 
@@ -177,28 +171,21 @@ public:
                 continue;
 
             std::vector<int> winners;
-            std::vector<int> result;
             if (isSubspaceClustering) {
                 getWinners(sample, winners);
             } else {
-                result = getWinnerResult(sample);
-                winners.push_back(result[0]);
+                winners.push_back(getWinner(sample));
             }
 
             for (int j = 0; j < winners.size(); j++) {
                 file << i << "\t";
                 file << winners[j];
-                
-                if (result.size() > 0) {
-                    file<< "\t" << result[1];
-                }
-                
                 file << endl;
             }
         }
 
         file.close();
-        return true;
+        return true;       
     }
 
     std::string outClusters(bool printData = true) {
@@ -333,13 +320,14 @@ public:
         return out.str();
     }
 
-    std::string outClassInfo(std::vector<int> &groups, std::map<int, int> &groupLabels) {
+    virtual std::string outClassInfo(std::vector<int> &groups = NULL, std::map<int, int> &groupLabels = NULL) {
 
         std::stringstream out;
         out << std::setprecision(2) << std::fixed;
 
         int meshSize = getMeshSize();
         int hits = 0;
+        int total = 0;
         int noise = 0;
 
         MatVector<int> nodeHits(meshSize);
@@ -347,55 +335,47 @@ public:
         nodeHits.fill(0);
         nodeClusterSize.fill(0);
 
-        for (int k = 0; k < groups.size(); k++) {
+        for (int k = 0; k < trainingData->rows(); k++) {
             MatVector<float> sample;
             trainingData->getRow(k, sample);
-            if (filterNoise && isNoise(sample)) {
+            if (isNoise(sample)) {
                 noise++;
                 continue;
             }
 
-            std::vector<int> result = getWinnerResult(sample);
-            int winner = result[0];
-//            MatVector<float> weights;
-//            getWeights(winner, weights);
-            
-//            dbgOut(1) << groups[k] << endl;
-            
-            int cls = result[1];
-            if (fabs(groups[k] - cls) < 0.5) {
+            int classIndex = sample.size() - 1;
+            int winner = getWinner(sample);
+            MatVector<float> weights;
+            getWeights(winner, weights);
+
+            if (fabs(sample[classIndex] - weights[classIndex]) < 0.5) {
                 hits++;
                 nodeHits[winner]++;
             }
 
+            total++;
             nodeClusterSize[winner]++;
         }
-        
+
         for (int i = 0; i < meshSize; i++) {
 
             MatVector<float> weights;
             getWeights(i, weights);
 
-            dbgOut(0) << getNodeId(i) << ": ";
-//            out << "\t" << weights[weights.size() - 1];
-            dbgOut(0) << "\t" << nodeHits[i] << "/" << nodeClusterSize[i];
-            
-            float sizeDiv = 0;
-            
-            if (nodeClusterSize[i] > 0) {
-                sizeDiv = nodeHits[i] / (float) nodeClusterSize[i];
-            }
-            dbgOut(0) << "\t" << sizeDiv;
-            dbgOut(0) << endl;
+            out << getNodeId(i) << ": ";
+            out << "\t" << weights[weights.size() - 1];
+            out << "\t" << nodeHits[i] << "/" << nodeClusterSize[i];
+            out << "\t" << nodeHits[i] / (float) nodeClusterSize[i];
+            out << endl;
         }
 
-        dbgOut(0) << "Classification acuracy:\t" << hits / (float) trainingData->rows() << endl;
-        dbgOut(0) << "Total noise:\t" << noise / (float) trainingData->rows() << endl;
+        out << "Classification acuracy:\t" << hits / (float) total << endl;
+        out << "Total noise:\t" << noise / (float) trainingData->rows() << endl;
 
         return out.str();
     }
 
-    std::string outConfusionMatrix(std::vector<int> &groups, std::map<int, int> &groupLabels) {
+    virtual std::string outConfusionMatrix(std::vector<int> &groups, std::map<int, int> &groupLabels) {
 
         std::stringstream out;
         out << std::setprecision(2) << std::fixed;
@@ -414,14 +394,10 @@ public:
             }
 
             std::vector<int> winners;
-            std::vector<int> idss;
-            std::vector<int> result;
             if (isSubspaceClustering) {
                 getWinners(sample, winners);
             } else {
-                result = getWinnerResult(sample);
-                winners.push_back(result[0]);
-                idss.push_back(result[2]);
+                winners.push_back(getWinner(sample));
             }
 
             for (int w = 0; w < winners.size(); w++) {
@@ -432,18 +408,14 @@ public:
         /** print confusion matrix **/
         MatVector<int> rowSums(confusionMatrix.rows());
         MatVector<int> colSums(confusionMatrix.cols());
-        
-        std::vector<int> cluClasses = getNodeClasses();
-        std::vector<int> cluIds = getNodeIds();
-        
         rowSums.fill(0);
         colSums.fill(0);
         dbgOut(0) << "cluster\\class\t|";
         for (int c = 0; c < confusionMatrix.cols(); c++)
-            dbgOut(0) << "\tcla" << groupLabels[c];
+            dbgOut(1) << "\tcla" << groupLabels[c];
         dbgOut(0) << "\t| Sum" << endl;
         for (int r = 0; r < confusionMatrix.rows(); r++) {
-            dbgOut(0) << "Node " << cluIds[r] << " (" << cluClasses[r] <<")\t|";
+            dbgOut(0) << "clu" << r << "\t\t|";
             for (int c = 0; c < confusionMatrix.cols(); c++) {
                 dbgOut(0) << "\t" << confusionMatrix[r][c];
                 rowSums[r] += confusionMatrix[r][c];
@@ -935,28 +907,6 @@ public:
     int getMeshSize() {
         return som->meshNodeSet.size();
     }
-
-    std::vector<int> getNodeClasses() {
-        std::vector<int> nodeClasses;
-        SOM<DSNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
-        int i = 0;
-        for (; it != som->meshNodeSet.end(); it++, i++) {
-            nodeClasses.push_back((*it)->cls);
-        }
-        
-        return nodeClasses;
-    }
-    
-    std::vector<int> getNodeIds() {
-        std::vector<int> nodeIds;
-        SOM<DSNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
-        int i = 0;
-        for (; it != som->meshNodeSet.end(); it++, i++) {
-            nodeIds.push_back((*it)->getId());
-        }
-        
-        return nodeIds;
-    }
     
     void train(MatMatrix<float> &trainingData, int epochs) {
         som->data = trainingData;
@@ -996,16 +946,6 @@ public:
         DSNode *winner = som->getWinner(sample);
         return getNodeIndex(*winner);
     }
-    
-    std::vector<int> getWinnerResult(const MatVector<float> &sample) {
-        DSNode *winner = som->getWinnerResult(sample);
-        std::vector<int> result;
-        result.push_back(getNodeIndex(*winner));
-        result.push_back(winner->cls);
-        result.push_back(winner->getId());
-        
-        return result;
-    }
 
     void getWinners(const MatVector<float> &sample, std::vector<int> &winners) {
         DSNode *winner = som->getFirstWinner(sample);
@@ -1042,6 +982,315 @@ public:
             }
         }
         return -1;
+    }
+    
+};
+
+class ClusteringMeshSSSOM : public ClusteringSOM<SOM<SSSOMNode>> {
+public:
+
+    ClusteringMeshSSSOM(SOM<SSSOMNode> *som) : ClusteringSOM<SOM<SSSOMNode> >(som) {
+    };
+
+    int getMeshSize() {
+        return som->meshNodeSet.size();
+    }
+
+    std::vector<int> getNodeClasses() {
+        std::vector<int> nodeClasses;
+        SOM<SSSOMNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            nodeClasses.push_back((*it)->cls);
+        }
+        
+        return nodeClasses;
+    }
+    
+    std::vector<int> getNodeIds() {
+        std::vector<int> nodeIds;
+        SOM<SSSOMNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            nodeIds.push_back((*it)->getId());
+        }
+        
+        return nodeIds;
+    }
+    
+    void train(MatMatrix<float> &trainingData, int epochs) {
+        som->data = trainingData;
+
+        if (!sorted) {
+            som->trainning(epochs, groups, groupLabels);
+        } else {
+            som->orderedTrainning(epochs, groups, groupLabels);
+        }
+    }
+
+    void getRelevances(int node_i, MatVector<float> &relevances) {
+        SOM<SSSOMNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            if (i == node_i) {
+                relevances = (*it)->ds;
+                return;
+            }
+        }
+        return;
+    }
+
+    void getWeights(int node_i, MatVector<float> &weights) {
+        SOM<SSSOMNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            if (i == node_i) {
+                weights = (*it)->w;
+                return;
+            }
+        }
+        return;
+    }
+
+    int getWinner(const MatVector<float> &sample) {
+        SSSOMNode *winner = som->getWinner(sample);
+        return getNodeIndex(*winner);
+    }
+    
+    std::vector<int> getWinnerResult(const MatVector<float> &sample) {
+        SSSOMNode *winner = som->getWinnerResult(sample);
+        std::vector<int> result;
+        result.push_back(getNodeIndex(*winner));
+        result.push_back(winner->cls);
+        result.push_back(winner->getId());
+        
+        return result;
+    }
+
+    void getWinners(const MatVector<float> &sample, std::vector<int> &winners) {
+        SSSOMNode *winner = som->getFirstWinner(sample);
+        winners.push_back(getNodeIndex(*winner));
+
+        winner = som->getNextWinner(winner);
+        while (winner != NULL) {
+            winners.push_back(getNodeIndex(*winner));
+            winner = som->getNextWinner(winner);
+        }
+    }
+
+    virtual bool isNoise(const MatVector<float> &sample) {
+        return som->isNoise(sample);
+    }
+
+    int getNodeIndex(SSSOMNode &node) {
+        SOM<SSSOMNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            if ((*it) == &node) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    int getNodeId(int node_i) {
+        SOM<SSSOMNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            if (i == node_i) {
+                return (*it)->getId();
+            }
+        }
+        return -1;
+    }
+    
+    bool writeClusterResults(const std::string &filename) {
+        std::ofstream file;
+        file.open(filename.c_str());
+
+        if (!file.is_open()) {
+            dbgOut(0) << "Error openning output file" << endl;
+            return false;
+        }
+
+        int meshSize = getMeshSize();
+        int inputSize = getInputSize();
+
+        file << meshSize << "\t" << inputSize << endl;
+
+        for (int i = 0; i < meshSize; i++) {
+            MatVector<float> relevances;
+            getRelevances(i, relevances);
+
+            file << i << "\t";
+            for (int j = 0; j < inputSize; j++) {
+                file << relevances[j];
+                if (j != inputSize - 1)
+                    file << "\t";
+            }
+            file << endl;
+        }
+
+        for (int i = 0; i < trainingData->rows(); i++) {
+            MatVector<float> sample;
+            trainingData->getRow(i, sample);
+            if (filterNoise && isNoise(sample))
+                continue;
+
+            std::vector<int> winners;
+            std::vector<int> result;
+            if (isSubspaceClustering) {
+                getWinners(sample, winners);
+            } else {
+                result = getWinnerResult(sample);
+                winners.push_back(result[0]);
+            }
+
+            for (int j = 0; j < winners.size(); j++) {
+                file << i << "\t";
+                file << winners[j];
+                
+                if (result.size() > 0) {
+                    file<< "\t" << result[1];
+                }
+                
+                file << endl;
+            }
+        }
+
+        file.close();
+        return true;
+    }
+
+    std::string outConfusionMatrix(std::vector<int> &groups, std::map<int, int> &groupLabels) {
+
+        std::stringstream out;
+        out << std::setprecision(2) << std::fixed;
+
+        int meshSize = getMeshSize();
+        MatMatrix<int> confusionMatrix(getMeshSize(), groupLabels.size());
+        confusionMatrix.fill(0);
+        int noise = 0;
+
+        for (int k = 0; k < trainingData->rows(); k++) {
+            MatVector<float> sample;
+            trainingData->getRow(k, sample);
+            if (isNoise(sample) && filterNoise) {
+                noise++;
+                continue;
+            }
+
+            std::vector<int> winners;
+            std::vector<int> idss;
+            std::vector<int> result;
+            if (isSubspaceClustering) {
+                getWinners(sample, winners);
+            } else {
+                result = getWinnerResult(sample);
+                winners.push_back(result[0]);
+                idss.push_back(result[2]);
+            }
+
+            for (int w = 0; w < winners.size(); w++) {
+                confusionMatrix[winners[w]][groups[k]]++;
+            }
+        }
+
+        /** print confusion matrix **/
+        MatVector<int> rowSums(confusionMatrix.rows());
+        MatVector<int> colSums(confusionMatrix.cols());
+        
+        std::vector<int> cluClasses = getNodeClasses();
+        std::vector<int> cluIds = getNodeIds();
+        
+        rowSums.fill(0);
+        colSums.fill(0);
+        dbgOut(0) << "cluster\\class\t|";
+        for (int c = 0; c < confusionMatrix.cols(); c++)
+            dbgOut(0) << "\tcla" << groupLabels[c];
+        dbgOut(0) << "\t| Sum" << endl;
+        for (int r = 0; r < confusionMatrix.rows(); r++) {
+            dbgOut(0) << "Node " << cluIds[r] << " (" << cluClasses[r] <<")\t|";
+            for (int c = 0; c < confusionMatrix.cols(); c++) {
+                dbgOut(0) << "\t" << confusionMatrix[r][c];
+                rowSums[r] += confusionMatrix[r][c];
+                colSums[c] += confusionMatrix[r][c];
+            }
+            dbgOut(0) << "\t| " << rowSums[r] << endl;
+        }
+        dbgOut(0) << "Sums\t\t|";
+        for (int c = 0; c < confusionMatrix.cols(); c++)
+            dbgOut(0) << "\t" << colSums[c];
+        dbgOut(0) << "\t| " << colSums.sum() << endl << endl;
+        /***/
+
+        dbgOut(0) << "Random index: " << ClusteringMetrics::RANDI(confusionMatrix) << endl;
+        dbgOut(0) << "Adjusted random index: " << ClusteringMetrics::ARI(confusionMatrix) << endl << endl;
+        out << "Total noise:\t" << noise << "(" << noise / (float) trainingData->rows() << ")" << endl;
+
+        return out.str();
+    }
+
+    std::string outClassInfo(std::vector<int> &groups, std::map<int, int> &groupLabels) {
+
+        std::stringstream out;
+        out << std::setprecision(2) << std::fixed;
+
+        int meshSize = getMeshSize();
+        int hits = 0;
+        int noise = 0;
+
+        MatVector<int> nodeHits(meshSize);
+        MatVector<int> nodeClusterSize(meshSize);
+        nodeHits.fill(0);
+        nodeClusterSize.fill(0);
+
+        for (int k = 0; k < groups.size(); k++) {
+            MatVector<float> sample;
+            trainingData->getRow(k, sample);
+            if (filterNoise && isNoise(sample)) {
+                noise++;
+                continue;
+            }
+
+            std::vector<int> result = getWinnerResult(sample);
+            int winner = result[0];
+//            MatVector<float> weights;
+//            getWeights(winner, weights);
+            
+//            dbgOut(1) << groups[k] << endl;
+            
+            int cls = result[1];
+            if (fabs(groups[k] - cls) < 0.5) {
+                hits++;
+                nodeHits[winner]++;
+            }
+
+            nodeClusterSize[winner]++;
+        }
+        
+        for (int i = 0; i < meshSize; i++) {
+
+            MatVector<float> weights;
+            getWeights(i, weights);
+
+            dbgOut(0) << getNodeId(i) << ": ";
+//            out << "\t" << weights[weights.size() - 1];
+            dbgOut(0) << "\t" << nodeHits[i] << "/" << nodeClusterSize[i];
+            
+            float sizeDiv = 0;
+            
+            if (nodeClusterSize[i] > 0) {
+                sizeDiv = nodeHits[i] / (float) nodeClusterSize[i];
+            }
+            dbgOut(0) << "\t" << sizeDiv;
+            dbgOut(0) << endl;
+        }
+
+        dbgOut(0) << "Classification acuracy:\t" << hits / (float) trainingData->rows() << endl;
+        dbgOut(0) << "Total noise:\t" << noise / (float) trainingData->rows() << endl;
+
+        return out.str();
     }
 };
 

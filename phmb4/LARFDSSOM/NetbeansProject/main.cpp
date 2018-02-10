@@ -1,8 +1,6 @@
 /*
- * File:   main.cpp
- * Author: hans
- *
- * Created on 11 de Outubro de 2010, 07:25
+ *  Created on: 2017
+ *      Author: phmb4
  */
 
 #include <stdlib.h>
@@ -16,8 +14,8 @@
 #include "ClusteringMetrics.h"
 #include "ArffData.h"
 #include "ClusteringSOM.h"
-#include "LARFDSSOM.h"
-#include "DisplaySSHSOM.h"
+#include "SSSOM.h"
+#include "DisplaySSSOM.h"
 #include <sys/stat.h>
 
 void runExperiments (std::vector<float> params, string filePath, string outputPath,
@@ -117,12 +115,12 @@ int main(int argc, char** argv) {
 }
 
 void evaluate (string filePath, string somPath, bool subspaceClustering, bool filterNoise, bool sorted) {
-    LARFDSSOM som(1);
-    SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
-    som.noCls = -1;
+    SSSOM som(1);
+    SOM<SSSOMNode> *sssom = (SOM<SSSOMNode>*) &som;
+    som.noCls = 999;
     som.readSOM(somPath);
     
-    ClusteringMeshSOM clusteringSOM(dssom);
+    ClusteringMeshSSSOM clusteringSOM(sssom);
     clusteringSOM.readFile(filePath);
     clusteringSOM.sorted = sorted;
     
@@ -137,10 +135,10 @@ void evaluate (string filePath, string somPath, bool subspaceClustering, bool fi
 void runExperiments (std::vector<float> params, string filePath, string outputPath, 
         bool isSubspaceClustering, bool isFilterNoise, bool sorted) {
 
-    LARFDSSOM som(1);
-    SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
+    SSSOM som(1);
+    SOM<SSSOMNode> *sssom = (SOM<SSSOMNode>*) &som;
 
-    ClusteringMeshSOM clusteringSOM(dssom);
+    ClusteringMeshSSSOM clusteringSOM(sssom);
     clusteringSOM.readFile(filePath);
     clusteringSOM.sorted = sorted;
 
@@ -180,10 +178,10 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
     int numberOfParameters = 12;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
-        LARFDSSOM som(1);
-        SOM<DSNode> *dssom = (SOM<DSNode>*) &som;
+        SSSOM som(1);
+        SOM<SSSOMNode> *sssom = (SOM<SSSOMNode>*) &som;
 
-        ClusteringMeshSOM clusteringSOM(dssom);
+        ClusteringMeshSSSOM clusteringSOM(sssom);
         clusteringSOM.readFile(filePath);
         clusteringSOM.sorted = sorted;
 
@@ -210,7 +208,7 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         
-        DisplaySSHSOM dm(&som, clusteringSOM.trainingData);;
+        DisplaySSSOM dm(&som, clusteringSOM.trainingData);;
         
         if (displayMap) {
             

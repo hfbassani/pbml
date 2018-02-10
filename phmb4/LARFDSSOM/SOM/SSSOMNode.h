@@ -1,35 +1,42 @@
-/* 
- * File:   DSNode.h
- * Author: hans
- *
- * Created on 28 de Março de 2012, 13:18
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 
-#ifndef DSNODE_H
-#define	DSNODE_H
+/* 
+ * File:   SSSOMNode.h
+ * Author: pedromagalhaes
+ *
+ * Created on February 10, 2018, 1:53 PM
+ */
+
+#ifndef SSSOMNODE_H
+#define	SSSOMNODE_H
 
 #include "Mesh.h"
 #include "NodeW.h"
 #include "DebugOut.h"
 #include <map>
 
-class DSNode;
+class SSSOMNode;
 
-class DSNodeConnection : public Connection<DSNode> {
+class SSSOMNodeConnection : public Connection<SSSOMNode> {
 public:
-    DSNodeConnection(TNode *node0, TNode *node1) : Connection<DSNode>(node0, node1) {}
+    SSSOMNodeConnection(TNode *node0, TNode *node1) : Connection<SSSOMNode>(node0, node1) {}
 };
 
-class DSNode : public NodeW {
+class SSSOMNode : public NodeW {
 public:
-    typedef DSNodeConnection TConnection;
-    typedef std::map<DSNode*, TConnection*> TPNodeConnectionMap; //Para mapeamento local dos n�s e conex�es ligadas a this
+    typedef SSSOMNodeConnection TConnection;
+    typedef std::map<SSSOMNode*, TConnection*> TPNodeConnectionMap; //Para mapeamento local dos n�s e conex�es ligadas a this
     TPNodeConnectionMap nodeMap;
 
     TVector a;
     TVector ds;
+    int cls;
 
-    DSNode(int idIn, const TVector &v) : NodeW(idIn, v) {
+    SSSOMNode(int idIn, const TVector &v) : NodeW(idIn, v) {
         ds.size(v.size());
         ds.fill(1);
 
@@ -58,6 +65,10 @@ public:
                 file << "\t";
         }
         file << std::endl;
+        
+        file << cls;
+        file << std::endl;
+        
     }
     
     void read(std::istream &file) {
@@ -100,8 +111,16 @@ public:
                 ds.append(value);
             i++;
         }
+        
+        int nodeClass;
+        getline(file, line);
+        std::stringstream parserCLS(line);
+        parserCLS >> nodeClass;
+        cls = nodeClass;
     }
 };
 
-#endif	/* DSNODE_H */
+#endif	/* SSSOMNODE_H */
+
+
 

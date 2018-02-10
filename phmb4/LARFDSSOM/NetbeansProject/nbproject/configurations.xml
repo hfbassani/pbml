@@ -18,7 +18,7 @@
       <itemPath>../../../Libs/CImg/CImg.h</itemPath>
       <itemPath>../../../Libs/CImg/DisplayMap.cpp</itemPath>
       <itemPath>../../../Libs/CImg/DisplayMap.h</itemPath>
-      <itemPath>../SOM/DisplaySSHSOM.h</itemPath>
+      <itemPath>../SOM/DisplaySSSOM.h</itemPath>
     </logicalFolder>
     <logicalFolder name="Cluster" displayName="Cluster" projectFiles="true">
       <itemPath>../Cluster/Cluster.cpp</itemPath>
@@ -226,11 +226,12 @@
     <logicalFolder name="SOM" displayName="SOM" projectFiles="true">
       <itemPath>../SOM/DSNode.cpp</itemPath>
       <itemPath>../SOM/DSNode.h</itemPath>
-      <itemPath>../SOM/LARFDSSOM.h</itemPath>
       <itemPath>../SOM/Mesh.h</itemPath>
       <itemPath>../SOM/NodeW.cpp</itemPath>
       <itemPath>../SOM/NodeW.h</itemPath>
       <itemPath>../SOM/SOM.h</itemPath>
+      <itemPath>../SOM/SSSOM.h</itemPath>
+      <itemPath>../SOM/SSSOMNode.h</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Arquivos de testes"
@@ -1165,9 +1166,7 @@
       </item>
       <item path="../SOM/DSNode.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../SOM/DisplaySSHSOM.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
+      <item path="../SOM/DisplaySSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../SOM/Mesh.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -1176,6 +1175,10 @@
       <item path="../SOM/NodeW.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../SOM/SOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../SOM/SSSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../SOM/SSSOMNode.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -2089,9 +2092,7 @@
       </item>
       <item path="../SOM/DSNode.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../SOM/DisplaySSHSOM.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
+      <item path="../SOM/DisplaySSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../SOM/Mesh.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -2100,6 +2101,10 @@
       <item path="../SOM/NodeW.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../SOM/SOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../SOM/SSSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../SOM/SSSOMNode.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -3016,9 +3021,7 @@
       </item>
       <item path="../SOM/DSNode.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../SOM/DisplaySSHSOM.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
+      <item path="../SOM/DisplaySSSOM.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../SOM/Mesh.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -3027,6 +3030,10 @@
       <item path="../SOM/NodeW.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../SOM/SOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../SOM/SSSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../SOM/SSSOMNode.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>

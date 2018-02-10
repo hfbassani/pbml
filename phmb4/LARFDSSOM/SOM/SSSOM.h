@@ -1,12 +1,12 @@
 /*
- * LARFDSSOM.h
+ * SSSOM.h
  *
- *  Created on: 2014
- *      Author: hans
+ *  Created on: 2017
+ *      Author: phmb4
  */
 
-#ifndef LARFDSSOM_H_
-#define LARFDSSOM_H_
+#ifndef SSSOM_H_
+#define SSSOM_H_
 
 #include <set>
 #include <map>
@@ -16,7 +16,7 @@
 #include "MatVector.h"
 #include "MatMatrix.h"
 #include "SOM.h"
-#include "DSNode.h"
+#include "SSSOMNode.h"
 
 #define qrt(x) ((x)*(x))
 
@@ -32,7 +32,7 @@ public:
     }
 };
 
-class GDSNodeMW : public DSNode {
+class GDSNodeMW : public SSSOMNode {
 public:
 
     typedef GDSConnectionMW TConnection;
@@ -46,14 +46,14 @@ public:
         return nodeMap.size();
     }
 
-    GDSNodeMW(int idIn, const TVector &v) : DSNode(idIn, v), wins(0), act(0) {
+    GDSNodeMW(int idIn, const TVector &v) : SSSOMNode(idIn, v), wins(0), act(0) {
     };
 
     ~GDSNodeMW() {
     };
 };
 
-class LARFDSSOM : public SOM<GDSNodeMW> {
+class SSSOM : public SOM<GDSNodeMW> {
 public:
     uint maxNodeNumber;
     int epochs;
@@ -167,7 +167,7 @@ public:
         node.w = node.w + e * (w - node.w);
     }
 
-    LARFDSSOM& updateConnections(TNode *node) {
+    SSSOM& updateConnections(TNode *node) {
         
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
             
@@ -196,7 +196,7 @@ public:
         
     }
     
-    LARFDSSOM& updateAllConnections() {
+    SSSOM& updateAllConnections() {
 
         //Conecta todos os nodos semelhantes
         TPNodeSet::iterator itMesh1 = meshNodeSet.begin();
@@ -222,7 +222,7 @@ public:
         return *this;
     }
 
-    LARFDSSOM& removeLoosers() {
+    SSSOM& removeLoosers() {
 
 //        enumerateNodes();
 
@@ -246,7 +246,7 @@ public:
     }
 
     //*
-    LARFDSSOM& finishMap(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
+    SSSOM& finishMap(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
 
         dbgOut(1) << "Finishing map..." << endl;
         do {
@@ -293,7 +293,7 @@ public:
         }
     }
     
-    LARFDSSOM& finishMapFixed(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
+    SSSOM& finishMapFixed(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
@@ -387,7 +387,7 @@ public:
         trainning(age_wins);
     }/**/
 
-    LARFDSSOM& resetWins() {
+    SSSOM& resetWins() {
 
         //Remove os perdedores
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
@@ -423,7 +423,7 @@ public:
         }
     }
     
-    LARFDSSOM& updateMap(const TVector &w, int cls) {
+    SSSOM& updateMap(const TVector &w, int cls) {
 
         using namespace std;
         TNode *winner1 = 0;
@@ -466,7 +466,7 @@ public:
         return *this;
     }
     
-    LARFDSSOM& updateMapSup(const TVector& w, int cls) {
+    SSSOM& updateMapSup(const TVector& w, int cls) {
         using namespace std;
         
         TNode *winner1 = 0;
@@ -614,7 +614,7 @@ public:
         return winner;
     }
     
-    virtual inline DSNode* getWinnerResult(const TVector &w) {
+    virtual inline SSSOMNode* getWinnerResult(const TVector &w) {
         TNode *winner = getFirstWinner(w);
         
         if (winner->cls == noCls) {
@@ -657,7 +657,7 @@ public:
         return winner;
     }
 
-    inline LARFDSSOM& getWinners(const TVector &w, TNode* &winner1, TNode* &winner2) {
+    inline SSSOM& getWinners(const TVector &w, TNode* &winner1, TNode* &winner2) {
         TPNodeSet::iterator it = Mesh<TNode>::meshNodeSet.begin();
         TNumber minDist = dist2(*(*it), w);
         
@@ -711,7 +711,7 @@ public:
     }
 
     void resetToDefault(int dimw = 2) {
-        LARFDSSOM::dimw = dimw;
+        SSSOM::dimw = dimw;
         step = 0;
         nodesLeft = 1;
 
@@ -732,7 +732,7 @@ public:
     }
 
     void reset(int dimw) {
-        LARFDSSOM::dimw = dimw;
+        SSSOM::dimw = dimw;
         step = 0;
         nodesLeft = 1;
 
@@ -751,7 +751,7 @@ public:
     }
     
     void resetSize(int dimw) {
-        LARFDSSOM::dimw = dimw;
+        SSSOM::dimw = dimw;
     }
     
     void binarizeRelevances() {
@@ -773,14 +773,14 @@ public:
         reset(dimw);
     }
 
-    LARFDSSOM(int dimw) {
+    SSSOM(int dimw) {
         resetToDefault(dimw);
     };
 
-    ~LARFDSSOM() {
+    ~SSSOM() {
     }
 
-    template<class Number> LARFDSSOM& outputCentersDs(MatMatrix<Number> &m) {
+    template<class Number> SSSOM& outputCentersDs(MatMatrix<Number> &m) {
         using namespace std;
 
         uint wSize = (*meshNodeSet.begin())->ds.size();
@@ -829,4 +829,4 @@ public:
     }
 };
 
-#endif /* LARFDSSOM_H_ */
+#endif /* SSSOM_H_ */
