@@ -1,4 +1,0 @@
-tmux kill-server
-tmux new-session -d "java -jar ClusteringAnalysis.jar "CE:Accuracy" ../Datasets/Realdata/ ../hybrid-larfdssom/HybridParamsLowLP2_0/ /hybrid-larfdssom/ HybridParamsLowLP2_0 -n ../../git/pbml/phmb4/Parameters/parametersNameHybrid -p ../../git/pbml/phmb4/Parameters/HybridParamsLowLP2_0 -r 500 -t"
-tmux new-session -d "java -jar ClusteringAnalysis.jar "CE:Accuracy" ../Datasets/Realdata/ ../hybrid-larfdssom/HybridParamsLowLP2_1/ ../hybrid-larfdssom/ HybridParamsLowLP2_1 -n ../../git/pbml/phmb4/Parameters/parametersNameHybrid -p ../../git/pbml/phmb4/Parameters/HybridParamsLowLP2_1 -r 500 -t"
-tmux new-session -d "java -jar ClusteringAnalysis.jar "CE:Accuracy" ../Datasets/Realdata/ ../hybrid-larfdssom/HybridParamsLowLP2_2/ ../hybrid-larfdssom/ HybridParamsLowLP2_2 -n ../../git/pbml/phmb4/Parameters/parametersNameHybrid -p ../../git/pbml/phmb4/Parameters/HybridParamsLowLP2_2 -r 500 -t"
