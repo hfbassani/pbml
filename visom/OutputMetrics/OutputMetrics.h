@@ -230,4 +230,3 @@ public:
 };
 
 #endif /* OUTPUTMETRICS_H */
-

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import os
 
 image_path = "plots/"
 
@@ -179,7 +180,7 @@ def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
     ax.set_yticks(np.linspace(0, 1, num=11))
 
 def get_headers(fileName):
-    headers = pd.read_csv(fileName, nrows=4, header=None)
+    headers = pd.read_csv(fileName, nrows=7, header=None)
     headers = headers.transpose()
     headers = headers.rename(columns=headers.iloc[0])
     headers = headers.drop([0])
@@ -189,7 +190,7 @@ def get_headers(fileName):
     return headers
 
 def get_params_and_results(fileName):
-    results = pd.read_csv(fileName, skiprows=5, header=None)
+    results = pd.read_csv(fileName, skiprows=8, header=None)
 
     firstParamIndex = results.iloc[0]
     firstParamIndex = firstParamIndex[firstParamIndex == "a_t"].index[0]
@@ -217,7 +218,7 @@ def plot_params_results(fileName, paramsToPlot=None, savePlots=False):
 
     for param in paramsToPlot:
         for result in results.columns:
-            x = 1
+#            if "Accuracy" in result:
             plot_x_y(params[param], results[result], "{0} - {1}".format(param, result), savePlots=savePlots)
 
 def subplot_params_results(fileName, paramsToPlot=None, savePlots=False):
@@ -311,19 +312,22 @@ def plot_gammas_vs_hthresholds(filename, savePlots=False):
 
             if savePlots:
                 plt.savefig("{0}gammas_x_hthresh{1}.png".format(image_path, i))
-
+            
             plt.show()
 
 #-------------------------------------------------------------------#
-
-fileName = "../outputMetrics/results_ParamsNodeDelNNSim500_0_at_order_seq_finish.csv"
+if not os.path.isdir(image_path): os.mkdir(image_path)
+fileName = "../outputMetrics/test_wide_ranges.csv"
 
 # plot_synthetic_data_graphs(fileName=fileName, savePlots=True)
-subplot_synthetic_data_graphs(fileName=fileName, savePlots=True)
+#subplot_synthetic_data_graphs(fileName=fileName, savePlots=True)
 
-paramsToPlot = ["a_t", "lp", "gamma", "h_threshold", "e_b"]
-# plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
-subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
+#paramsToPlot = ["a_t", "lp", "dsbeta", "age_wins", "e_b", "e_n", "epsilon_ds", "minwd",
+#                "epochs", "push_rate", "supervision_rate"]
+paramsToPlot = ["a_t", "lp", "e_b"]
+#                "epochs", "push_rate", "supervision_rate"]#, "lp", "push_rate", "supervision_rate"]
+plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=False)
+#subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
 
 # plot_gammas_vs_hthresholds(fileName, savePlots=False)
 
