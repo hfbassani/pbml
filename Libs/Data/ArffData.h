@@ -543,6 +543,7 @@ public:
                 return false;
             }
 
+            
             bool itemFound = false;
             int itemIndex;
             for (std::map<int, int>::iterator it = groupLabels.begin(); it != groupLabels.end(); it++) {
@@ -557,11 +558,12 @@ public:
                 itemIndex = groupLabels.size();
                 groupLabels[itemIndex] = group;
             }
-
+            
             groups.push_back(itemIndex);
 
             data.concatRows(row);
         } while (true);
+                
         file.close();
 
         return true;
@@ -572,7 +574,6 @@ public:
             if (isdigit(str[i])) return true;
         return false;
     }
-    
     
     static bool readArffD(const std::string filename, MatMatrix<float> &data, std::map<int, int> &groupLabels, std::vector<int> &groups) {
 
