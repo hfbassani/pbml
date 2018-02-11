@@ -75,6 +75,7 @@ public:
     int nodeID;
     
     TPNodeSet deadNodeSet;
+    
     vector<TNode *> ranks;
     float h_threshold;
     float tau;
@@ -326,30 +327,6 @@ public:
         }
     }
 
-    /*
-    LARFDSSOM& finishMap() {
-        resetWins();
-
-        TVector v;
-        for (int i=0; i<data.rows(); i++) {
-            data.getRow(i, v);
-            TNode *winner = getWinner(v);
-            if (activation(*winner, v)>= a_t) {
-                winner->wins++;
-                //step++;
-            }
-        }
-
-        step = data.rows();
-        //if (step==0) step = 1;
-
-        removeLoosers();
-        updateAllConnections();
-
-        maxNodeNumber = meshNodeSet.size();
-        trainning(age_wins);
-    }/**/
-
     LARFDSSOM& resetWins() {
 
         //Remove os perdedores
@@ -403,6 +380,7 @@ public:
         
         //encontra o nó vencedor
         winner1 = ranks.at(0);
+        winner1->wins++;
         
         //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
         //e o limite de nodos não tiver sido atingido
@@ -423,15 +401,20 @@ public:
                 }
                 
                 TNode* node = ranks.at(i);
-                updateNode(*node, w, e_b * h);
                 
-                node->nodeLife -= lp;
-                winner1->nodeLife = 1.0;
-                
-                if (node->nodeLife <= 0) {
-                    deadNodeSet.insert(node);
+                if (node->act >= a_t) {
+                    updateNode(*node, w, e_b * h);
+
+                    node->nodeLife -= lp;
+                    winner1->nodeLife = 1.0;
+
+                    if (node->nodeLife <= 0) {
+                        deadNodeSet.insert(node);
+                    }
                 }
             }
+            
+            winner1->nodeLife = 1.0;
             
             if (deadNodeSet.size() > 0) {
                 TPNodeSet::iterator itMesh = deadNodeSet.begin();
@@ -439,7 +422,6 @@ public:
                     eraseNode((*itMesh));
                     itMesh++;
                 }
-                
                 deadNodeSet.clear();
             }
         }
@@ -504,7 +486,7 @@ public:
         TNumber temp = 0;
         TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
         winner = (*Mesh<TNode>::meshNodeSet.begin());
-
+        
         TPNodeSet::iterator it;
         it = Mesh<TNode>::meshNodeSet.begin();
         it++;
