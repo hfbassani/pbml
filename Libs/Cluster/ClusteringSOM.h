@@ -21,6 +21,7 @@
 #include "TextToPhoneme.h"
 #include <math.h>
 #include <sstream>
+#include <cstring>
 
 template <class SOMType>
 class ClusteringSOM {
@@ -178,26 +179,51 @@ public:
         return true;
     }
 
-    float activation(DSNode* node, MatVector<float> &w) {
-        float distance = 0;
+    float activation(DSNode* node, MatVector<float> &w, uint *index) {
         int end = 0;
-        if (node->w.size() < w.size()) {
+        float tempDistance = 0;
+        *index = 0;
+        float distance = 0;
+        if (node->w.size() <= w.size()) {
             end = node->w.size();
-        } else {
-            end = w.size();
-        }
-        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
-        for (int i = 0; i < end; i++) {
-            distance += node->ds[i] * qrt((w[i] - node->w[i]));
-            if (std::isnan(w[i]) || std::isnan(distance)) {
-                std::cout << i << endl;
+            for (uint i = 0; i < end; i++) {
+                distance += node->ds[i] * qrt((w[i] - node->w[i]));
+                if (std::isnan(w[i]) || std::isnan(distance)) {
+                    std::cout << i << " - Debug 1" << endl;
+                }
             }
+        } else {
+
+            distance = 999;
+            for (uint i = 0; i <= (node->w.size() - w.size()); i += 12) {
+                tempDistance = 0;
+                for (uint j = 0; j < w.size(); j++) {
+                    //cout << i << " - " << j << " - " << tempDistance << " | ";
+                    tempDistance += node->ds[i + j] * qrt((w[j] - node->w[i + j]));
+                    if (std::isnan(w[j]) || std::isnan(tempDistance)) {
+                        std::cout << i << " - Debug 2" << endl;
+                    }
+
+                }
+
+                if (tempDistance < distance) {
+                    distance = tempDistance;
+                    *index = i;
+                }
+
+            }
+
+
         }
-        //for (int count = 0; count < node->ds.size(); count++) {
-        //  std::cout << node->w[count] << " - ";
-        //}
+
+
+        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
+
+
         float sum = node->ds.sum();
+
         return (sum / (sum + distance + 0.0000001));
+
     }
 
     MatVector<int> writeClusterResultsReadable(const std::string &filename, MatMatrix<float> &data, std::string &featuresDict,
@@ -253,12 +279,12 @@ public:
                 }
 
             }
-//GAMBI INIT
+            /*/GAMBI INIT
             temp2 = nodoNow->w.toString();
-            
-            
-//GAMBI END
-            
+
+
+            //GAMBI END*/
+
             MatVector<float> relevances;
             relevances = nodoNow->ds;
             std::string strRelevances;
@@ -297,8 +323,9 @@ public:
             DSNode* winner = som->getWinner(sample);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
+            uint index;
+            a = activation(winner, sample, &index);
 
-            a = activation(winner, sample);
             if (a >= at_min) {
                 at_know++;
                 winner->at_Know = winner->at_Know + 1;
@@ -329,12 +356,10 @@ public:
                     }
 
                 }
-//GAMBI INIT
-             output_matrix[indice][1] += "  " + rowOfData.toString();
-             //output_matrix[indice][1] += "  " + temp;
-            
-//GAMBI END
-               
+
+                output_matrix[indice][1] += "  " + temp;
+
+
 
             }
 
@@ -395,6 +420,180 @@ public:
         return activations;
     }
 
+    bool haveWord(MatVector<std::string> input, char* word) {
+        char *res;
+
+        for (int i = 0; i < input.size(); i++) {
+            res = strstr(word, input[i].c_str());
+            if (res != NULL) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    MatVector<int> writeClusterResultsArticle(const std::string &filename, MatMatrix<float> &data, std::string &featuresDict,
+            SOM<DSNode> *som, float at_min) {
+        std::ifstream inputFile("input/c1_cat_phonems.txt");
+        std::string text;
+        MatVector<std::string> dictOfWords;
+#ifdef SAVE_NOT_WORDS
+        MatVector<int> indiceNotWords;
+#endif
+        while (!inputFile.eof()) {
+            getline(inputFile, text);
+            dictOfWords.append(text);
+        }
+        int tp = 0;
+        int tn = 0;
+        int fp = 0;
+        int fn = 0;
+        int tem = 0;
+        int nTem = 0;
+        int somTam = som->size();
+        float a;
+        int at_know = 0, at_all = 0, at_Unknown = 0;
+        MatVector<int> activations;
+        PhonemesToFeatures pf;
+        std::string phonemes;
+        pf.loadPhonemeFeatures(featuresDict, 12);
+        Features features(12);
+        MatVector<float> colOfData;
+        data.getCol(0, colOfData);
+
+        //Salva todos os protótipos da rede em um MatVector
+        DSNode* nodoNow;
+        MatVector<std::string> output_indice;
+        std::vector<int> indice;
+        MatVector<std::string> output_prototype;
+        std::string temp2;
+
+        nodoNow = som->getFirstNode();
+        for (int i = 0; i < somTam; i++) {
+
+            for (int begin = 0, end = 11, j = 0; end < nodoNow->w.size(); begin += 12, end += 12, j++) {
+                features.copy(nodoNow->w, begin, end);
+                pf.translateFeaturesPhoneme(features, phonemes);
+                if (begin == 0) {
+                    temp2 = phonemes;
+                } else {
+                    temp2 += " " + phonemes;
+                }
+
+            }
+
+            MatVector<float> relevances;
+            relevances = nodoNow->ds;
+            std::string strRelevances;
+            float average = 0, averageX2 = 0, deviation = 0;
+            for (int begin = 0, end = 11; end < relevances.size(); begin += 12, end += 12) {
+                average = 0, averageX2 = 0, deviation = 0;
+                for (int i = begin; i <= end; i++) {
+                    average += relevances[i]*(1 / 12.0);
+                    averageX2 += relevances[i] * relevances[i]*(1 / 12.0);
+                }
+                deviation = sqrt(averageX2 - (average * average));
+                strRelevances += std::to_string(average) + " +|- " + std::to_string(deviation) + "\t";
+            }
+            //P - protótipo / R - Relevancias / -A Ativacoes do nodo
+            temp2 = " -P: " + temp2 + " -R: " + strRelevances + "\n" + "-A:";
+            output_indice.append(std::to_string(nodoNow->getId()));
+            indice.insert(indice.end(), nodoNow->getId());
+            output_prototype.append(temp2);
+            temp2 = "";
+            if (i < somTam - 1) {
+                nodoNow = som->getNextNode();
+            }
+        }
+
+        //Cria Matriz que vai ser impressa no arquivo colocando ao lado de cada protótipo os seus respectivos vencedores
+        MatMatrix<std::string> output_matrix;
+        output_matrix.concatCols(output_indice);
+        output_matrix.concatCols(output_prototype);
+        for (int i = 0; i < trainingData->rows(); i++) {
+            MatVector<float> sample;
+            trainingData->getRow(i, sample);
+            if (filterNoise && isNoise(sample))
+                continue;
+
+            std::vector<int> winners;
+            DSNode* winner = som->getWinner(sample);
+            winners.push_back(winner->getId());
+            //Verificar ativação para calculo de métricas 
+            uint index;
+            a = activation(winner, sample, &index);
+
+
+            std::string temp;
+            MatVector<float> rowOfData;
+            data.getRow(i, rowOfData);
+            for (int begin = 0, end = 11, j = 0; end < rowOfData.size(); begin += 12, end += 12, j++) {
+                features.copy(rowOfData, begin, end);
+                pf.translateFeaturesPhoneme(features, phonemes);
+
+                temp += phonemes;
+
+            }
+
+
+            if (haveWord(dictOfWords, (char *) temp.c_str())) {
+                if (a >= at_min) {
+                    tp++;
+                } else {
+                    fn++;
+                }
+
+            } else {
+#ifdef SAVE_NOT_WORDS
+                indiceNotWords.append(i);
+#endif
+                if (a >= at_min) {
+                    fp++;
+                } else {
+                    tn++;
+                }
+                nTem++;
+            }
+            
+            for (int j = 0; j < winners.size(); j++) {
+                int aux = winners[j];
+                int indice = 0, atual;
+                for (int cont = 0; cont < output_matrix.rows(); cont++) {
+                    atual = atoi(output_matrix[cont][0].c_str());
+                    if (atual == aux) {
+                        indice = cont;
+                        break;
+                    }
+
+                }
+
+                output_matrix[indice][1] += "  " + temp;
+
+            }
+        }
+        //Salvar taxas
+        activations.append(at_all);
+        activations.append(at_know);
+        activations.append(at_Unknown);
+        activations.append(tp);
+        activations.append(fp);
+        activations.append(tn);
+        activations.append(fn);
+#ifdef SAVE_NOT_WORDS
+        std::ofstream file_words;
+        file_words.open("notWords.txt");
+        for (int i = 0; i < indiceNotWords.size(); i++) {
+            for (int j = 0; j < data.cols(); j++) {
+                file_words << data[indiceNotWords[i]][j] << "\t";
+            }
+            file_words << "\n";
+        }
+#endif
+        dbgOut(1) << endl;
+        return activations;
+    }
+
     int map(float x, float in_min, float in_max, float out_min, float out_max) {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
@@ -438,13 +637,14 @@ public:
             trainingData->getRow(i, sample);
             if (filterNoise && isNoise(sample))
                 continue;
-
+            //cout << "W: " << i << endl;
             std::vector<int> winners;
-            DSNode* winner = som->getWinner(sample);
+            DSNode* winner = som->getWinnerCluster(sample);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
 
-            a = activation(winner, sample);
+            uint index;
+            a = activation(winner, sample, &index);
             if (a >= at_min) {
                 at_know++;
                 winner->at_Know = winner->at_Know + 1;
@@ -484,15 +684,15 @@ public:
 
 
             MatVector<int> indices;
-            
+
             for (int x = 0; x < averages.size(); x++) {
-//                if (a < at_min) {
-//                    a = -a;
-//                }
+                //                if (a < at_min) {
+                //                    a = -a;
+                //                }
                 float v = averages[x] * (a); ///Fator de peso a_t interferindo na cor da relevância 
                 if (v > 1) {
                     v = 1;
-                }else if (v < 0) {
+                } else if (v < 0) {
                     v = 0;
                 }
                 indices.append(map(v, 0.0, 1.0, 0, colors.size() - 1));
@@ -502,25 +702,33 @@ public:
 
             buff += "<td>&nbsp;";
             //Coloca os fonemas da entrada na tabela
-            for (int i = 0; i < phonemes_now.size(); i++) {
+            for (int i = index / 12, j = 0; j < phonemes_now.size(); i++, j++) {
                 buff += "<font color=" + colors[indices[i]] + "><b>";
-                buff += phonemes_now[i];
+                buff += phonemes_now[j];
                 buff += "&nbsp;</b></font>";
             }
+
             buff += "</td>";
             //Vencedor
             buff += "<td>&nbsp;";
             buff += std::to_string(winner->getId());
             buff += "&nbsp;</td>";
+
             //Ativação
-            int value = map(a, 0.7, 1.0, 0, colors.size() - 1);
+            float min = 0.7;
+            if (min > a) {
+                min = a;
+            }
+            int value = map(a, min, 1.0, 0, colors.size() - 1);
+            //cout << endl << value << endl << " buff: " << a << endl << " - size: " << colors.size();
+
             buff += "<td>&nbsp;<font color=" + colors[value] + "><b>";
+
             stringstream stream;
             stream << fixed << setprecision(2) << a;
             buff += stream.str();
             buff += "&nbsp;</b></font></td>";
             ////Traduzir protótipos para fonemas
-
             phonemes_now.clear();
             for (int begin = 0, end = 11, j = 0; end < winner->w.size(); begin += 12, end += 12, j++) {
                 features.copy(winner->w, begin, end);
@@ -529,21 +737,30 @@ public:
 
             }
             //Médias das relevancias por fonema
-            for (int i = 0; i < averages.size(); i++) {
+            for (int i = 0, j = 0; i < averages.size(); i++) {
                 buff += "<td><center>&nbsp;";
                 stringstream stream;
                 stream << fixed << setprecision(2) << averages[i];
                 buff += stream.str();
-                buff += "<br>";
-                buff += phonemes_now[i];
-                buff += "&nbsp;</center></td>";
+                if (i >= index / 12 && j < (sample.size() / 12)) {//<b> e </b>
+                    buff += "<br><b>";
+                    buff += phonemes_now[i];
+                    buff += "&nbsp;</b></center></td>";
+                    j++;
+                } else {
+                    buff += "<br>";
+                    buff += phonemes_now[i];
+                    buff += "&nbsp;</center></td>";
+                }
             }
 
             buff += "</tr>";
             phonemes_now.clear();
             averages.clear();
 
+
         }
+
 
 
         arq.write(buff.c_str(), buff.length());
