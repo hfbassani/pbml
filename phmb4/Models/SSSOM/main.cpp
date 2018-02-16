@@ -22,7 +22,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize);
 void runTrainTestExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, 
         bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool displayMap, bool normalize);
-void evaluate (string filePath, string somPath, bool subspaceClustering, bool filterNoise, bool sorted);
+void evaluate (string filePath, string somPath, bool subspaceClustering, bool filterNoise, bool sorted, bool normalize);
 
 std::vector<float> loadParametersFile(string path);
 std::vector<string> loadStringFile(string path);
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 
     
     if (runEvaluation) {
-        evaluate(inputPath, mapPath, isSubspaceClustering, isFilterNoise, isSorted);
+        evaluate(inputPath, mapPath, isSubspaceClustering, isFilterNoise, isSorted, normalize);
         return 0;
     }
     
@@ -119,14 +119,14 @@ int main(int argc, char** argv) {
     }
 }
 
-void evaluate (string filePath, string somPath, bool subspaceClustering, bool filterNoise, bool sorted) {
+void evaluate (string filePath, string somPath, bool subspaceClustering, bool filterNoise, bool sorted, bool normalize) {
     SSSOM som(1);
     SOM<SSSOMNode> *sssom = (SOM<SSSOMNode>*) &som;
     som.noCls = 999;
     som.readSOM(somPath);
     
     ClusteringMeshSSSOM clusteringSOM(sssom);
-    clusteringSOM.readFile(filePath);
+    clusteringSOM.readFile(filePath, normalize);
     clusteringSOM.sorted = sorted;
     
     
@@ -167,8 +167,8 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         string index = std::to_string((i/numberOfParameters));
         
         srand(params[i + 11]);
-        som.noCls = std::min_element(clusteringSOM.groups.begin(), clusteringSOM.groups.end())[0] - 1;
-        som.maxNodeNumber = 140;
+        som.noCls = 999;
+        som.maxNodeNumber = clusteringSOM.getNumSamples();
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(som.epochs);
@@ -213,10 +213,10 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         
-        DisplaySSSOM dm(&som, clusteringSOM.trainingData);;
         
         if (displayMap) {
             
+            DisplaySSSOM dm(&som, clusteringSOM.trainingData);
             som.data = *clusteringSOM.trainingData;
             dm.setTrueClustersData(clusteringSOM.groups);
             dm.setGroupLabels(&clusteringSOM.groupLabels);
@@ -235,28 +235,31 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
                 }
             }
             
-        } else {
-            clusteringSOM.trainSOM(som.epochs);
-        }
-        
-        som.finishMapFixed(sorted, clusteringSOM.groups, clusteringSOM.groupLabels);
-        som.saveSOM(outputPath + "som_" + getFileName(filePath) + "_" + index);
-
-        if (displayMap) {
+            som.finishMapFixed(sorted, clusteringSOM.groups, clusteringSOM.groupLabels);
+            som.saveSOM(outputPath + "som_" + getFileName(filePath) + "_" + index);
+            
             dm.displayLoop();
-        }
-
-        clusteringSOM.cleanUpTrainingData();
-        clusteringSOM.readFile(testPath, normalize);
-        clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
-
-        if (displayMap) {
+            
+            clusteringSOM.cleanUpTrainingData();
+            clusteringSOM.readFile(testPath, normalize);
+            clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
+        
             dm.setTrainingData(clusteringSOM.trainingData);
             dm.setTrueClustersData(clusteringSOM.groups);
             dm.setGroupLabels(&clusteringSOM.groupLabels);
 
             dm.displayLoop();
             dm.close();
+            
+        } else {
+            clusteringSOM.trainSOM(som.epochs);
+            
+            som.finishMapFixed(sorted, clusteringSOM.groups, clusteringSOM.groupLabels);
+            som.saveSOM(outputPath + "som_" + getFileName(filePath) + "_" + index);
+            
+            clusteringSOM.cleanUpTrainingData();
+            clusteringSOM.readFile(testPath, normalize);
+            clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
         }
         
     }
