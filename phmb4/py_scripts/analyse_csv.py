@@ -37,7 +37,7 @@ def analyse (folder, rows, plot, save):
                 datasets = datasets[1: datasets[datasets == "a_t"].index[0]]
 
                 folds = list(map(lambda x:x[len(x) - 5:],datasets))
-                datasets = np.unique(map(lambda x: x[:-6], datasets))
+                datasets = np.unique(map(lambda x: x.split("_x")[0], datasets))
 
     plot_means = []
     plot_stds = []
@@ -153,16 +153,16 @@ def plot_graph(means, stds, datasets, plot, save):
     plot_stds = np.transpose(stds)
 
     for i in xrange(len(datasets)):
-        current_values_prop = [label_prop_1[i], label_prop_5[i], label_prop_10[i], label_prop_25[i], label_prop_50[i],
-                               label_prop_75[i], label_prop_100[i]]
-        current_values_spre = [label_spreading_1[i], label_spreading_5[i], label_spreading_10[i], label_spreading_25[i],
-                               label_spreading_50[i], label_spreading_75[i], label_spreading_100[i]]
-
-        current_values_prop_err = [label_prop_1err[i], label_prop_5err[i], label_prop_10err[i], label_prop_25err[i],
-                                   label_prop_50err[i], label_prop_75err[i], label_prop_100err[i]]
-        current_values_spre_err = [label_spreading_1err[i], label_spreading_5err[i], label_spreading_10err[i],
-                                   label_spreading_25err[i], label_spreading_50err[i], label_spreading_75err[i],
-                                   label_spreading_100err[i]]
+        # current_values_prop = [label_prop_1[i], label_prop_5[i], label_prop_10[i], label_prop_25[i], label_prop_50[i],
+        #                        label_prop_75[i], label_prop_100[i]]
+        # current_values_spre = [label_spreading_1[i], label_spreading_5[i], label_spreading_10[i], label_spreading_25[i],
+        #                        label_spreading_50[i], label_spreading_75[i], label_spreading_100[i]]
+        #
+        # current_values_prop_err = [label_prop_1err[i], label_prop_5err[i], label_prop_10err[i], label_prop_25err[i],
+        #                            label_prop_50err[i], label_prop_75err[i], label_prop_100err[i]]
+        # current_values_spre_err = [label_spreading_1err[i], label_spreading_5err[i], label_spreading_10err[i],
+        #                            label_spreading_25err[i], label_spreading_50err[i], label_spreading_75err[i],
+        #                            label_spreading_100err[i]]
 
         fig, ax = plt.subplots()
         ax.yaxis.grid()
@@ -176,10 +176,10 @@ def plot_graph(means, stds, datasets, plot, save):
 
         plt.errorbar(percentage_values, plot_means[i], plot_stds[i], label='SS-SOM', linestyle='-',
                      marker='o', clip_on=False, markeredgewidth=2, capsize=5)
-        plt.errorbar(percentage_values, current_values_spre, current_values_spre_err, label='Label Spreading',
-                     linestyle='-', marker='D', clip_on=False, markeredgewidth=2, capsize=5)
-        plt.errorbar(percentage_values, current_values_prop, current_values_prop_err, label='Label Propagation',
-                     linestyle='-', marker='x', clip_on=False, markeredgewidth=2, capsize=5)
+        # plt.errorbar(percentage_values, current_values_spre, current_values_spre_err, label='Label Spreading',
+        #              linestyle='-', marker='D', clip_on=False, markeredgewidth=2, capsize=5)
+        # plt.errorbar(percentage_values, current_values_prop, current_values_prop_err, label='Label Propagation',
+        #              linestyle='-', marker='x', clip_on=False, markeredgewidth=2, capsize=5)
 
         plt.legend(loc='best')
 
@@ -196,9 +196,13 @@ if not os.path.isdir(image_path): os.mkdir(image_path)
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Directory Path', required=True)
 parser.add_argument('-r', help='Number of Heade Rows', required=False, type=int)
+parser.add_argument('-p', help='Plot Graphs', action='store_true', required=False)
+parser.add_argument('-s', help='Save Graphs', action='store_true', required=False)
 args = parser.parse_args()
 
 folder = args.i
 rows = args.r
+plot_flag = args.p
+save_flag = args.s
 
-analyse(folder, rows, True, True)
+analyse(folder, rows, plot_flag, save_flag)
