@@ -461,7 +461,7 @@ public:
         Features features(12);
         MatVector<float> colOfData;
         data.getCol(0, colOfData);
-
+        
         //Salva todos os protótipos da rede em um MatVector
         DSNode* nodoNow;
         MatVector<std::string> output_indice;
@@ -513,23 +513,49 @@ public:
         output_matrix.concatCols(output_prototype);
         for (int i = 0; i < trainingData->rows(); i++) {
             MatVector<float> sample;
+            MatVector<float> sampleFilter;
             trainingData->getRow(i, sample);
-            if (filterNoise && isNoise(sample))
+            
+            for(int t = 0; t < sample.size(); t++){
+                if (sample[t] != 5){
+                    sampleFilter.append(sample[t]);
+                }else{
+                    break;
+                }
+            }
+            
+            if (filterNoise && isNoise(sampleFilter))
                 continue;
 
             std::vector<int> winners;
-            DSNode* winner = som->getWinner(sample);
+            DSNode* winner = som->getWinner(sampleFilter);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
             uint index;
-            a = activation(winner, sample, &index);
-
+            a = activation(winner, sampleFilter, &index);
+            
+            if (a >= at_min) {
+                at_know++;
+                winner->at_Know = winner->at_Know + 1;
+            } else {
+                winner->at_Unknown = winner->at_Unknown + 1;
+                at_Unknown++;
+            }
+            at_all++;
 
             std::string temp;
+            MatVector<float> rowOfDataFilter;
             MatVector<float> rowOfData;
             data.getRow(i, rowOfData);
-            for (int begin = 0, end = 11, j = 0; end < rowOfData.size(); begin += 12, end += 12, j++) {
-                features.copy(rowOfData, begin, end);
+            for(int t = 0; t < rowOfData.size(); t++){
+                if (rowOfData[t] != 5){
+                    rowOfDataFilter.append(rowOfData[t]);
+                }else{
+                    break;
+                }
+            }
+            for (int begin = 0, end = 11, j = 0; end < rowOfDataFilter.size(); begin += 12, end += 12, j++) {
+                features.copy(rowOfDataFilter, begin, end);
                 pf.translateFeaturesPhoneme(features, phonemes);
 
                 temp += phonemes;

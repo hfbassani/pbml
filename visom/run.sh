@@ -1,0 +1,7 @@
+tmux new-session -d "./visom -t 0 -m 10000 -P -o"
+tmux new-session -d "./visom -t 15 -m 10000 -P -o"
+tmux new-session -d "./visom -t 30 -m 10000 -P -o"
+tmux new-session -d "./visom -t 45 -m 10000 -P -o"
+tmux new-session -d "./visom -t 60 -m 10000 -P -o"
+tmux new-session -d "./visom -t 75 -m 10000 -P -o"
+tmux new-session -d "./visom -t 90 -m 10000 -P -o"
