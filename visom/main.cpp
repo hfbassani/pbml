@@ -18,7 +18,7 @@
 #include "ClusteringMetrics.h"
 #include "ArffData.h"
 #include "ClusteringSOM.h"
-#include "VILARFDSSOM.h"
+#include "VILMAP.h"
 #include "unistd.h"
 #include "TextToPhoneme.h"
 #include "MyParameters/MyParameters.h"
@@ -40,12 +40,12 @@ MatMatrix<float> loadTrueData(int tam, int fileNumber);
 MatMatrix<float> loadTestData(int tam);
 MatMatrix<float> loadDataFromPath(string path);
 
-void runCompleteTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
-void runTestAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
-void runStudyOfCase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
-void runStudyOfCaseAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM);
-void runStudyOfCaseAfterTrainingBrentDataBase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp);
-void learningTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM);
+void runCompleteTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
+void runTestAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
+void runStudyOfCase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
+void runStudyOfCaseAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM);
+void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp);
+void learningTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM);
 
 void createParametersFile(MyParameters *params);
 void createParametersFiles(MyParameters *params);
@@ -56,8 +56,8 @@ std::vector<float> loadParametersFile();
 void loadTrueDataInMemory();
 void loadFalseDataInMemory();
 
-void runTimeSeriesMotifDiscovery(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
-void runTestAfterTrainingTimeSeries(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
+void runTimeSeriesMotifDiscovery(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
+void runTestAfterTrainingTimeSeries(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
 
 vector<string> splitString(string str, char delimiter);
 void createInputDataFromTimeSeries(int dimension, string path);
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     OutputMetrics outputM; //Classe que escreve a saída das métricas
     int seed = 0;
     dbgThreshold(1);
-    VILARFDSSOM som(1);
+    VILMAP som(1);
     SOM<DSNode> *dssom = (SOM<DSNode>*) & som;
     ClusteringMeshSOM clusteringSOM(dssom);
 
@@ -250,7 +250,7 @@ int main(int argc, char** argv) {
     dbgOut(1) << "Done." << endl;
 }
 
-void runCompleteTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
+void runCompleteTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
     int experiment = 1;
     int fileNumber = 0;
     string filename = "";
@@ -300,7 +300,7 @@ void runCompleteTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNo
     }
 }
 
-void runTestAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
+void runTestAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
     string testname = "sentences.txt";
     som->d_max = 6;
     som->d_min = 2;
@@ -340,7 +340,7 @@ void runTestAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM
     }
 }
 
-void runStudyOfCase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
+void runStudyOfCase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
     int experiment = 47; // Número do experimento
     int fileNumber = 0; // Número do arquivo de entrada
     string filename = "c1_cat.txt";
@@ -387,7 +387,7 @@ void runStudyOfCase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNod
 
 }
 
-void runStudyOfCaseAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM) {
+void runStudyOfCaseAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM) {
     int experiment = 33;
     int fileNumber = 4;
     string filename = "sentences_" + std::to_string(fileNumber) + ".txt";
@@ -418,7 +418,7 @@ void runStudyOfCaseAfterTraining(VILARFDSSOM *som, ClusteringMeshSOM clusteringS
     dbgOut(1) << std::to_string(experiment) << "% Concluido do arquivo " << fileNumber << endl;
 }
 
-void runStudyOfCaseAfterTrainingBrentDataBase(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp) {
+void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp) {
 //    Funcao criada para comparar e gerar resultados do artigo
     int experiment = 14;
     int fileNumber = 0;
@@ -486,13 +486,13 @@ void runStudyOfCaseAfterTrainingBrentDataBase(VILARFDSSOM *som, ClusteringMeshSO
 
             }
         }
-        if(exp>=99){
+        if(experiment>=99){
             break;
         }
     }
 }
 
-void learningTest(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM) {
+void learningTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM) {
     int experiment = 3;
     int fileNumber = 5;
     string filename = "sentences_" + std::to_string(fileNumber) + ".txt";
@@ -976,7 +976,7 @@ void loadTrueDataInMemory() {
     }
 }
 
-void runTimeSeriesMotifDiscovery(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
+void runTimeSeriesMotifDiscovery(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
     cout << "run Time Series Motif Discovery " << endl;
 
     som->reset();
@@ -1084,7 +1084,7 @@ MatMatrix<float> createOneInputDataFromTimeSeries(int dimension, string path) {
     return data;
 }
 
-void runTestAfterTrainingTimeSeries(VILARFDSSOM *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
+void runTestAfterTrainingTimeSeries(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
     string testname = "sentences.txt";
     som->d_max = 150;
     som->d_min = 150;

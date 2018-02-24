@@ -5,8 +5,8 @@
  *      Author: hans
  */
 
-#ifndef VILARFDSSOM_H_
-#define VILARFDSSOM_H_
+#ifndef VILMAP_H_
+#define VILMAP_H_
 
 #include <set>
 #include <map>
@@ -53,7 +53,7 @@ public:
     };
 };
 
-class VILARFDSSOM : public SOM<GDSNodeMW> {
+class VILMAP : public SOM<GDSNodeMW> {
 public:
     uint maxNodeNumber;
     float minwd;
@@ -209,7 +209,7 @@ public:
 
     }
 
-    VILARFDSSOM& updateConnections(TNode *node) {
+    VILMAP& updateConnections(TNode *node) {
 
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
 
@@ -228,7 +228,7 @@ public:
         return *this;
     }
 
-    VILARFDSSOM& updateAllConnections() {
+    VILMAP& updateAllConnections() {
 
         //Conecta todos os nodos semelhantes
         TPNodeSet::iterator itMesh1 = meshNodeSet.begin();
@@ -254,7 +254,7 @@ public:
         return *this;
     }
 
-    VILARFDSSOM& removeLoosers() {
+    VILMAP& removeLoosers() {
 
         //enumerateNodes();
 
@@ -279,7 +279,7 @@ public:
 
     //*
 
-    VILARFDSSOM& finishMap() {
+    VILMAP& finishMap() {
 
         dbgOut(1) << "Finishing map..." << endl;
         do {
@@ -314,7 +314,7 @@ public:
 
     /**/
 
-    VILARFDSSOM& finishMapFixed() {
+    VILMAP& finishMapFixed() {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step != 1) { // finish the previous iteration
@@ -379,7 +379,7 @@ public:
         trainning(age_wins);
     }/**/
 
-    VILARFDSSOM& resetWins() {
+    VILMAP& resetWins() {
 
         //Remove os perdedores
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
@@ -439,7 +439,7 @@ public:
         }
     }
 
-    VILARFDSSOM& updateMap(const TVector &w) {
+    VILMAP& updateMap(const TVector &w) {
 
         using namespace std;
         TNode *winner1 = 0;
@@ -602,7 +602,7 @@ public:
         return winner;
     }
 
-    inline VILARFDSSOM& getWinners(const TVector &w, TNode* &winner1, TNode* &winner2) {
+    inline VILMAP& getWinners(const TVector &w, TNode* &winner1, TNode* &winner2) {
         TPNodeSet::iterator it = Mesh<TNode>::meshNodeSet.begin();
         TNumber minDist = dist2(*(*it), w);
 
@@ -656,7 +656,7 @@ public:
     }
 
     void resetToDefault(int dimw = 2) {
-        VILARFDSSOM::dimw = dimw;
+        VILMAP::dimw = dimw;
         step = 0;
         nodesLeft = 1;
 
@@ -677,7 +677,7 @@ public:
     }
 
     void reset(int dimw) {
-        VILARFDSSOM::dimw = dimw;
+        VILMAP::dimw = dimw;
         step = 0;
         nodesLeft = 1;
 
@@ -695,7 +695,7 @@ public:
     }
 
     void resetSize(int dimw) {
-        VILARFDSSOM::dimw = dimw;
+        VILMAP::dimw = dimw;
     }
 
     void binarizeRelevances() {
@@ -717,14 +717,14 @@ public:
         reset(dimw);
     }
 
-    VILARFDSSOM(int dimw) {
+    VILMAP(int dimw) {
         resetToDefault(dimw);
     };
 
-    ~VILARFDSSOM() {
+    ~VILMAP() {
     }
 
-    template<class Number> VILARFDSSOM& outputCentersDs(MatMatrix<Number> &m) {
+    template<class Number> VILMAP& outputCentersDs(MatMatrix<Number> &m) {
         using namespace std;
 
         uint wSize = (*meshNodeSet.begin())->ds.size();
@@ -773,4 +773,4 @@ public:
     }
 };
 
-#endif /* VILARFDSSOM_H_ */
+#endif /* VILMAP_H_ */

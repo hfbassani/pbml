@@ -84,7 +84,7 @@
         <itemPath>../Libs/SOM/TDSSOM.h</itemPath>
         <itemPath>../Libs/SOM/TSOM.cpp</itemPath>
         <itemPath>../Libs/SOM/TSOM.h</itemPath>
-        <itemPath>../Libs/SOM/VILARFDSSOM.h</itemPath>
+        <itemPath>../Libs/SOM/VILMAP.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -241,7 +241,7 @@
       </item>
       <item path="../Libs/SOM/TSOM.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../Libs/SOM/VILARFDSSOM.h" ex="false" tool="3" flavor2="0">
+      <item path="../Libs/SOM/VILMAP.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="MyParameters/MyParameters.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -398,7 +398,7 @@
       </item>
       <item path="../Libs/SOM/TSOM.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../Libs/SOM/VILARFDSSOM.h" ex="false" tool="3" flavor2="0">
+      <item path="../Libs/SOM/VILMAP.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="MyParameters/MyParameters.cpp" ex="false" tool="1" flavor2="0">
       </item>

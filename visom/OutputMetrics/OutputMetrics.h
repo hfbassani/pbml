@@ -19,7 +19,7 @@
 #include "MatMatrix.h"
 #include "MatVector.h"
 #include "ClusteringSOM.h"
-#include "VILARFDSSOM.h"
+#include "VILMAP.h"
 #include "unistd.h"
 #include "MyParameters/MyParameters.h"
 #include "OutputMetrics/OutputMetrics.h"
@@ -30,7 +30,7 @@ class OutputMetrics {
 public:
     std::string PATH = "output/";
 
-    void output(VILARFDSSOM *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse, int fileNumber) {
+    void output(VILMAP *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse, int fileNumber) {
         std::ofstream file1;
         std::string name = PATH + "metrics.txt";
         file1.open(name.c_str(), std::ios_base::app);
@@ -93,7 +93,7 @@ public:
         file2.close();
     }
 
-    void outputWithParamsFiles(VILARFDSSOM *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse, int fileNumber) {
+    void outputWithParamsFiles(VILMAP *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse, int fileNumber) {
         std::ofstream file1;
         std::string name = PATH + "metrics.txt";
         file1.open(name.c_str(), std::ios_base::app);
