@@ -113,16 +113,54 @@ public:
         float sum = node.ds.sum();
 
         return (sum / (sum + distance + 0.0000001));
-
-        //float r = node.ds.sum();
-        //        float e = (1/(qrt(node.ds.norm()) + 0.0000001));
-        //        float r = distance;
-        //        return (1 / (1 + e*r));
-
-        //return exp(-qrt(e*r));
-        //return (1 / (1 + qrt(e*r)));
-        //return (1 / sqrt(1 + qrt(e*r)));
     }
+    
+    inline float activation(const TNode &node, const TVector &w, uint *index) {
+        int end = 0;
+        float tempDistance = 0;
+        float distance = 0;
+        *index = 0;
+        if (node.w.size() <= w.size()) {
+            end = node.w.size();
+            for (uint i = 0; i < end; i++) {
+                distance += node.ds[i] * qrt((w[i] - node.w[i]));
+                if (std::isnan(w[i]) || std::isnan(distance)) {
+                    std::cout << i << " - Debug 1" << endl;
+                }
+            }
+        } else {
+
+            distance = 99999999;
+            for (uint i = 0; i <= (node.w.size() - w.size()); i += 12) {
+                tempDistance = 0;
+                for (uint j = 0; j < w.size(); j++) {
+                    //cout << i << " - " << j << " - " << tempDistance << " | ";
+                    tempDistance += node.ds[i + j] * qrt((w[j] - node.w[i + j]));
+                    if (std::isnan(w[j]) || std::isnan(tempDistance)) {
+                        std::cout << i << " - Debug 2" << endl;
+                    }
+
+                }
+
+                if (tempDistance < distance) {
+                    distance = tempDistance;
+                    *index = i;
+                }
+
+            }
+
+
+        }
+
+
+        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
+
+
+        float sum = node.ds.sum();
+
+        return (sum / (sum + distance + 0.0000001));
+    }
+
 
     float getWinnerActivation(const TVector &w) {
         TNode* winner = getWinner(w);
