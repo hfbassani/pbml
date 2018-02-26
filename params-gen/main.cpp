@@ -153,7 +153,6 @@ void createParametersFileHybrid(MyParameters * params, string fileName, int qtdP
         file << params->minwd << "\n";
         file << round(params->epochs) << "\n";
         file << params->pushRate << "\n";
-        file << params->supervisionRate << "\n";
         file << params->seed << "\n";
     }
     

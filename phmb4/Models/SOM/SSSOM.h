@@ -459,7 +459,7 @@ public:
         //Passo 3 : encontra o nó vencedor
         winner1 = getWinner(w); //winner
         
-        if (winner1 == NULL) {
+        if (meshNodeSet.empty()) {
             createNodeMap(w, noCls);
             
         } else {
@@ -500,7 +500,7 @@ public:
         TNode *winner1 = 0;
         winner1 = getFirstWinner(w); // encontra o nó vencedor
 
-        if (winner1 == NULL) { // mapa vazio, primeira amostra
+        if (meshNodeSet.empty()) { // mapa vazio, primeira amostra
             createNodeMap(w, cls);
             
         } else if (winner1->cls != noCls && winner1->cls != cls) { // winner tem classe diferente da amostra
@@ -595,10 +595,6 @@ public:
         TNode *winner = 0;
         TNumber temp = 0;
         
-        if (meshNodeSet.empty()) {
-            return NULL;
-        }
-        
         TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
         winner = (*Mesh<TNode>::meshNodeSet.begin());
         winner->act = activation(*winner, w);
@@ -663,10 +659,6 @@ public:
     inline TNode* getWinner(const TVector &w) {
         TNode *winner = 0;
         TNumber temp = 0;
-        
-        if (meshNodeSet.empty()) {
-            return NULL;
-        }
         
         TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
         winner = (*Mesh<TNode>::meshNodeSet.begin());

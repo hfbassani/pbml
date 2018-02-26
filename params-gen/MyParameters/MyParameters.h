@@ -92,7 +92,6 @@ public:
         addParameterD(h_threshold, "threshold for function h");
         addParameterD(tau, "decay rate");
         addParameterD(pushRate, "pushRate rate");
-        addParameterD(supervisionRate, "supervision rate");
         addParameterD(seed, "seed");
         
         addParameterD(c, "seed");
@@ -130,13 +129,13 @@ public:
         addParameterD(epochs_propagation, "epochs_propagation");
     
         //Set default ranges and values
-        N = 150;
+        N = 500;
         if (real) {
-            a_t.setRange(0.80, 0.999) = 0.80;
-            lp.setRange(0.001, 0.01) = 0.001;
+            a_t.setRange(0.70, 0.999) = 0.70;
+            lp.setRange(0.01, 0.10) = 0.01;
             dsbeta.setRange(0.001, 0.5) = 0.001;
             age_wins.setRange(1, 100) = 1;
-            e_b.setRange(0.01, 0.1) = 0.01;
+            e_b.setRange(0.0001, 0.01) = 0.0001;
             e_n.setRange(0.002, 1.0) = 0.002;
             epsilon_ds.setRange(0.01, 0.1) = 0.01;
             minwd.setRange(0.001, 0.5) = 0.001;
@@ -156,8 +155,7 @@ public:
         h_threshold.setRange(0.001, 0.8) = 0.001;
         tau.setRange(0.00001, 0.01) = 0.00001;
         pushRate.setRange(0.35, 0.8) = 0.35;
-        supervisionRate.setRange(0, 1) = 0;
-        seed.setRange(0, 100) = 0;
+        seed.setRange(0, 10) = 0;
         
         c.setRange(0.1, 10) = 0.1;
         kernel.setRange(1, 4) = 1;
@@ -205,7 +203,6 @@ public:
         addParameterToLHS(h_threshold);
         addParameterToLHS(tau);
         addParameterToLHS(pushRate);
-        addParameterToLHS(supervisionRate);
         addParameterToLHS(seed);
         
         addParameterToLHS(c);
