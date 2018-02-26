@@ -429,7 +429,7 @@ public:
         return *this;
     }
 
-    void createNodeMap (const TVector& w, int cls) {
+    TNode* createNodeMap (const TVector& w, int cls) {
         // cria um novo nodo na posição da amostra
         TVector wNew(w);
         TNode *nodeNew = createNode(nodeID++, wNew);
@@ -437,6 +437,8 @@ public:
         nodeNew->wins = 0;//lp * step;
 
         updateConnections(nodeNew);
+        
+        return nodeNew;
     }
     
     void ageWinsCriterion(){
