@@ -553,43 +553,40 @@ public:
             newWinner->wins++;
             
             // puxar o novo vencedor
-            updateConnections(newWinner);
             updateNode(*newWinner, w, e_b);
             
-            updateConnections(winner1); 
             // empurrar o primeiro winner que tem classe diferente da amostra
             updateNode(*winner1, w, -push_rate);
             
-            TPNodeConnectionMap::iterator it;
-            for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
-                TNode* node = it->first;
-                updateNode(*node, w, e_n);
-            }
-
+//            TPNodeConnectionMap::iterator it;
+//            for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
+//                TNode* node = it->first;
+//                updateNode(*node, w, e_n);
+//            }
+            
+            updateAllConnections();
 
         } else if (meshNodeSet.size() < maxNodeNumber) {
             
             // cria um novo nodo na posição da amostra
-            createNodeMap(w, cls);
+//            createNodeMap(w, cls);
 
-//            TVector wNew(winner1->w);
-//            TNode *nodeNew = createNode(nodeID++, wNew);
-//            nodeNew->cls = cls;
-//            nodeNew->wins = 0;
-//
+            TVector wNew(winner1->w);
+            TNode *nodeNew = createNodeMap(w, cls);
+            nodeNew->wins = 0;
+
 //            TVector aNew(winner1->a);
 //            nodeNew->a = aNew;
 //            TVector dsNew(winner1->ds);
-//            nodeNew->ds = dsNew;
-//                
-//                nodeNew->act = winner1->act;
-//                nodeNew->step = winner1->step;
-//                nodeNew->touched = winner1->touched;
-//                nodeNew->wins = winner1->wins + 1;               
-            // puxar o vencedor
-//            updateNode(*nodeNew, w, e_b);
+//            nodeNew->ds = dsNew;   
+            
+            updateNode(*nodeNew, w, e_b);
 
-//            updateNode(*winner1, w, -push_rate);
+            updateNode(*winner1, w, -push_rate);
+            
+        
+            updateAllConnections();
+            
         } 
     }
 
