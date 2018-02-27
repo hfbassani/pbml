@@ -100,12 +100,8 @@ public:
                 if (tempDistance < distance) {
                     distance = tempDistance;
                 }
-
             }
-
-
         }
-
 
         //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
 
@@ -114,7 +110,7 @@ public:
 
         return (sum / (sum + distance + 0.0000001));
     }
-    
+
     inline float activation(const TNode &node, const TVector &w, uint *index) {
         int end = 0;
         float tempDistance = 0;
@@ -161,7 +157,6 @@ public:
         return (sum / (sum + distance + 0.0000001));
     }
 
-
     float getWinnerActivation(const TVector &w) {
         TNode* winner = getWinner(w);
         float a = activation(*winner, w);
@@ -194,17 +189,21 @@ public:
         return sqrt(distance);
     }
 
-    inline void updateNode(TNode &node, const TVector &w, TNumber e) {
-        int end = 0;
+    inline void updateNode(TNode &node, const TVector &w, TNumber e, int beginIndex) {
+        uint end = 0;
         if (node.w.size() < w.size()) {
             end = node.w.size();
         } else {
             end = w.size();
         }
+        uint begin = 0;
+        if (node.w.size() > w.size()) {
+            begin = beginIndex; //o nodo será atualizado começando na posição de maior ativação
+        }
         //update averages
-        for (uint i = 0; i < end; i++) {
+        for (uint i = begin, t = 0; i < end; i++, t++) {
             //update neuron weights
-            float distance = fabs(w[i] - node.w[i]);
+            float distance = fabs(w[t] - node.w[i]);
             if (std::isnan(distance)) {
                 distance = 1;
             }
@@ -226,24 +225,19 @@ public:
         }
 
         //update neuron ds weights
-        for (uint i = 0; i < node.a.size(); i++) {
+        for (uint i = begin; i < node.a.size(); i++) {
             if ((max - min) != 0) {
                 //node.ds[i] = 1 - (node.a[i] - min) / (max - min);
                 node.ds[i] = 1 / (1 + exp((node.a[i] - average) / (((max - min) * epsilon_ds) + 0.000001)));
             } else
                 node.ds[i] = 1;
-
-            //            if (node.ds[i] < 0.95*dsa)
-            //                node.ds[i] = epsilon_ds;
-
-            //            if (node.ds[i] < epsilon_ds)
-            //                node.ds[i] = epsilon_ds;
-
         }
 
         //Passo 6.1: Atualiza o peso do vencedor
         //Atualiza o nó vencedor
-        node.w = node.w + e * (w - node.w);
+        for (uint i = begin, t = 0; i < end; i++, t++) {
+            node.w = node.w[i] + e * (w[t] - node.w[i]);
+        }
 
     }
 
@@ -492,7 +486,8 @@ public:
         }
 
         //Passo 6: Calcula a atividade do nó vencedor
-        TNumber a = activation(*winner1, w); //DS activation
+        uint index;
+        TNumber a = activation(*winner1, w,&index); //DS activation
         //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
         //e o limite de nodos não tiver sido atingido
 
@@ -508,13 +503,13 @@ public:
 
         } else if (a >= a_t) { // caso contrário
             // Atualiza o peso do vencedor
-            updateNode(*winner1, w, e_b);
+            updateNode(*winner1, w, e_b, index);
 
             //Passo 6.2: Atualiza o peso dos vizinhos
             TPNodeConnectionMap::iterator it;
             for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {
                 TNode* node = it->first;
-                updateNode(*node, w, e_n);
+                updateNode(*node, w, e_n, index);
             }
         }
         /*
