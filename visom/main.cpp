@@ -239,11 +239,11 @@ int main(int argc, char** argv) {
 
     //createParametersFile(&params); //createTrainingTestFiles(som.d_min, som.d_max, file, dictionary, featuresDict, "phonemes_" + filename);
     //runCompleteTest(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
-    //runStudyOfCase(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    runStudyOfCase(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
     //runTestAfterTraining(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
-    runStudyOfCaseAfterTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
+    //runStudyOfCaseAfterTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
     
     //runStudyOfCaseAfterTrainingBrentDataBase(&som, clusteringSOM, dssom, featuresDict, outputM, epocs);
 
@@ -681,7 +681,7 @@ void createPhonemaData(std::string &featuresDict, MatMatrix<float> &data) {
 
 MatMatrix<float> loadFalseData(int tam, int fileNumber) {
     MatMatrix<float> mat;
-    std::ifstream inputFile("falsedata_article");
+    std::ifstream inputFile("falsedata_article1");
     std::string text;
     std::string temp = "";
     MatVector<float> output_vect;
@@ -707,7 +707,7 @@ MatMatrix<float> loadFalseData(int tam, int fileNumber) {
 
 MatMatrix<float> loadTrueData(int tam, int fileNumber) {
     MatMatrix<float> mat;
-    std::ifstream inputFile("truedata_article");
+    std::ifstream inputFile("trueData_2_arq_c1 (copy)");
     std::string text;
     std::string temp = "";
     MatVector<float> output_vect;
