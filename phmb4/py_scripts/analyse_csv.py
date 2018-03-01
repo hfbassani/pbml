@@ -47,18 +47,24 @@ def analyse (folder, rows, plot, save):
         local_num_nodes = headers[i]["num_nodes"]
         local_num_noisy_samples = headers[i]["num_noisy_samples"]
         local_num_unlabeled_samples = headers[i]["num_unlabeled_samples"]
+        local_num_correct_samples = headers[i]["num_correct_samples"]
+        local_num_incorrect_samples = headers[i]["num_incorrect_samples"]
         local_mean_value = headers[i]["mean_value"]
 
         datasets_max_values = []
         datasets_num_nodes = []
         datasets_num_noisy_samples = []
         datasets_num_unlabeled_samples = []
+        datasets_num_correct_samples = []
+        datasets_num_incorrect_samples = []
         datasets_mean_value = []
 
         means_max_values = []
         means_num_nodes = []
         means_num_noisy_samples = []
         means_num_unlabeled_samples = []
+        means_num_correct_samples = []
+        means_num_incorrect_samples = []
         means_mean_value = []
         std_max_values = []
 
@@ -80,6 +86,14 @@ def analyse (folder, rows, plot, save):
             datasets_num_unlabeled_samples.append(local_unlabel)
             means_num_unlabeled_samples.append(np.nanmean(local_unlabel))
 
+            local_correct = np.array(local_num_correct_samples)[j:j + len(folds) / len(datasets)]
+            datasets_num_correct_samples.append(local_correct)
+            means_num_correct_samples.append(np.nanmean(local_correct))
+
+            local_incorrect = np.array(local_num_incorrect_samples)[j:j + len(folds) / len(datasets)]
+            datasets_num_incorrect_samples.append(local_incorrect)
+            means_num_incorrect_samples.append(np.nanmean(local_incorrect))
+
             local_mean_value = np.array(local_mean_value)[j:j + len(folds) / len(datasets)]
             datasets_mean_value.append(local_mean_value)
             means_mean_value.append(np.nanmean(local_mean_value))
@@ -89,7 +103,9 @@ def analyse (folder, rows, plot, save):
         line += "std_max_values\t" + "\t".join(map(str, std_max_values)) + "\n"
         line += "means_num_nodes\t" + "\t".join(map(str, means_num_nodes)) + "\n"
         line += "means_num_noisy_samples\t" + "\t".join(map(str, means_num_noisy_samples)) + "\n"
-        line += "means_num_unlabeled_samples\t" + "\t".join(map(str, means_num_unlabeled_samples)) + "\n\n"
+        line += "means_num_unlabeled_samples\t" + "\t".join(map(str, means_num_unlabeled_samples)) + "\n"
+        line += "means_correct_samples\t" + "\t".join(map(str, means_num_correct_samples)) + "\n"
+        line += "means_incorrect_samples\t" + "\t".join(map(str, means_num_incorrect_samples)) + "\n\n"
         # line += "mean_value\t" + "\t".join(map(str, means_mean_value)) + "\n\n"
 
         plot_means.append(means_max_values)
