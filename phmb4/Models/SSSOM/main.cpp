@@ -191,7 +191,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
 void runTrainTestExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, 
         bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool displayMap, bool normalize, bool keepMapSaved) { 
     
-    int numberOfParameters = 11;
+    int numberOfParameters = 13;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         SSSOM som(1);
@@ -209,15 +209,19 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         som.dsbeta = params[i + 2];
         som.age_wins = params[i + 3];
         som.e_b = params[i + 4];
-        som.e_n = params[i + 5] * som.e_b;
-        som.epsilon_ds = params[i + 6];
-        som.minwd = params[i + 7]; 
-        som.epochs = params[i + 8];
-        som.push_rate = params[i +9] * som.e_b;
+        som.e_b_sup = params[i + 5];
+        som.e_b_sup0 = som.e_b_sup;
+        som.e_n = params[i + 6] * som.e_b;
+        som.e_n_sup = params[i + 6] * som.e_b_sup;
+        som.epsilon_ds = params[i + 7];
+        som.minwd = params[i + 8]; 
+        som.epochs = params[i + 9];
+        som.push_rate = params[i + 10] * som.e_b;
+        som.tau = params[i + 11];
         
         string index = std::to_string((i/numberOfParameters));
                   
-        srand(params[i + 10]);
+        srand(params[i + 12]);
 
         som.noCls = 999;
         som.maxNodeNumber = clusteringSOM.getNumSamples();

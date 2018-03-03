@@ -3,9 +3,11 @@ lp
 dsbeta
 age_wins
 e_b
+e_b_sup
 e_n
 epsilon_ds
 minwd
 epochs
 push_rate
+tau
 seed

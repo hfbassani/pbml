@@ -25,6 +25,7 @@ public:
     LHSParameter dsbeta;
     LHSParameter age_wins;
     LHSParameter e_b;
+    LHSParameter e_b_sup;
     LHSParameter e_n;
     LHSParameter epsilon_ds;
     LHSParameter minwd;
@@ -84,6 +85,7 @@ public:
         addParameterD(dsbeta, "Relevance rate");
         addParameterD(age_wins, "Max competitions");
         addParameterD(e_b, "learning rate");
+        addParameterD(e_b_sup, "learning rate");
         addParameterD(e_n, "Cluster Percentage");
         addParameterD(epsilon_ds, "Relevance rate");
         addParameterD(minwd, "Relevance rate");
@@ -150,12 +152,13 @@ public:
             minwd.setRange(0, 0.5) = 0;
         }
         
-        epochs.setRange(1, 100) = 100;
+        epochs.setRange(1, 100) = 1;
         gamma.setRange(0.14, 4.0) = 0.14;
         h_threshold.setRange(0.001, 0.8) = 0.001;
-        tau.setRange(0.00001, 0.01) = 0.00001;
-        pushRate.setRange(0.35, 0.8) = 0.35;
-        seed.setRange(0, 10) = 0;
+        tau.setRange(0.00001, 0.00004) = 0.00001;
+        e_b_sup.setRange(0.4, 0.7) = 0.4;
+        pushRate.setRange(0.01, 0.8) = 0.01;
+        seed.setRange(1, 10000) = 1;
         
         c.setRange(0.1, 10) = 0.1;
         kernel.setRange(1, 4) = 1;
@@ -195,6 +198,7 @@ public:
         addParameterToLHS(dsbeta);
         addParameterToLHS(age_wins);
         addParameterToLHS(e_b);
+        addParameterToLHS(e_b_sup);
         addParameterToLHS(e_n);
         addParameterToLHS(epsilon_ds);
         addParameterToLHS(minwd);
