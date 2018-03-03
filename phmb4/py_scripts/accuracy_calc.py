@@ -12,7 +12,9 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
     max_values = []
     max_value_num_nodes = []
     max_value_num_noisy = []
-    max_value_num_unlabeled_node = []
+    max_value_num_unlabeled_samples = []
+    max_value_num_correct_samples = []
+    max_value_num_incorrect_samples = []
     index_set = []
     mean_value = []
     std_value = []
@@ -21,7 +23,9 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
 
     num_nodes = []
     noisySamples = []
-    noLabelNodes = []
+    noLabelSamples = []
+    incorrectSamples = []
+    correctSamples = []
 
     files = [f for f in listdir(truePath) if isfile(join(truePath, f))]
     files = sorted(files)
@@ -33,7 +37,10 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
             accs.append([])
             num_nodes.append([])
             noisySamples.append([])
-            noLabelNodes.append([])
+            noLabelSamples.append([])
+            incorrectSamples.append([])
+            correctSamples.append([])
+
             for i in range(r):
                 results = open(join(resultsPath, "{0}_{1}.results".format(file[:-5], i)), 'rb')
                 results = results.readlines()
@@ -48,22 +55,30 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
                     noisySamples[len(noisySamples) - 1].append(len(data) - len(results[len(results.columns) - 1]))
 
                     # PAY ATTENTION
-                    noLabelNodes[len(noLabelNodes) - 1].append(len(results.ix[results[len(results.columns) - 1] < 0]))
+                    noLabelSamples[len(noLabelSamples) - 1].append(len(results.ix[results[len(results.columns) - 1] == 999]))
 
-                    # results = results.ix[results[len(results.columns) - 1] >= 0]
+                    # results = results.ix[results[len(results.columns) - 1] != 999]
 
                     indexes = np.array(results.iloc[:,0])
                     predict = np.array(results.iloc[:,2])
                     true = map(int, data[indexes])
 
                     corrects = metrics.accuracy_score(predict, true, normalize=False)
+                    correctSamples[len(correctSamples) - 1].append(corrects)
                     accuracy = float(corrects) / len(data) #metrics.accuracy_score(predict, true)#
                     accs[len(accs) - 1].append(accuracy)
 
+                    results_inc = results.ix[results[len(results.columns) - 1] != 999]
+                    predict_inc = np.array(results_inc.iloc[:,2])
+                    incorrects = len(predict_inc) - metrics.accuracy_score(predict, true, normalize=False)
+
+                    incorrectSamples[len(incorrectSamples) - 1].append(incorrects)
                 else:
                     noisySamples[len(noisySamples) - 1].append(np.nan)
-                    noLabelNodes[len(noLabelNodes) - 1].append(np.nan)
+                    noLabelSamples[len(noLabelSamples) - 1].append(np.nan)
                     accs[len(accs) - 1].append(np.nan)
+                    incorrectSamples[len(incorrectSamples) - 1].append(np.nan)
+                    correctSamples[len(correctSamples) - 1].append(np.nan)
 
             max_value_index = np.nanargmax(accs[len(accs) - 1])
             max_values.append(np.nanmax(accs[len(accs) - 1]))
@@ -71,7 +86,9 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
 
             max_value_num_nodes.append(num_nodes[len(num_nodes) - 1][max_value_index])
             max_value_num_noisy.append(noisySamples[len(noisySamples) - 1][max_value_index])
-            max_value_num_unlabeled_node.append(noLabelNodes[len(noLabelNodes) - 1][max_value_index])
+            max_value_num_unlabeled_samples.append(noLabelSamples[len(noLabelSamples) - 1][max_value_index])
+            max_value_num_correct_samples.append(correctSamples[len(correctSamples) - 1][max_value_index])
+            max_value_num_incorrect_samples.append(incorrectSamples[len(incorrectSamples) - 1][max_value_index])
 
             mean_value.append(np.nanmean(accs[len(accs) - 1]))
             std_value.append(np.nanstd(accs[len(accs) - 1], ddof=1))
@@ -83,7 +100,9 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
     line += "index_set," + ",".join(map(str, index_set)) + "\n"
     line += "num_nodes," + ",".join(map(str, max_value_num_nodes)) + "\n"
     line += "num_noisy_samples," + ",".join(map(str, max_value_num_noisy)) + "\n"
-    line += "num_unlabeled_samples," + ",".join(map(str, max_value_num_unlabeled_node)) + "\n"
+    line += "num_unlabeled_samples," + ",".join(map(str, max_value_num_unlabeled_samples)) + "\n"
+    line += "num_correct_samples," + ",".join(map(str, max_value_num_correct_samples)) + "\n"
+    line += "num_incorrect_samples," + ",".join(map(str, max_value_num_incorrect_samples)) + "\n"
     line += "mean_value," + ",".join(map(str, mean_value)) + "\n"
     line += "std_value," + ",".join(map(str, std_value)) + "\n\n"
 
