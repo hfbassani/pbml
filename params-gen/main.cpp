@@ -148,11 +148,13 @@ void createParametersFileHybrid(MyParameters * params, string fileName, int qtdP
         file << params->dsbeta << "\n";
         file << round(params->age_wins) << "\n";
         file << params->e_b << "\n";
+        file << params->e_b_sup << "\n";
         file << params->e_n << "\n";
         file << params->epsilon_ds << "\n";
         file << params->minwd << "\n";
         file << round(params->epochs) << "\n";
         file << params->pushRate << "\n";
+        file << params->tau << "\n";
         file << params->seed << "\n";
     }
     
