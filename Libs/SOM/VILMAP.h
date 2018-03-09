@@ -197,8 +197,9 @@ public:
             end = w.size();
         }
         uint begin = 0;
-        if (node.w.size() > w.size()) {
+        if (node.w.size() > w.size() && beginIndex != 0) {
             begin = beginIndex; //o nodo será atualizado começando na posição de maior ativação
+            end = begin + w.size();
         }
         //update averages
         for (uint i = begin, t = 0; i < end; i++, t++) {
@@ -426,12 +427,16 @@ public:
     }
 
     inline SOM& trainning(int N = 1) {
-        TVector v(data.cols());
+        
         for (uint l = 0; l < data.rows(); l++) {
+            TVector v;
             for (uint c = 0; c < data.cols(); c++) {
-                v[c] = data[l][c];
+                if (data[l][c] != 5) {
+                    v.append(data[l][c]);
+                }
             }
             updateMap(v);
+            
         }
         return *this;
     }
@@ -481,13 +486,13 @@ public:
         winner1->wins++;
 
         //Teste de dimensão
-        if (winner1->w.size() < w.size()) {
+        if (winner1->w.size() < w.size() && winner1->w.size() > 1) {
             updateNodeDimension(winner1, w);
         }
 
         //Passo 6: Calcula a atividade do nó vencedor
         uint index;
-        TNumber a = activation(*winner1, w,&index); //DS activation
+        TNumber a = activation(*winner1, w, &index); //DS activation
         //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
         //e o limite de nodos não tiver sido atingido
 
@@ -509,6 +514,7 @@ public:
             TPNodeConnectionMap::iterator it;
             for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {
                 TNode* node = it->first;
+                activation(*node, w, &index);
                 updateNode(*node, w, e_n, index);
             }
         }
