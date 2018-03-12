@@ -59,7 +59,9 @@ public:
     int epochs;
     float minwd;
     float e_b;
+    float e_b0;
     float e_b_sup0;
+    float e_b_sup_step;
     float e_b_sup;
     float e_n;
     float e_n_sup;
@@ -320,13 +322,8 @@ public:
     }
     
     void chooseTrainingType(TVector &v, int cls) {
-        //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        //std::default_random_engine generator (seed);
-        //std::uniform_real_distribution<double> distribution (0.0,1.0);
-        //double rate = distribution(generator);
         
         if (cls != noCls) { 
-            //learningDecay(step);
             updateMapSup(v, cls);
         } else { 
             updateMap(v); 
@@ -436,17 +433,16 @@ public:
              itMesh++;
         }
 
-        step = 0;
-
         return *this;
     }
 
     TNode* createNodeMap (const TVector& w, int cls) {
         // cria um novo nodo na posição da amostra
         TVector wNew(w);
-        TNode *nodeNew = createNode(nodeID++, wNew);
+        TNode *nodeNew = createNode(nodeID, wNew);
+        nodeID++;
         nodeNew->cls = cls;
-        nodeNew->wins = lp * step;
+        nodeNew->wins = 0;
 
         updateConnections(nodeNew);
         
@@ -454,10 +450,14 @@ public:
     }
     
     void ageWinsCriterion(){
+        
+//        printCurrentClassesMapping();
+        
         //Passo 9:Se atingiu age_wins
         if (step >= age_wins) {
             
             removeLoosers();
+            updateNodeClasses();
             resetWins();
             updateAllConnections();
             
@@ -502,6 +502,8 @@ public:
                 
                 unsupCountUpdate++; 
             }
+            
+//            e_b = learningDecay(e_b0, step + 1);
         }
 
         ageWinsCriterion();
@@ -520,36 +522,40 @@ public:
         } else {
             TNode *winner1 = 0;
             winner1 = getFirstWinner(w); // encontra o nó vencedor
-
-            if (winner1->cls != noCls && winner1->cls != cls) { // winner tem classe diferente da amostra
-                // caso winner seja de classe diferente, checar se existe algum
-                // outro nodo no mapa que esteja no raio a_t da nova amostra e
-                // que pertença a mesma classe da mesma
-
-                handleDifferentClass(winner1, w, cls);
-
-            } else { // winner1 representativo e da mesma classe da amostra 
+ 
+            if (winner1->cls == cls || winner1->cls == noCls) { // winner1 representativo e da mesma classe da amostra 
                     
                 if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
                     // cria um novo nodo na posição da amostra
                     createNodeMap(w, cls);
                     supCountNewNodeUnderAt++;
                     
-                } else  if (winner1->act >= a_t){
+                } else if (winner1->act >= a_t){
                     winner1->wins++;
-                    //winner1->cls = cls;
-                    updateNode(*winner1, w, e_b);
+//                    winner1->cls = cls;
+//                    updateConnections(winner1);
+                    updateNode(*winner1, w, e_b_sup);
 
-                    updateConnections(winner1);
+                    updateClassesMapping(winner1, cls);
+                    
                     TPNodeConnectionMap::iterator it;
                     for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
                         TNode* node = it->first;
-                        updateNode(*node, w, e_n);
+                        updateNode(*node, w, e_n_sup);
                     }
                     
                     supCountRightWinner++; 
                 } 
-            }  
+            } else { // winner tem classe diferente da amostra
+                // caso winner seja de classe diferente, checar se existe algum
+                // outro nodo no mapa que esteja no raio a_t da nova amostra e
+                // que pertença a mesma classe da mesma
+
+                handleDifferentClass(winner1, w, cls);
+
+            }   
+            
+//            e_b_sup = learningDecay(e_b_sup0, step + 1);
         }
 
         ageWinsCriterion();
@@ -559,16 +565,17 @@ public:
         return *this;
     }
     
-    void learningDecay(int step) {
-        e_b_sup = (e_b_sup0)/(1 + tau * step); //Equacao (Nova e Estevez, 2013 Neural Comput&Applic)
-        if (e_b_sup <= 0) 
-            e_b_sup = 0.000001;
+    float learningDecay(float base_lr, int step) {
+        float new_lr = (base_lr)/(1 + tau * step); //Equacao (Nova e Estevez, 2013 Neural Comput&Applic)
+        if (new_lr <= 0) 
+            new_lr = 0.000001;
+        
+        return new_lr;
     }
     
     void updateClassesMapping (TNode *node, int occurence) { 
          
         bool itemFound = false; 
-        int itemIndex; 
         for (std::map<int, int>::iterator it = node->classesMapping.begin(); it != node->classesMapping.end(); it++) { 
             if (it->first == occurence) { 
                 itemFound = true; 
@@ -583,26 +590,59 @@ public:
     }
     
     void updateNodeClasses () {
-        TPNodeSet::iterator itMesh = meshNodeSet.begin(); 
-        while (itMesh != meshNodeSet.end()) { 
-            int curr_class = noCls; 
-            int occurrencies = 0; 
-            dbgOut(-1) << "Node " << (*itMesh)->getId() << " - class " << (*itMesh)->cls << ": " << endl; 
-            for (std::map<int, int>::iterator it = (*itMesh)->classesMapping.begin(); it != (*itMesh)->classesMapping.end(); it++) { 
-                dbgOut(-1) << "cls: " << it->first << ", count: " << it->second << endl; 
-                 
-                if (it->second > occurrencies) { 
-                    occurrencies = it->second; 
-                    curr_class = it->first; 
+        TPNodeSet::iterator itMesh; 
+        TPNodeSet deadNodeSet;
+        for (itMesh = Mesh<TNode>::meshNodeSet.begin(); itMesh != Mesh<TNode>::meshNodeSet.end(); itMesh++) { 
+            TNode *node = (*itMesh);
+            
+            if (node->cls == noCls) {
+                std::map<int, int> neighborhoodMapping;
+                bool boom = false;
+                
+                TPNodeConnectionMap::iterator it;
+                for (it = node->nodeMap.begin(); it != node->nodeMap.end(); it++) {      
+                    TNode *neighbor = it->first;
+                    
+                    if (neighbor->cls != noCls) {
+                        
+                        bool itemFound = false; 
+                        for (std::map<int, int>::iterator it2 = neighborhoodMapping.begin(); it2 != neighborhoodMapping.end(); it2++) { 
+                            if (it2->first == neighbor->cls) { 
+                                itemFound = true; 
+                                it2->second = it2->second + 1; 
+                                break; 
+                            } 
+                        } 
+
+                        if (!itemFound) { 
+                            neighborhoodMapping[neighbor->cls] = 1; 
+                        } 
+                    }
+                }
+                
+                for (std::map<int, int>::iterator it = node->classesMapping.begin(); it != node->classesMapping.end(); it++) { 
+   
+                    if (it->second > 0 && neighborhoodMapping.find(it->first)->second > 0) {
+                        boom = true;
+                        TVector wNew(node->w);
+                        createNodeMap(wNew, it->first);
+                    }
                 } 
-            } 
-             
-            (*itMesh)->classesMapping.clear(); 
-            (*itMesh)->cls = curr_class; 
-             
-            dbgOut(-1) << endl; 
-             
-            itMesh++; 
+
+                if (boom) {
+                    deadNodeSet.insert(node);
+                }
+            }
+        }
+        
+        if (deadNodeSet.size() > 0) {
+            TPNodeSet::iterator itMesh = deadNodeSet.begin();
+            while (itMesh != deadNodeSet.end()) {
+                eraseNode((*itMesh));
+                itMesh++;
+            }
+
+            deadNodeSet.clear();
         }
     }
     
@@ -631,22 +671,23 @@ public:
         }
 
         if (newWinner != NULL) { // novo winner de acordo com o raio de a_t
-            //newWinner->cls = cls;
-            newWinner->wins++;
-            
-            // puxar o novo vencedor
-            updateNode(*newWinner, w, e_b);
             
             // empurrar o primeiro winner que tem classe diferente da amostra
             updateNode(*winner1, w, -push_rate);
             
+            //newWinner->cls = cls;
+            newWinner->wins++;
+            
+            updateClassesMapping(newWinner, cls);
+            
+            // puxar o novo vencedor
+            updateNode(*newWinner, w, e_b_sup);
+            
             TPNodeConnectionMap::iterator it;
             for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
                 TNode* node = it->first;
-                updateNode(*node, w, e_n);
+                updateNode(*node, w, e_n_sup);
             }
-            
-            //updateAllConnections();
             
             supCountNewWinnersFound++; 
             
@@ -658,16 +699,14 @@ public:
             TVector wNew(winner1->w);
             TNode *nodeNew = createNodeMap(wNew, cls);
             
-            TVector aNew(winner1->a);
-            nodeNew->a = aNew;
-            TVector dsNew(winner1->ds);
-            nodeNew->ds = dsNew;   
+//            TVector aNew(winner1->a);
+//            nodeNew->a = aNew;
+//            TVector dsNew(winner1->ds);
+//            nodeNew->ds = dsNew;   
             
-            updateNode(*nodeNew, w, e_b);
+            updateNode(*nodeNew, w, e_b_sup);
 
             updateNode(*winner1, w, -push_rate);
-            
-            //updateAllConnections();
             
             supCountDupNodes++; 
         } 
@@ -845,10 +884,10 @@ public:
         nodeID = 0;
 
         destroyMesh();
-        TVector v(dimw);
-        v.random();
-        TVector wNew(v);
-        createNodeMap(wNew, noCls);
+//        TVector v(dimw);
+//        v.random();
+//        TVector wNew(v);
+//        createNodeMap(wNew, noCls);
     }
     
     void resetSize(int dimw) {

@@ -147,8 +147,8 @@ public:
         
         for (int i = 0; i < node.w.size(); i++) {
             dist += weight[i] * (w[i] - node.w[i]) * (w[i] - node.w[i]);
-
-        }         
+        }
+        
         return dist;
     }
     

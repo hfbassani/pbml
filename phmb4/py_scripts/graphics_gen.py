@@ -180,7 +180,7 @@ def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
     ax.set_yticks(np.linspace(0, 1, num=11))
 
 def get_headers(fileName):
-    headers = pd.read_csv(fileName, nrows=7, header=None)
+    headers = pd.read_csv(fileName, nrows=9, header=None)
     headers = headers.transpose()
     headers = headers.rename(columns=headers.iloc[0])
     headers = headers.drop([0])
@@ -190,7 +190,7 @@ def get_headers(fileName):
     return headers
 
 def get_params_and_results(fileName):
-    results = pd.read_csv(fileName, skiprows=8, header=None)
+    results = pd.read_csv(fileName, skiprows=10, header=None)
 
     firstParamIndex = results.iloc[0]
     firstParamIndex = firstParamIndex[firstParamIndex == "a_t"].index[0]
