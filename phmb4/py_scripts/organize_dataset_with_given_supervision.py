@@ -3,9 +3,8 @@ import pandas as pd
 import numpy as np
 from scipy.io import arff
 import os
-import re
 import sys
-from os.path import isfile, join
+from os.path import join
 import random
 
 def check_directory(filePath):
@@ -27,15 +26,9 @@ def create_ordered_arff(arffFilePath, filePath, outputPath, supervision_r):
     newFile = open(join(outputPath, arffFilePath), 'w+')
 
     saved_labels = data['class'].unique()
-    labels = data['class'].unique()
-    orderedData = pd.DataFrame()
-    for label in labels:
-        labelData = data[data['class'].isin([label])]
-        orderedData = orderedData.append(labelData, ignore_index=True)
-
     labels = data['class']
     while True:
-        rng = np.random.RandomState(random.randint(1, 200000))
+        rng = np.random.RandomState(random.randint(1, 20000))
         random_unlabeled_points = rng.rand(len(labels)) > supervision_r
         curr_labels = np.copy(labels)
         curr_labels[random_unlabeled_points] = str(999)
@@ -63,18 +56,22 @@ def create_ordered_arff(arffFilePath, filePath, outputPath, supervision_r):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Input Directory', required=True)
-parser.add_argument('-o', help='Output Directory', required=True)
 parser.add_argument('-s', help='Percentage of Supervision', required=True, type=float)
 args = parser.parse_args()
 
 filePath = args.i
-outputPath = args.o
 supervision = args.s
 
-if not os.path.isdir(args.o): os.mkdir(args.o)
 
 filePath = check_directory(filePath)
-outputPath = check_directory(outputPath)
+
+outputPath = filePath
+if outputPath.endswith("/"):
+    outputPath = outputPath[:-1]
+
+outputPath += "S" + str(supervision).split(".")[1]
+
+if not os.path.isdir(outputPath): os.mkdir(outputPath)
 
 for file in os.listdir(filePath):
     if file.endswith(".arff"):
