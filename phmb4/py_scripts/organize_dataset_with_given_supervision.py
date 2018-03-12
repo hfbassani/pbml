@@ -23,7 +23,7 @@ def create_ordered_arff(arffFilePath, filePath, outputPath, supervision_r):
     data, meta = arff.loadarff(open(join(filePath, arffFilePath), 'rb'))
     data = pd.DataFrame(data)
 
-    newFile = open(join(outputPath, arffFilePath), 'w+')
+
 
     saved_labels = data['class'].unique()
     labels = data['class']
@@ -37,9 +37,16 @@ def create_ordered_arff(arffFilePath, filePath, outputPath, supervision_r):
             break
 
     data['class'] = curr_labels
+
+    write_file(arffFilePath, data, meta, outputPath, saved_labels)
+
+    data = data[data["class"] != str(999)]
+    write_file("sup_" + arffFilePath, data, meta, outputPath, saved_labels)
+
+
+def write_file(arffFilePath, data, meta, outputPath, saved_labels):
+    newFile = open(join(outputPath, arffFilePath), 'w+')
     newFile.write("@relation {0}\n".format(meta.name))
-
-
     for i in xrange(len(meta.names())):
         attr = meta.names()[i]
         if attr != "class":
@@ -48,11 +55,10 @@ def create_ordered_arff(arffFilePath, filePath, outputPath, supervision_r):
             newFile.write("@attribute {0} {{".format(attr))
             newFile.write("{0}".format(",".join(saved_labels)))
             newFile.write("}\n")
-
     newFile.write("@data\n")
-
     for _, row in data.iterrows():
         newFile.write(",".join(map(str, row)) + "\n")
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Input Directory', required=True)
