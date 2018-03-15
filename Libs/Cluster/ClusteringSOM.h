@@ -643,7 +643,7 @@ public:
         ofstream arq(filename);
         string buff = "<html>";
         arq.write(buff.c_str(), buff.length());
-        buff = "<head><title>VILARFDSSOM - " + std::to_string(dim) + " </title></head>";
+        buff = "<head><title>VILMAP - " + std::to_string(dim) + " </title></head>";
         arq.write(buff.c_str(), buff.length());
         buff = "<body bgcolor=#999999>";
         arq.write(buff.c_str(), buff.length());

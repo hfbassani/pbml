@@ -31,7 +31,7 @@ public:
 
     MyParameters() {
         comments = "Test float Parameters";
-        section = "VILARFDSSOM Parameters";
+        section = "VILMAP Parameters";
 
         //make parameters persistent:
         addParameterD(N, "Number of samples");

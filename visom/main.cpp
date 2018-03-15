@@ -175,7 +175,7 @@ int main(int argc, char** argv) {
         return false;
     }
 
-    dbgOut(1) << "Running VILARFDSSOM for file: " << filename << endl;
+    dbgOut(1) << "Running VILMAP for file: " << filename << endl;
     mkdir("output/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     srand(time(0));
     srand(seed);

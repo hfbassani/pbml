@@ -1,5 +1,5 @@
 /*
- * VILARFDSSOM.h
+ * VILMAP.h
  *
  *  Created on: 2014
  *      Author: hans
@@ -337,7 +337,7 @@ public:
     }
 
     /*
-    VILARFDSSOM& finishMap() {
+    VILMAP& finishMap() {
         resetWins();
 
         TVector v;
