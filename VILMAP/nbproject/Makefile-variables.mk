@@ -9,19 +9,19 @@ CND_DISTDIR=dist
 # Debug configuration
 CND_PLATFORM_Debug=GNU-Linux
 CND_ARTIFACT_DIR_Debug=dist/Debug/GNU-Linux
-CND_ARTIFACT_NAME_Debug=visom
-CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux/visom
+CND_ARTIFACT_NAME_Debug=vilmap
+CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux/vilmap
 CND_PACKAGE_DIR_Debug=dist/Debug/GNU-Linux/package
-CND_PACKAGE_NAME_Debug=visom.tar
-CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/visom.tar
+CND_PACKAGE_NAME_Debug=vilmap.tar
+CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/vilmap.tar
 # Release configuration
 CND_PLATFORM_Release=GNU-Linux
 CND_ARTIFACT_DIR_Release=dist/Release/GNU-Linux
-CND_ARTIFACT_NAME_Release=visom
-CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux/visom
+CND_ARTIFACT_NAME_Release=vilmap
+CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux/vilmap
 CND_PACKAGE_DIR_Release=dist/Release/GNU-Linux/package
-CND_PACKAGE_NAME_Release=visom.tar
-CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux/package/visom.tar
+CND_PACKAGE_NAME_Release=vilmap.tar
+CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux/package/vilmap.tar
 #
 # include compiler specific variables
 #
