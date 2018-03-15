@@ -71,10 +71,11 @@ public:
     int nodesLeft;
     int nodeID;
 
-    inline float activation(const TNode &node, const TVector &w) {
+    inline float activation(TNode &node, const TVector &w) {
         int end = 0;
         float tempDistance = 0;
         float distance = 0;
+        node.index = 0;
         if (node.w.size() <= w.size()) {
             end = node.w.size();
             for (uint i = 0; i < end; i++) {
@@ -99,53 +100,9 @@ public:
 
                 if (tempDistance < distance) {
                     distance = tempDistance;
+                    node.index = 0;
                 }
             }
-        }
-
-        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
-
-
-        float sum = node.ds.sum();
-
-        return (sum / (sum + distance + 0.0000001));
-    }
-
-    inline float activation(const TNode &node, const TVector &w, uint *index) {
-        int end = 0;
-        float tempDistance = 0;
-        float distance = 0;
-        *index = 0;
-        if (node.w.size() <= w.size()) {
-            end = node.w.size();
-            for (uint i = 0; i < end; i++) {
-                distance += node.ds[i] * qrt((w[i] - node.w[i]));
-                if (std::isnan(w[i]) || std::isnan(distance)) {
-                    std::cout << i << " - Debug 1" << endl;
-                }
-            }
-        } else {
-
-            distance = 99999999;
-            for (uint i = 0; i <= (node.w.size() - w.size()); i += 12) {
-                tempDistance = 0;
-                for (uint j = 0; j < w.size(); j++) {
-                    //cout << i << " - " << j << " - " << tempDistance << " | ";
-                    tempDistance += node.ds[i + j] * qrt((w[j] - node.w[i + j]));
-                    if (std::isnan(w[j]) || std::isnan(tempDistance)) {
-                        std::cout << i << " - Debug 2" << endl;
-                    }
-
-                }
-
-                if (tempDistance < distance) {
-                    distance = tempDistance;
-                    *index = i;
-                }
-
-            }
-
-
         }
 
 
@@ -164,7 +121,7 @@ public:
         return a;
     }
 
-    inline float dist2(const TNode &node, const TVector &w) {
+    inline float dist2(TNode &node, const TVector &w) {
         /*float distance = 0;
 
         for (uint i = 0; i < w.size(); i++) {
@@ -175,7 +132,7 @@ public:
         return 1 / activation(node, w);
     }
 
-    inline float dist(const TNode &node, const TVector &w) {
+    inline float dist(TNode &node, const TVector &w) {
         return sqrt(dist2(node, w));
     }
 
@@ -189,7 +146,7 @@ public:
         return sqrt(distance);
     }
 
-    inline void updateNode(TNode &node, const TVector &w, TNumber e, int beginIndex) {
+    inline void updateNode(TNode &node, const TVector &w, TNumber e) {
         uint end = 0;
         if (node.w.size() < w.size()) {
             end = node.w.size();
@@ -197,8 +154,8 @@ public:
             end = w.size();
         }
         uint begin = 0;
-        if (node.w.size() > w.size() && beginIndex != 0) {
-            begin = beginIndex; //o nodo será atualizado começando na posição de maior ativação
+        if (node.w.size() > w.size() && node.index != 0) {
+            begin = node.index; //o nodo será atualizado começando na posição de maior ativação
             end = begin + w.size();
         }
         //update averages
@@ -215,15 +172,6 @@ public:
         float min = node.a.min();
         float average = node.a.mean();
         //float dsa = node.ds.mean();
-        if (std::isnan(average)) {
-            cout << "average" << endl;
-            for (int cont = 0; cont < node.a.size(); cont++) {
-                if (std::isnan(node.a[cont])) {
-                    cout << cont << endl;
-                }
-
-            }
-        }
 
         //update neuron ds weights
         for (uint i = begin; i < node.a.size(); i++) {
@@ -461,19 +409,7 @@ public:
 
         //Aumentando o vetor de distancias preenchendo com o valor maximo
         tempVector_a.fill(winner1->a.max());
-        for (int cont = 0; cont < winner1->a.size(); cont++) {
-            if (std::isnan(winner1->a[cont])) {
-                cout << cont << endl;
-            }
-
-        }
         winner1->a.concat(tempVector_a);
-        for (int cont = 0; cont < winner1->a.size(); cont++) {
-            if (std::isnan(winner1->a[cont])) {
-                cout << cont << endl;
-            }
-
-        }
     }
 
     VILMAP& updateMap(const TVector &w) {
@@ -491,8 +427,8 @@ public:
         }
 
         //Passo 6: Calcula a atividade do nó vencedor
-        uint index;
-        TNumber a = activation(*winner1, w, &index); //DS activation
+
+        TNumber a = activation(*winner1, w); //DS activation
         //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
         //e o limite de nodos não tiver sido atingido
 
@@ -508,14 +444,13 @@ public:
 
         } else if (a >= a_t) { // caso contrário
             // Atualiza o peso do vencedor
-            updateNode(*winner1, w, e_b, index);
+            updateNode(*winner1, w, e_b);
 
             //Passo 6.2: Atualiza o peso dos vizinhos
             TPNodeConnectionMap::iterator it;
             for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {
                 TNode* node = it->first;
-                activation(*node, w, &index);
-                updateNode(*node, w, e_n, index);
+                updateNode(*node, w, e_n);
             }
         }
         /*
@@ -588,11 +523,7 @@ public:
         TNumber temp = 0;
 
         TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
-        //for (int i = 0; i < w.size(); i++) {
-        //    if (std::isnan(w[i])) {
-        //        cout << w[i] << " -- ";
-        //    }
-        //}
+
         winner = (*Mesh<TNode>::meshNodeSet.begin());
 
         TPNodeSet::iterator it;
@@ -617,11 +548,7 @@ public:
         TNumber temp = 0;
 
         TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
-        //for (int i = 0; i < w.size(); i++) {
-        //    if (std::isnan(w[i])) {
-        //        cout << w[i] << " -- ";
-        //    }
-        //}
+
         winner = (*Mesh<TNode>::meshNodeSet.begin());
 
         TPNodeSet::iterator it;

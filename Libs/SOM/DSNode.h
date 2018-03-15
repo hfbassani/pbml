@@ -31,9 +31,12 @@ public:
     int at_Unknown;
     int at_Know;
     int generation;
+    //Ultimo indice onde começa a maior ativação
+    int index;
     //
     TVector a; // a começa com o valor máximo que está no vetor
     TVector ds; // relevancias começam com 0
+    
 
     DSNode(int idIn, const TVector &v) : NodeW(idIn, v) {
         ds.size(v.size());
@@ -41,6 +44,7 @@ public:
         at_Unknown = 0;
         at_Know = 0;
         generation = 0;
+        index = 0;
         a.size(v.size());
         a.fill(0);
     };
