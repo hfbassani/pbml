@@ -410,14 +410,16 @@ public:
         /** print confusion matrix **/
         MatVector<int> rowSums(confusionMatrix.rows());
         MatVector<int> colSums(confusionMatrix.cols());
+        
+        
         rowSums.fill(0);
         colSums.fill(0);
         dbgOut(0) << "cluster\\class\t|";
         for (int c = 0; c < confusionMatrix.cols(); c++)
-            dbgOut(1) << "\tcla" << groupLabels[c];
+            dbgOut(0) << "\tcla" << groupLabels[c];
         dbgOut(0) << "\t| Sum" << endl;
         for (int r = 0; r < confusionMatrix.rows(); r++) {
-            dbgOut(0) << "clu" << r << "\t\t|";
+             dbgOut(0) << "clu" << r << "\t\t|"; 
             for (int c = 0; c < confusionMatrix.cols(); c++) {
                 dbgOut(0) << "\t" << confusionMatrix[r][c];
                 rowSums[r] += confusionMatrix[r][c];
