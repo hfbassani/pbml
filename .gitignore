@@ -300,11 +300,11 @@ ENV/
 
 
 
-vilmap/output*
-vilmap/networks*
-vilmap/input
-vilmap/test*
-vilmap/Test*
+VILMAP/output*
+VILMAP/networks*
+VILMAP/input
+VILMAP/test*
+VILMAP/Test*
 
 *.arff
 *.csv
