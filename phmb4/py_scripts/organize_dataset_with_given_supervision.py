@@ -75,7 +75,7 @@ outputPath = filePath
 if outputPath.endswith("/"):
     outputPath = outputPath[:-1]
 
-outputPath += "S" + str(supervision).split(".")[1]
+outputPath += "S" + ('%.2f' % supervision).split(".")[1]
 
 if not os.path.isdir(outputPath): os.mkdir(outputPath)
 
