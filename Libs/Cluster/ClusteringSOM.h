@@ -179,10 +179,10 @@ public:
         return true;
     }
 
-    float activation(DSNode* node, MatVector<float> &w, uint *index) {
+    float activation(DSNode* node, MatVector<float> &w) {
         int end = 0;
         float tempDistance = 0;
-        *index = 0;
+        node->index = 0;
         float distance = 0;
         if (node->w.size() <= w.size()) {
             end = node->w.size();
@@ -208,12 +208,9 @@ public:
 
                 if (tempDistance < distance) {
                     distance = tempDistance;
-                    *index = i;
+                    node->index = i;
                 }
-
             }
-
-
         }
 
 
@@ -323,8 +320,8 @@ public:
             DSNode* winner = som->getWinner(sample);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
-            uint index;
-            a = activation(winner, sample, &index);
+            
+            a = activation(winner, sample);
 
             if (a >= at_min) {
                 at_know++;
@@ -461,56 +458,9 @@ public:
         Features features(12);
         MatVector<float> colOfData;
         data.getCol(0, colOfData);
-        
-        //Salva todos os protótipos da rede em um MatVector
-        DSNode* nodoNow;
-        MatVector<std::string> output_indice;
-        std::vector<int> indice;
-        MatVector<std::string> output_prototype;
-        std::string temp2;
-
-        nodoNow = som->getFirstNode();
-        for (int i = 0; i < somTam; i++) {
-
-            for (int begin = 0, end = 11, j = 0; end < nodoNow->w.size(); begin += 12, end += 12, j++) {
-                features.copy(nodoNow->w, begin, end);
-                pf.translateFeaturesPhoneme(features, phonemes);
-                if (begin == 0) {
-                    temp2 = phonemes;
-                } else {
-                    temp2 += " " + phonemes;
-                }
-
-            }
-
-            MatVector<float> relevances;
-            relevances = nodoNow->ds;
-            std::string strRelevances;
-            float average = 0, averageX2 = 0, deviation = 0;
-            for (int begin = 0, end = 11; end < relevances.size(); begin += 12, end += 12) {
-                average = 0, averageX2 = 0, deviation = 0;
-                for (int i = begin; i <= end; i++) {
-                    average += relevances[i]*(1 / 12.0);
-                    averageX2 += relevances[i] * relevances[i]*(1 / 12.0);
-                }
-                deviation = sqrt(averageX2 - (average * average));
-                strRelevances += std::to_string(average) + " +|- " + std::to_string(deviation) + "\t";
-            }
-            //P - protótipo / R - Relevancias / -A Ativacoes do nodo
-            temp2 = " -P: " + temp2 + " -R: " + strRelevances + "\n" + "-A:";
-            output_indice.append(std::to_string(nodoNow->getId()));
-            indice.insert(indice.end(), nodoNow->getId());
-            output_prototype.append(temp2);
-            temp2 = "";
-            if (i < somTam - 1) {
-                nodoNow = som->getNextNode();
-            }
-        }
 
         //Cria Matriz que vai ser impressa no arquivo colocando ao lado de cada protótipo os seus respectivos vencedores
-        MatMatrix<std::string> output_matrix;
-        output_matrix.concatCols(output_indice);
-        output_matrix.concatCols(output_prototype);
+
         for (int i = 0; i < trainingData->rows(); i++) {
             MatVector<float> sample;
             MatVector<float> sampleFilter;
@@ -531,8 +481,8 @@ public:
             DSNode* winner = som->getWinner(sampleFilter);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
-            uint index;
-            a = activation(winner, sampleFilter, &index);
+            
+            a = activation(winner, sampleFilter);
             
             if (a >= at_min) {
                 at_know++;
@@ -581,22 +531,7 @@ public:
                 }
                 nTem++;
             }
-            
-            for (int j = 0; j < winners.size(); j++) {
-                int aux = winners[j];
-                int indice = 0, atual;
-                for (int cont = 0; cont < output_matrix.rows(); cont++) {
-                    atual = atoi(output_matrix[cont][0].c_str());
-                    if (atual == aux) {
-                        indice = cont;
-                        break;
-                    }
 
-                }
-
-                output_matrix[indice][1] += "  " + temp;
-
-            }
         }
         //Salvar taxas
         activations.append(at_all);
@@ -669,8 +604,9 @@ public:
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
 
-            uint index;
-            a = activation(winner, sample, &index);
+            
+            a = activation(winner, sample);
+            uint index = winner->index;
             if (a >= at_min) {
                 at_know++;
                 winner->at_Know = winner->at_Know + 1;
