@@ -24,6 +24,7 @@
 #include "MyParameters/MyParameters.h"
 #include "OutputMetrics/OutputMetrics.h"
 #include <string>
+#include <sys/stat.h> 
 using namespace std;
 
 class OutputMetrics {
@@ -33,6 +34,7 @@ public:
     void output(VILMAP *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse, int fileNumber) {
         std::ofstream file1;
         std::string name = PATH + "metrics.txt";
+        mkdir(PATH.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH); 
         file1.open(name.c_str(), std::ios_base::app);
 
         file1 << "Params:" << endl;
@@ -96,6 +98,7 @@ public:
     void outputWithParamsFiles(VILMAP *som, int experiment, MatMatrix<int> taxaTrue, MatMatrix<int> taxaFalse, int fileNumber) {
         std::ofstream file1;
         std::string name = PATH + "metrics.txt";
+        mkdir(PATH.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH); 
         file1.open(name.c_str(), std::ios_base::app);
 
         file1 << "Params:" << endl;
