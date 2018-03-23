@@ -75,14 +75,11 @@ public:
         int end = 0;
         float tempDistance = 0;
         float distance = 0;
-        node.index = 0;
+        node.index_at = 0;
         if (node.w.size() <= w.size()) {
             end = node.w.size();
             for (uint i = 0; i < end; i++) {
                 distance += node.ds[i] * qrt((w[i] - node.w[i]));
-                if (std::isnan(w[i]) || std::isnan(distance)) {
-                    std::cout << i << " - Debug 1" << endl;
-                }
             }
         } else {
 
@@ -100,7 +97,7 @@ public:
 
                 if (tempDistance < distance) {
                     distance = tempDistance;
-                    node.index = 0;
+                    node.index_at = i;
                 }
             }
         }
@@ -146,7 +143,7 @@ public:
         return sqrt(distance);
     }
 
-    inline void updateNode(TNode &node, const TVector &w, TNumber e) {
+    inline void updateNode(TNode &node, const TVector &w, TNumber e, int index) {
         uint end = 0;
         if (node.w.size() < w.size()) {
             end = node.w.size();
@@ -154,8 +151,8 @@ public:
             end = w.size();
         }
         uint begin = 0;
-        if (node.w.size() > w.size() && node.index != 0) {
-            begin = node.index; //o nodo será atualizado começando na posição de maior ativação
+        if (node.w.size() > w.size() && index != 0) {
+            begin = index; //o nodo será atualizado começando na posição de maior ativação
             end = begin + w.size();
         }
         //update averages
@@ -375,7 +372,7 @@ public:
     }
 
     inline SOM& trainning(int N = 1) {
-        
+
         for (uint l = 0; l < data.rows(); l++) {
             TVector v;
             for (uint c = 0; c < data.cols(); c++) {
@@ -413,16 +410,24 @@ public:
     }
 
     VILMAP& updateMap(const TVector &w) {
-
+        
         using namespace std;
         TNode *winner1 = 0;
-
+        
         //Passo 3 : encontra o nó vencedor
         winner1 = getWinner(w); //winner
         winner1->wins++;
-
+        
+        if(winner1->w.size() == 1){
+            //eraseNode(*winner1)
+            createFirstNode(w.size());
+            winner1 = getWinner(w); //winner
+            winner1->wins++;
+        }
+        
         //Teste de dimensão
-        if (winner1->w.size() < w.size() && winner1->w.size() > 1) {
+
+        if (winner1->w.size() < w.size()) {
             updateNodeDimension(winner1, w);
         }
 
@@ -441,16 +446,25 @@ public:
             nodeNew->generation = nodeNew->w.size();
             //Conecta o nodo
             updateConnections(nodeNew);
+            
 
         } else if (a >= a_t) { // caso contrário
             // Atualiza o peso do vencedor
-            updateNode(*winner1, w, e_b);
+            if(winner1->index_at =! 0){
+                        winner1->index_at;
+            }
+            updateNode(*winner1, w, e_b, winner1->index_at);
 
             //Passo 6.2: Atualiza o peso dos vizinhos
             TPNodeConnectionMap::iterator it;
             for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {
                 TNode* node = it->first;
-                updateNode(*node, w, e_n);
+                if (false) {//Topologia 1
+                    updateNode(*node, w, e_n, node->index_at);
+                } else {//Topologia 2
+                    updateNode(*node, w, e_n, winner1->index_at);
+                }
+                
             }
         }
         /*
@@ -653,6 +667,14 @@ public:
         nodesCounter = 1;
         nodeID = 0;
 
+        destroyMesh();
+        TVector v(dimw);
+        v.random();
+        TVector wNew(v);
+        createNode(nodeID++, wNew);
+    }
+    
+    void createFirstNode(int dimw) {
         destroyMesh();
         TVector v(dimw);
         v.random();

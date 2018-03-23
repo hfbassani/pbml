@@ -182,7 +182,7 @@ public:
     float activation(DSNode* node, MatVector<float> &w) {
         int end = 0;
         float tempDistance = 0;
-        node->index = 0;
+        node->index_at = 0;
         float distance = 0;
         if (node->w.size() <= w.size()) {
             end = node->w.size();
@@ -208,7 +208,7 @@ public:
 
                 if (tempDistance < distance) {
                     distance = tempDistance;
-                    node->index = i;
+                    node->index_at = i;
                 }
             }
         }
@@ -606,7 +606,7 @@ public:
 
             
             a = activation(winner, sample);
-            uint index = winner->index;
+            uint index = winner->index_at;
             if (a >= at_min) {
                 at_know++;
                 winner->at_Know = winner->at_Know + 1;

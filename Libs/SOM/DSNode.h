@@ -32,7 +32,7 @@ public:
     int at_Know;
     int generation;
     //Ultimo indice onde começa a maior ativação
-    int index;
+    int index_at;
     //
     TVector a; // a começa com o valor máximo que está no vetor
     TVector ds; // relevancias começam com 0
@@ -44,7 +44,7 @@ public:
         at_Unknown = 0;
         at_Know = 0;
         generation = 0;
-        index = 0;
+        index_at = 0;
         a.size(v.size());
         a.fill(0);
     };
