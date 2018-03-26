@@ -301,14 +301,7 @@ public:
         for (uint l = 0; l < data.cols(); l++)
                 v[l] = data[row][l];
         
-        int curr_class = noCls;
-        for (std::map<int, int>::iterator it = groupLabels.begin(); it != groupLabels.end(); it++) {
-            if (it->second == groups[row]) {
-                curr_class = it->second;
-            }
-        }
-        
-        chooseTrainingType(v, curr_class);
+        chooseTrainingType(v, groups[row]);
         
         return *this;
     }
@@ -457,7 +450,7 @@ public:
         if (step >= age_wins) {
             
             removeLoosers();
-            updateNodeClasses();
+//            updateNodeClasses();
             resetWins();
             updateAllConnections();
             
@@ -532,8 +525,8 @@ public:
                     
                 } else if (winner1->act >= a_t){
                     winner1->wins++;
-//                    winner1->cls = cls;
-//                    updateConnections(winner1);
+                    winner1->cls = cls;
+                    updateConnections(winner1);
                     updateNode(*winner1, w, e_b_sup);
 
                     updateClassesMapping(winner1, cls);
@@ -675,7 +668,8 @@ public:
             // empurrar o primeiro winner que tem classe diferente da amostra
             updateNode(*winner1, w, -push_rate);
             
-            //newWinner->cls = cls;
+//            newWinner->cls = cls;
+//            updateConnections(newWinner);
             newWinner->wins++;
             
             updateClassesMapping(newWinner, cls);
@@ -694,15 +688,16 @@ public:
         } else if (meshNodeSet.size() < maxNodeNumber) {
             
             // cria um novo nodo na posição da amostra
-            //createNodeMap(w, cls);
+//            createNodeMap(w, cls);
             
             TVector wNew(winner1->w);
             TNode *nodeNew = createNodeMap(wNew, cls);
             
-//            TVector aNew(winner1->a);
-//            nodeNew->a = aNew;
-//            TVector dsNew(winner1->ds);
-//            nodeNew->ds = dsNew;   
+            TVector aNew(winner1->a);
+            nodeNew->a = aNew;
+            
+            TVector dsNew(winner1->ds);
+            nodeNew->ds = dsNew;   
             
             updateNode(*nodeNew, w, e_b_sup);
 

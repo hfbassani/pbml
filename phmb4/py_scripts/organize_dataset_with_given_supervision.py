@@ -11,6 +11,8 @@ def check_directory(filePath):
     if os.path.isdir(filePath):
         if not filePath.endswith("/"):
             return filePath + "/"
+        else:
+        	return filePath
     else:
         sys.exit("Invalid directory")
 
@@ -18,15 +20,14 @@ def get_type(type):
     if type == "numeric":
         return "real"
 
-def create_ordered_arff(arffFilePath, filePath, outputPath, supervision_r):
+def create_arff(arffFilePath, filePath, outputPath, supervision_r):
 
     data, meta = arff.loadarff(open(join(filePath, arffFilePath), 'rb'))
     data = pd.DataFrame(data)
 
-
-
     saved_labels = data['class'].unique()
     labels = data['class']
+
     while True:
         rng = np.random.RandomState(random.randint(1, 20000))
         random_unlabeled_points = rng.rand(len(labels)) > supervision_r
@@ -62,23 +63,22 @@ def write_file(arffFilePath, data, meta, outputPath, saved_labels):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Input Directory', required=True)
-parser.add_argument('-s', help='Percentage of Supervision', required=True, type=float)
+parser.add_argument('-s', help='Percentage of Supervision', nargs='+', required=True, type=float)
 args = parser.parse_args()
 
 filePath = args.i
-supervision = args.s
-
-
 filePath = check_directory(filePath)
 
-outputPath = filePath
-if outputPath.endswith("/"):
-    outputPath = outputPath[:-1]
+for supervision in args.s:
 
-outputPath += "S" + ('%.2f' % supervision).split(".")[1]
+	outputPath = filePath
+	if outputPath.endswith("/"):
+	    outputPath = outputPath[:-1]
 
-if not os.path.isdir(outputPath): os.mkdir(outputPath)
+	outputPath += "S" + ('%.2f' % supervision).split(".")[1]
 
-for file in os.listdir(filePath):
-    if file.endswith(".arff"):
-        create_ordered_arff(arffFilePath=file, filePath=filePath, outputPath=outputPath, supervision_r=supervision)
+	if not os.path.isdir(outputPath): os.mkdir(outputPath)
+
+	for file in os.listdir(filePath):
+	    if file.endswith(".arff"):
+	        create_arff(arffFilePath=file, filePath=filePath, outputPath=outputPath, supervision_r=supervision)

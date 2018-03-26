@@ -14,7 +14,7 @@ def analyse (folder, rows, plot, save):
         headerRows = 9
 
     files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.')]
-    files = sorted(files, key = lambda x: int(x[:-4].split("l")[1]))
+    files = sorted(files, key = lambda x: int(x[:-4].split("-l")[1]))
 
     datasets = []
     folds = []
@@ -200,7 +200,7 @@ def plot_graph(means, stds, datasets, plot, save):
         plt.legend(loc='best')
 
         if save:
-            plt.savefig("{0}-wcci.pdf".format(datasets[i]), format="pdf")
+            plt.savefig("{0}-wcci.png".format(datasets[i]))
 
         if plot:
             plt.show()
