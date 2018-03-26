@@ -476,6 +476,99 @@ public:
         return true;
     }
     
+    static bool readArffClass(const std::string filename, MatMatrix<float> &data, std::map<int, int> &groupLabels, std::vector<int> &groups) {
+
+        std::ifstream file(filename.c_str());
+
+        if (!file.is_open()) {
+            dbgOut(0) << "Could not open file:" << filename << endl;
+            return false;
+        }
+
+        float d;
+        int nColumns = -1;
+        int group;
+        std::string line;
+        int lineNumber = 0;
+
+        do {
+            lineNumber++;
+            getline(file, line, '\n');
+           
+            if (file.eof()) break;
+            
+            if (line.size() < 1 || line[0] == '@')
+                continue;
+
+            if (!hasDigits(line))
+                continue;
+            
+            if (line[line.size()-1] == '\r')
+                line = line.substr(0, line.size()-1);
+
+            std::stringstream parser(line);
+            MatVector<float> row;
+            float temp;
+            parser >> d;
+            while (true) {
+                parser >> temp;
+
+                if (parser.fail()) {//try again, may be a separator
+                    parser.clear();
+                    char ch;
+                    parser >> ch;
+                    parser >> temp;
+                }
+
+                if (parser.eof()) {//Read group
+                    row.append(d);
+                    group = temp;
+                    break;
+                }
+                
+                if (!parser.bad()) {
+                    row.append(d);
+                    d = temp;
+                }
+            }
+            
+            dbgOut(3) << row.toString() << "\t" << group << endl;
+
+            if (nColumns == -1)
+                nColumns = row.size();
+            else if (nColumns != row.size()) {
+                file.close();
+                dbgOut(0) << "Wrong number of columns in file " << filename << " at line: " << lineNumber << endl;
+                dbgOut(1) << nColumns << "!=" << row.size() << endl << row.toString() << endl;
+                return false;
+            }
+
+            
+            bool itemFound = false;
+            int itemIndex;
+            for (std::map<int, int>::iterator it = groupLabels.begin(); it != groupLabels.end(); it++) {
+                if (it->second == group) {
+                    itemFound = true;
+                    itemIndex = it->first;
+                    break;
+                }
+            }
+
+            if (!itemFound) {
+                itemIndex = groupLabels.size();
+                groupLabels[itemIndex] = group;
+            }
+            
+            groups.push_back(group);
+
+            data.concatRows(row);
+        } while (true);
+                
+        file.close();
+
+        return true;
+    }
+    
     static bool readArff(const std::string filename, MatMatrix<float> &data, std::map<int, int> &groupLabels, std::vector<int> &groups) {
 
         std::ifstream file(filename.c_str());
