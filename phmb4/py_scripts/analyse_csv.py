@@ -162,6 +162,27 @@ def plot_graph(means, stds, datasets, plot, save, extension):
     label_spreading_100 = [0.8114, 0.7296, 0.6465, 0.6618, 0.9941, 0.8812, 0.9451]
     label_spreading_100err = [0.0264, 0.0295, 0.0641, 0.0407, 0.0013, 0.0594, 0.0183]
 
+    mlp_1 = [0.6953, 0.7040, 0.4453, 0.6116, 0.1900, 0.2276]#[0.6953, 0.7040, 0.4453, 0.6116, 0.8159, 0.1900, 0.2276]
+    mlp_1_err = [0.2038, 0.0376, 0.0737, 0.0657, 0.0704, 0.0228]#[0.2038, 0.0376, 0.0737, 0.0657, 0.0412, 0.0704, 0.0228]
+
+    mlp_5 = [0.7912, 0.7522, 0.5376, 0.6667, 0.5545, 0.3650]#[0.7912, 0.7522, 0.5376, 0.6667, 0.9388, 0.5545, 0.3650]
+    mlp_5_err = [0.0681, 0.0199, 0.0633, 0.0503, 0.0932, 0.0308]# [0.0681, 0.0199, 0.0633, 0.0503, 0.0093, 0.0932, 0.0308]
+
+    mlp_10 = [0.8081, 0.7721, 0.6418, 0.7024, 0.6688, 0.4545]#[0.8081, 0.7721, 0.6418, 0.7024, 0.9723, 0.6688, 0.4545]
+    mlp_10_err = [0.0485, 0.0212, 0.0546, 0.0488, 0.1125, 0.0406]#[0.0485, 0.0212, 0.0546, 0.0488, 0.1125, 0.0406]
+
+    mlp_25 = [0.8047, 0.7747, 0.6651, 0.7401, 0.7854, 0.6542]#[0.8047, 0.7747, 0.6651, 0.7401, 0.9830, 0.7854, 0.6542]
+    mlp_25_err = [0.0684, 0.0248, 0.0498, 0.0397, 0.0391, 0.0200]#[0.0684, 0.0248, 0.0498, 0.0397, 0.0027, 0.0391, 0.0200]
+
+    mlp_50 = [0.8300, 0.7873, 0.7166, 0.7478, 0.8708, 0.7906]#[0.8300, 0.7873, 0.7166, 0.7478, 0.9898, 0.8708, 0.7906]
+    mlp_50_err = [0.0301, 0.0158, 0.0392, 0.0304, 0.0544, 0.0293]#[0.0301, 0.0158, 0.0392, 0.0304, 0.0021, 0.0544, 0.0293]
+
+    mlp_75 = [0.8434, 0.7895, 0.7368, 0.7594, 0.9187, 0.8465]#[0.8434, 0.7895, 0.7368, 0.7594, 0.9920, 0.9187, 0.8465]
+    mlp_75_err = [0.0355, 0.0210, 0.0208, 0.0292, 0.0407, 0.0371]#[0.0355, 0.0210, 0.0208, 0.0292, 0.0014, 0.0407, 0.0371]
+
+    mlp_100 = [0.8434, 0.7895, 0.7368, 0.7594, 0.9187, 0.8465]#[0.8434, 0.7895, 0.7368, 0.7594, 0.9920, 0.9187, 0.8465]
+    mlp_100_err = [0.0355, 0.0210, 0.0208, 0.0292,  0.0407, 0.0371]#[0.0355, 0.0210, 0.0208, 0.0292, 0.0014, 0.0407, 0.0371]
+
     percentage_values = np.linspace(1, 100, num=7)
     percentage_labels = ['1%', '5%', '10%', '25%', '50%', '75%', '100%']
 
@@ -180,6 +201,10 @@ def plot_graph(means, stds, datasets, plot, save, extension):
         #                            label_spreading_25err[i], label_spreading_50err[i], label_spreading_75err[i],
         #                            label_spreading_100err[i]]
 
+        current_values_mlp = [mlp_1[i], mlp_5[i], mlp_10[i], mlp_25[i], mlp_50[i], mlp_75[i], mlp_100[i]]
+        current_values_mlp_err = [mlp_1_err[i], mlp_5_err[i], mlp_10_err[i], mlp_25_err[i],
+                                  mlp_50_err[i], mlp_75_err[i], mlp_100_err[i]]
+
         fig, ax = plt.subplots()
         ax.yaxis.grid()
         ax.set_ylim([0, 1])
@@ -192,6 +217,8 @@ def plot_graph(means, stds, datasets, plot, save, extension):
 
         plt.errorbar(percentage_values, plot_means[i], plot_stds[i], label='SS-SOM', linestyle='-',
                      marker='o', clip_on=False, markeredgewidth=2, capsize=5)
+        plt.errorbar(percentage_values, current_values_mlp, current_values_mlp_err, label='MLP',
+                     linestyle='-', marker='D', clip_on=False, markeredgewidth=2, capsize=5)
         # plt.errorbar(percentage_values, current_values_spre, current_values_spre_err, label='Label Spreading',
         #              linestyle='-', marker='D', clip_on=False, markeredgewidth=2, capsize=5)
         # plt.errorbar(percentage_values, current_values_prop, current_values_prop_err, label='Label Propagation',
