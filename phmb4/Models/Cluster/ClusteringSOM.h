@@ -1108,6 +1108,22 @@ public:
         return -1;
     }
     
+    bool readFile(const std::string &filename, bool normalize) {
+
+        if (trainingData == NULL && !allocated) {
+            trainingData = new MatMatrix<float>();
+            allocated = true;
+        }
+
+        if (ArffData::readArffClass(filename, *trainingData, groupLabels, groups)) {
+            if (normalize) {
+                ArffData::rescaleCols01(*trainingData);
+            }
+            return true;
+        }
+        return false;
+    }
+    
     bool writeClusterResults(const std::string &filename) {
         std::ofstream file;
         file.open(filename.c_str());

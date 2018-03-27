@@ -200,7 +200,7 @@ def plot_graph(means, stds, datasets, plot, save):
         plt.legend(loc='best')
 
         if save:
-            plt.savefig("{0}-wcci.pdf".format(datasets[i]), format="pdf")
+            plt.savefig("{0}-wcci.png".format(datasets[i]))
 
         if plot:
             plt.show()
