@@ -47,7 +47,10 @@ def todo (folder, paramsFolder, numDatasets, output, supervision_rate):
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
-    outputFile = open("sup_training/svm_mlp{0}-l{1}.results".format(output, ('%.2f' % (supervision_rate)).split(".")[1]), 'w+')
+    if supervision_rate == 1.0:
+        outputFile = open("sup_training/svm{0}-l100.results".format(output), 'w+')
+    else:
+        outputFile = open("sup_training/svm{0}-l{1}.results".format(output, ('%.2f' % (supervision_rate)).split(".")[1]), 'w+')
 
     arffFiles = []
     svm_acc = []
@@ -150,11 +153,16 @@ def writeMeans (accs, numDatasets, arffFiles, outputFile, title):
         outputFile.write("\n")
 
     outputFile.write("Mean (std)\t")
+    stds = "\t"
     for i in range(0, len(accs), nRow):
         m_means = []
         for j in range(nRow):
             m_means.append(np.mean(accs[j + i]))
-        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
+        outputFile.write("{0:.4f}\t".format(np.mean(m_means)))
+        stds += "{1:.4f}\t".format(np.std(m_means, ddof=1))
+
+    outputFile.write("\n")
+    outputFile.write(stds)
 
     outputFile.write("\n\n")
 
@@ -168,11 +176,16 @@ def writeBests (accs, numDatasets, arffFiles, outputFile, title):
         outputFile.write("\n")
 
     outputFile.write("Mean (std)\t")
+    stds = "\t"
     for i in range(0, len(accs), nRow):
         m_means = []
         for j in range(nRow):
             m_means.append(np.amax(accs[j + i]))
         outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
+        stds += "{1:.4f}\t".format(np.std(m_means, ddof=1))
+
+    outputFile.write("\n")
+    outputFile.write(stds)
 
     outputFile.write("\n\n")
 

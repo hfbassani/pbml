@@ -34,7 +34,10 @@ def todo (folder, paramsFolder, numDatasets, output, supervision):
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
-    outputFile = open("semi{0}-l{1}.results".format(output, supervision), 'w+')
+    if supervision == 1.0:
+        outputFile = open("semi{0}-l100.results".format(output), 'w+')
+    else:
+        outputFile = open("semi{0}-l{1}.results".format(output, ('%.2f' % (supervision)).split(".")[1]), 'w+')
 
     arffFiles = []
     spreading_acc = []
@@ -54,6 +57,14 @@ def todo (folder, paramsFolder, numDatasets, output, supervision):
             train_Y = np.array(train_Y)
 
             testFile = file.replace("train_", "test_")
+            testFile = testFile.replace("sup_", "")
+
+            if not testFolder.endswith("Test") and not testFolder.endswith("Test/"):
+                if testFolder.endswith("/"):
+                    testFolder = testFolder[:-4]
+                else:
+                    testFolder = testFolder[:-3]
+
             test_X, meta_testX = arff.loadarff(open(join(testFolder, testFile), 'rb'))
             test_X = pd.DataFrame(test_X)
             test_Y = test_X['class']
