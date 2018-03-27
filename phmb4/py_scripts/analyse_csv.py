@@ -8,7 +8,7 @@ from os.path import isfile, join
 
 image_path = "plots/"
 
-def analyse (folder, rows, plot, save):
+def analyse (folder, rows, plot, save, extension):
     headerRows = rows
     if rows == None:
         headerRows = 9
@@ -111,7 +111,7 @@ def analyse (folder, rows, plot, save):
         plot_means.append(means_max_values)
         plot_stds.append(std_max_values)
 
-    plot_graph(plot_means, plot_stds, datasets, plot, save)
+    plot_graph(plot_means, plot_stds, datasets, plot, save, extension)
 
     if folder.endswith("/"):
         folder = folder[:-1]
@@ -119,7 +119,7 @@ def analyse (folder, rows, plot, save):
     outputFile = open(join(folder + ".csv"), "w+")
     outputFile.write(line)
 
-def plot_graph(means, stds, datasets, plot, save):
+def plot_graph(means, stds, datasets, plot, save, extension):
     label_prop_1 = [0.0455, 0.0074, 0.0125, 0.0068, 0.0101, 0.0500, 0.0091]
     label_prop_1err = [0.0107, 0.0050, 0.0085, 0.0058, 0.0015, 0.0130, 0.0055]
 
@@ -200,7 +200,7 @@ def plot_graph(means, stds, datasets, plot, save):
         plt.legend(loc='best')
 
         if save:
-            plt.savefig("{0}-wcci.png".format(datasets[i]))
+            plt.savefig("{0}-wcci.{1}".format(datasets[i], extension))
 
         if plot:
             plt.show()
@@ -214,11 +214,13 @@ parser.add_argument('-i', help='Directory Path', required=True)
 parser.add_argument('-r', help='Number of Heade Rows', required=False, type=int)
 parser.add_argument('-p', help='Plot Graphs', action='store_true', required=False)
 parser.add_argument('-s', help='Save Graphs', action='store_true', required=False)
+parser.add_argument('-e', help='Extension', required=True, type=str)
 args = parser.parse_args()
 
 folder = args.i
 rows = args.r
 plot_flag = args.p
 save_flag = args.s
+extension = args.e
 
-analyse(folder, rows, plot_flag, save_flag)
+analyse(folder, rows, plot_flag, save_flag, extension)
