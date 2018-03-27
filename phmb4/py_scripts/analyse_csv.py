@@ -14,7 +14,7 @@ def analyse (folder, rows, plot, save):
         headerRows = 9
 
     files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.')]
-    files = sorted(files, key = lambda x: int(x[:-4].split("l")[1]))
+    files = sorted(files, key = lambda x: int(x[:-4].split("-l")[1]))
 
     datasets = []
     folds = []
