@@ -4,3 +4,4 @@ python supervised_algorithms.py  -i ../../Datasets/Realdata_3Times3FoldsExp_Trai
 python supervised_algorithms.py  -i ../../Datasets/Realdata_3Times3FoldsExp_TrainS25 -p ../Parameters/SVM_MLP_0 -n 7 -o 3Times3FoldsExp_Train -s 0.25
 python supervised_algorithms.py  -i ../../Datasets/Realdata_3Times3FoldsExp_TrainS50 -p ../Parameters/SVM_MLP_0 -n 7 -o 3Times3FoldsExp_Train -s 0.50
 python supervised_algorithms.py  -i ../../Datasets/Realdata_3Times3FoldsExp_TrainS75 -p ../Parameters/SVM_MLP_0 -n 7 -o 3Times3FoldsExp_Train -s 0.75
+python supervised_algorithms.py  -i ../../Datasets/Realdata_3Times3FoldsExp_Train -p ../Parameters/SVM_MLP_0 -n 7 -o 3Times3FoldsExp_Train -s 1.0
