@@ -310,4 +310,5 @@ VILMAP/Test*
 *.csv
 *.true
 *.results
-phmb4/py_scripts/plots/
+*.png
+*.pdf
