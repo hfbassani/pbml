@@ -5,12 +5,13 @@ from sklearn import preprocessing
 import pandas as pd
 import numpy as np
 from scipy.io import arff
+import os
 from os import listdir
 from os.path import isfile, join
 import random
 
-def run_LabelPropagation(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20, n_neighbors=7, max_iter=1000):
 
+def run_LabelPropagation(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20, n_neighbors=7, max_iter=1000):
     clf = semi_supervised.LabelPropagation(kernel=kernel, gamma=gamma, n_neighbors=n_neighbors, max_iter=max_iter)
 
     clf.fit(train_X, train_Y)
@@ -19,9 +20,10 @@ def run_LabelPropagation(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=2
 
     return accuracy
 
-def run_LabelSpreading(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20, n_neighbors=7, alpha=0.2, max_iter=30):
 
-    clf = semi_supervised.LabelSpreading(kernel=kernel, gamma=gamma, n_neighbors=n_neighbors, alpha=alpha, max_iter=max_iter)
+def run_LabelSpreading(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20, n_neighbors=7, alpha=0.2, max_iter=30):
+    clf = semi_supervised.LabelSpreading(kernel=kernel, gamma=gamma, n_neighbors=n_neighbors, alpha=alpha,
+                                         max_iter=max_iter)
 
     clf.fit(train_X, train_Y)
 
@@ -29,22 +31,30 @@ def run_LabelSpreading(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20,
 
     return accuracy
 
-def todo (folder, paramsFolder, numDatasets, output, supervision):
+
+def run(folder, paramsFolder, output, supervision):
     testFolder = folder.replace("_Train", "_Test")
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
-    if supervision == 1.0:
-        outputFile = open("semi{0}-l100.results".format(output), 'w+')
-    else:
-        outputFile = open("semi{0}-l{1}.results".format(output, ('%.2f' % (supervision)).split(".")[1]), 'w+')
-
-    arffFiles = []
     spreading_acc = []
+
+    max_values_spr = []
+    index_set_spr = []
+    mean_value_spr = []
+    std_value_spr = []
+
     propagation_acc = []
+
+    max_values_prop = []
+    index_set_prop = []
+    mean_value_prop = []
+    std_value_prop = []
+
+    datasetNames = []
+
     for file in files:
-        if ".arff" in file:
-            arffFiles.append(file)
+        if file.endswith(".arff") and "sup_" not in file:
             spreading_acc.append([])
             propagation_acc.append([])
 
@@ -111,59 +121,62 @@ def todo (folder, paramsFolder, numDatasets, output, supervision):
                 random_unlabeled_points = rng.rand(len(train_Y)) > supervision
                 labels_prop = np.copy(train_Y)
                 labels_prop[random_unlabeled_points] = str(-1)
-                propagation_acc[len(propagation_acc) - 1].append(run_LabelPropagation(train_X, labels_prop, test_X, test_Y,
-                                                                                      kernel=kernel_propagation,
-                                                                                      gamma=gamma_propagation,
-                                                                                      n_neighbors=n_neighbors_propagation,
-                                                                                      max_iter=max_iter_propagation))
+                propagation_acc[len(propagation_acc) - 1].append(
+                    run_LabelPropagation(train_X, labels_prop, test_X, test_Y,
+                                         kernel=kernel_propagation,
+                                         gamma=gamma_propagation,
+                                         n_neighbors=n_neighbors_propagation,
+                                         max_iter=max_iter_propagation))
 
-            outputText = "{0}\nSpreading: {1}({2})[{3}]\nPropagation: {4}({5})[{6}]\n\n".format(file,
-                                                                                                np.mean(spreading_acc[len(spreading_acc) - 1]), np.std(spreading_acc[len(spreading_acc) - 1], ddof=1), np.argmax(spreading_acc[len(spreading_acc) - 1]),
-                                                                                                np.mean(propagation_acc[len(propagation_acc) - 1]), np.std(propagation_acc[len(propagation_acc) - 1], ddof=1), np.argmax(propagation_acc[len(propagation_acc) - 1]))
+            max_values_spr.append(np.nanmax(spreading_acc[len(spreading_acc) - 1]))
+            index_set_spr.append(np.nanargmax(spreading_acc[len(spreading_acc) - 1]))
+
+            mean_value_spr.append(np.nanmean(spreading_acc[len(spreading_acc) - 1]))
+            std_value_spr.append(np.nanstd(spreading_acc[len(spreading_acc) - 1], ddof=1))
+
+            max_values_prop.append(np.nanmax(propagation_acc[len(propagation_acc) - 1]))
+            index_set_prop.append(np.nanargmax(propagation_acc[len(propagation_acc) - 1]))
+
+            mean_value_prop.append(np.nanmean(propagation_acc[len(propagation_acc) - 1]))
+            std_value_prop.append(np.nanstd(propagation_acc[len(propagation_acc) - 1], ddof=1))
+
+            datasetNames.append(file[:-5])
+            outputText = "{0}\nPropagation: {1}({2})[{3}]\nSpreading: {4}({5})[{6}]\n\n".format(file,
+                                                                                                np.nanmean(propagation_acc[len(propagation_acc) - 1]),
+                                                                                                np.nanstd(propagation_acc[len(propagation_acc) - 1], ddof=1),
+                                                                                                np.nanargmax(propagation_acc[len(propagation_acc) - 1]),
+                                                                                                np.nanmean(spreading_acc[len(spreading_acc) - 1]),
+                                                                                                np.nanstd(spreading_acc[len(spreading_acc) - 1], ddof=1),
+                                                                                                np.nanargmax(spreading_acc[len(spreading_acc) - 1]))
             print outputText
-            outputFile.write(outputText)
 
-    writeMeans(spreading_acc, numDatasets, arffFiles, outputFile, "Spreading")
-    writeMeans(propagation_acc, numDatasets, arffFiles, outputFile, "Propagation")
+    writeResults(output, supervision, "label-propagation", propagation_acc, max_values_prop, index_set_prop,
+                 mean_value_prop, std_value_prop, datasetNames)
+    writeResults(output, supervision, "label-spreading", spreading_acc, max_values_spr, index_set_spr, mean_value_spr,
+                 std_value_spr, datasetNames)
 
-    writeBests(propagation_acc, numDatasets, arffFiles, outputFile, "Propagation")
-    writeBests(spreading_acc, numDatasets, arffFiles, outputFile, "Spreading")
+def writeResults(outputPath, supervision, method, accs, max_values, index_set, mean_value, std_value,
+                 datasetNames):
+    if supervision == 1.0:
+        outputFile = open(join(outputPath, "{0}-l100.csv".format(method)), 'w+')
+    else:
+        outputFile = open(
+            join(outputPath, "{0}-l{1}.csv".format(method, ('%.2f' % (supervision)).split(".")[1])), 'w+')
 
-def writeMeans(accs, numDatasets, arffFiles, outputFile, title):
-    nRow = len(accs) / numDatasets
-    outputFile.write("----> {0} Means (stds)\n".format(title))
-    for i in range(nRow):
-        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
-        for j in range(0, len(accs), nRow):
-            outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(accs[j + i]), np.std(accs[j + i], ddof=1)))
-        outputFile.write("\n")
+    line = "max_value," + ",".join(map(str, max_values)) + "\n"
+    line += "index_set," + ",".join(map(str, index_set)) + "\n"
+    line += "mean_value," + ",".join(map(str, mean_value)) + "\n"
+    line += "std_value," + ",".join(map(str, std_value)) + "\n\n"
 
-    outputFile.write("Mean (std)\t")
-    for i in range(0, len(accs), nRow):
-        m_means = []
-        for j in range(nRow):
-            m_means.append(np.mean(accs[j + i]))
-        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
+    line += "experiment," + ",".join(datasetNames) + "\n"
 
-    outputFile.write("\n\n")
+    for i in range(len(accs[0])):
+        line += str(i)
+        for j in range(len(datasetNames)):
+            line += "," + str(accs[j][i])
+        line += "\n"
 
-def writeBests(accs, numDatasets, arffFiles, outputFile, title):
-    nRow = len(accs) / numDatasets
-    outputFile.write("----> {0} Bests\n".format(title))
-    for i in range(nRow):
-        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
-        for j in range(0, len(accs), nRow):
-            outputFile.write("{0:.4f}\t\t\t".format(np.amax(accs[j + i])))
-        outputFile.write("\n")
-
-    outputFile.write("Mean (std)\t")
-    for i in range(0, len(accs), nRow):
-        m_means = []
-        for j in range(nRow):
-            m_means.append(np.amax(accs[j + i]))
-        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
-
-    outputFile.write("\n\n")
+    outputFile.write(line)
 
 def getKernel(kernel):
     if kernel == 1:
@@ -174,15 +187,15 @@ def getKernel(kernel):
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Train Data Directory', required=True)
 parser.add_argument('-p', help='Parameters', required=True)
-parser.add_argument('-n', help='Number of Datasets', required=True, type=int)
 parser.add_argument('-o', help='Output', required=True)
 parser.add_argument('-s', help='Percentage of Supervision', required=True, type=float)
 args = parser.parse_args()
 
 folder = args.i
 params = args.p
-n = args.n
 output = args.o
 supervision = args.s
 
-todo(folder, params, n, output, supervision)
+if not os.path.isdir(output): os.mkdir(output)
+
+run(folder, params, output, supervision)
