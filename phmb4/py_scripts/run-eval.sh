@@ -1,7 +1,7 @@
-python accuracy_calc.py -t ../../Datasets/Realdata_3Times3Folds_Test -i ../../../../Experiments/test-train/hyb-eval-l01-orig -r 500 -o hyb-eval-orig-l01 -p ../Parameters/Wide_0 -n ../Parameters/parametersNameHybrid
-python accuracy_calc.py -t ../../Datasets/Realdata_3Times3Folds_Test -i ../../../../Experiments/test-train/hyb-eval-l05-orig -r 500 -o hyb-eval-orig-l05 -p ../Parameters/Wide_0 -n ../Parameters/parametersNameHybrid
-python accuracy_calc.py -t ../../Datasets/Realdata_3Times3Folds_Test -i ../../../../Experiments/test-train/hyb-eval-l10-orig -r 500 -o hyb-eval-orig-l10 -p ../Parameters/Wide_0 -n ../Parameters/parametersNameHybrid
-python accuracy_calc.py -t ../../Datasets/Realdata_3Times3Folds_Test -i ../../../../Experiments/test-train/hyb-eval-l25-orig -r 500 -o hyb-eval-orig-l25 -p ../Parameters/Wide_0 -n ../Parameters/parametersNameHybrid
-python accuracy_calc.py -t ../../Datasets/Realdata_3Times3Folds_Test -i ../../../../Experiments/test-train/hyb-eval-l50-orig -r 500 -o hyb-eval-orig-l50 -p ../Parameters/Wide_0 -n ../Parameters/parametersNameHybrid
-python accuracy_calc.py -t ../../Datasets/Realdata_3Times3Folds_Test -i ../../../../Experiments/test-train/hyb-eval-l75-orig -r 500 -o hyb-eval-orig-l75 -p ../Parameters/Wide_0 -n ../Parameters/parametersNameHybrid
-python accuracy_calc.py -t ../../Datasets/Realdata_3Times3Folds_Test -i ../../../../Experiments/test-train/hyb-eval-l100-orig -r 500 -o hyb-eval-orig-l100 -p ../Parameters/Wide_0 -n ../Parameters/parametersNameHybrid
+python accuracy_calc.py -t ../../Datasets/Realdata_3Times3FoldsExp_Test -i ../Models/SSSOM/pray4-l01 -r 500 -o pray4-l01 -p ../Parameters/pray4_0 -n ../Parameters/parametersNameHybrid
+python accuracy_calc.py -t ../../Datasets/Realdata_3Times3FoldsExp_Test -i ../Models/SSSOM/pray4-l05 -r 500 -o pray4-l05 -p ../Parameters/pray4_0 -n ../Parameters/parametersNameHybrid
+python accuracy_calc.py -t ../../Datasets/Realdata_3Times3FoldsExp_Test -i ../Models/SSSOM/pray4-l10 -r 500 -o pray4-l10 -p ../Parameters/pray4_0 -n ../Parameters/parametersNameHybrid
+python accuracy_calc.py -t ../../Datasets/Realdata_3Times3FoldsExp_Test -i ../Models/SSSOM/pray4-l25 -r 500 -o pray4-l25 -p ../Parameters/pray4_0 -n ../Parameters/parametersNameHybrid
+python accuracy_calc.py -t ../../Datasets/Realdata_3Times3FoldsExp_Test -i ../Models/SSSOM/pray4-l50 -r 500 -o pray4-l50 -p ../Parameters/pray4_0 -n ../Parameters/parametersNameHybrid
+python accuracy_calc.py -t ../../Datasets/Realdata_3Times3FoldsExp_Test -i ../Models/SSSOM/pray4-l75 -r 500 -o pray4-l75 -p ../Parameters/pray4_0 -n ../Parameters/parametersNameHybrid
+python accuracy_calc.py -t ../../Datasets/Realdata_3Times3FoldsExp_Test -i ../Models/SSSOM/pray4-l100 -r 500 -o pray4-l100 -p ../Parameters/pray4_0 -n ../Parameters/parametersNameHybrid
