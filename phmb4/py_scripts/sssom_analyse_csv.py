@@ -6,6 +6,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 import subprocess
+import itertools
 
 image_path = "plots/"
 
@@ -144,12 +145,15 @@ def summarize(folder, rows):
 
     return datasets, method, line, plot_means, plot_stds
 
-def plot_graph(means, stds, datasets, plot, save, extension, folder, extra_results):
+def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results):
     percentage_values = np.linspace(1, 100, num=7)
     percentage_labels = ['1%', '5%', '10%', '25%', '50%', '75%', '100%']
 
     plot_means = np.transpose(means)
     plot_stds = np.transpose(stds)
+
+    markers = itertools.cycle(('x', 'D', 'o'))
+    linestyles = itertools.cycle(('-.', '--', '-'))
 
     for i in xrange(len(datasets)):
         fig, ax = plt.subplots()
@@ -166,10 +170,10 @@ def plot_graph(means, stds, datasets, plot, save, extension, folder, extra_resul
             datasets_extra, method_extra, line_extra, plot_means_extra, plot_stds_extra = summarize(extra, 4)
 
             plt.errorbar(percentage_values, [item[i] for item in plot_means_extra], [item[i] for item in plot_stds_extra], label=method_extra,
-                         linestyle=':', marker='^', clip_on=False, markeredgewidth=2, capsize=5)
+                         linestyle=linestyles.next(), marker=markers.next(), clip_on=False, markeredgewidth=2, capsize=5)
 
         plt.errorbar(percentage_values, plot_means[i], plot_stds[i], label='SS-SOM',
-                     linestyle='-', marker='o', clip_on=False, markeredgewidth=2, capsize=5)
+                     linestyle=linestyles.next(), marker=markers.next(), clip_on=False, markeredgewidth=2, capsize=5)
 
         plt.legend(loc='best')
 

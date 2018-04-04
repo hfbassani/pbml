@@ -9,12 +9,13 @@ def analyse (folder, rows):
     if rows == None:
         headerRows = 4
 
-    files = [f for f in listdir(folder) if isfile(join(folder, f))]
-    files = sorted(files)
+    files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv") and not f.startswith('analysis-')]
+    files = sorted(files, key=lambda x: int(x[:-4].split("-l")[1]))
 
     datasets = []
     folds = []
     headers = []
+
     for file in files:
         if ".csv" in file:
             header = pd.read_csv(join(folder, file), nrows=headerRows, header=None)
@@ -30,10 +31,15 @@ def analyse (folder, rows):
                 results = pd.read_csv(join(folder, file), skiprows=headerRows + 1, header=None)
 
                 datasets = results.iloc[0]
-                datasets = datasets[1: datasets[datasets == "nnodes"].index[0]]
+                if 'a_t' in datasets.values:
+                    datasets = datasets[1: datasets[datasets == "a_t"].index[0]]
+                elif 'num_nodes' in datasets.values:
+                    datasets = datasets[1: datasets[datasets == "num_nodes"].index[0]]
+                else:
+                    datasets = datasets[1:]
 
                 folds = list(map(lambda x:x[len(x) - 5:],datasets))
-                datasets = np.unique(map(lambda x: x[:-6], datasets))
+                datasets = np.unique(map(lambda x: x.split("_x")[0], datasets))
 
     line = " \t" + "\t".join(datasets) + "\n"
     for i in range(len(headers)):
@@ -41,15 +47,9 @@ def analyse (folder, rows):
         local_mean_value = headers[i]["mean_value"]
 
         datasets_max_values = []
-        datasets_num_nodes = []
-        datasets_num_noisy_samples = []
-        datasets_num_unlabeled_samples = []
         datasets_mean_value = []
 
         means_max_values = []
-        means_num_nodes = []
-        means_num_noisy_samples = []
-        means_num_unlabeled_samples = []
         means_mean_value = []
         std_max_values = []
 

@@ -64,7 +64,7 @@ def run (folder, paramsFolder, output, supervision):
     datasetNames = []
 
     for file in files:
-        if ".arff" in file:
+        if file.endswith(".arff") and "sup_" in file:
             svm_acc.append([])
             mlp_acc.append([])
 

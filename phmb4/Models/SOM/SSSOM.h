@@ -60,11 +60,7 @@ public:
     float minwd;
     float e_b;
     float e_b0;
-    float e_b_sup0;
-    float e_b_sup_step;
-    float e_b_sup;
     float e_n;
-    float e_n_sup;
     float tau;
     int nodesCounter;
 
@@ -345,33 +341,6 @@ public:
         return *this;
     }
     
-    void checkNodeClasses (const std::string &filename) {
-        TPNodeSet::iterator it;
-        it = Mesh<TNode>::meshNodeSet.begin();
-        it++;
-        int count = 0;
-        for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
-            if ((*it)->cls == noCls) {
-                count++;
-            }
-        }
-        
-        if (count > 0) {
-            std::ofstream file;
-            file.open(filename.c_str());
-
-            if (!file.is_open()) {
-                dbgOut(0) << "Error openning output file" << endl;
-                return;
-            }
-
-            file << "Finishing with " << count << " of " << meshNodeSet.size() << " nodes unknown (" << (float)count / meshNodeSet.size() << " %)" << endl;
-            dbgOut(1) << "Finishing with " << count << " of " << meshNodeSet.size() << " nodes unknown (" << (float)count / meshNodeSet.size() << " %)" <<  endl;
-            
-            file.close();
-        }
-    }
-    
     void printWinners() {
 
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
@@ -444,13 +413,10 @@ public:
     
     void ageWinsCriterion(){
         
-//        printCurrentClassesMapping();
-        
         //Passo 9:Se atingiu age_wins
         if (step >= age_wins) {
             
             removeLoosers();
-//            updateNodeClasses();
             resetWins();
             updateAllConnections();
             
@@ -527,14 +493,12 @@ public:
                     winner1->wins++;
                     winner1->cls = cls;
                     updateConnections(winner1);
-                    updateNode(*winner1, w, e_b_sup);
-
-                    updateClassesMapping(winner1, cls);
+                    updateNode(*winner1, w, e_b);
                     
                     TPNodeConnectionMap::iterator it;
                     for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
                         TNode* node = it->first;
-                        updateNode(*node, w, e_n_sup);
+                        updateNode(*node, w, e_n);
                     }
                     
                     supCountRightWinner++; 
@@ -545,7 +509,6 @@ public:
                 // que pertença a mesma classe da mesma
 
                 handleDifferentClass(winner1, w, cls);
-
             }   
             
 //            e_b_sup = learningDecay(e_b_sup0, step + 1);
@@ -566,95 +529,6 @@ public:
         return new_lr;
     }
     
-    void updateClassesMapping (TNode *node, int occurence) { 
-         
-        bool itemFound = false; 
-        for (std::map<int, int>::iterator it = node->classesMapping.begin(); it != node->classesMapping.end(); it++) { 
-            if (it->first == occurence) { 
-                itemFound = true; 
-                it->second = it->second + 1; 
-                break; 
-            } 
-        } 
- 
-        if (!itemFound) { 
-            node->classesMapping[occurence] = 1; 
-        } 
-    }
-    
-    void updateNodeClasses () {
-        TPNodeSet::iterator itMesh; 
-        TPNodeSet deadNodeSet;
-        for (itMesh = Mesh<TNode>::meshNodeSet.begin(); itMesh != Mesh<TNode>::meshNodeSet.end(); itMesh++) { 
-            TNode *node = (*itMesh);
-            
-            if (node->cls == noCls) {
-                std::map<int, int> neighborhoodMapping;
-                bool boom = false;
-                
-                TPNodeConnectionMap::iterator it;
-                for (it = node->nodeMap.begin(); it != node->nodeMap.end(); it++) {      
-                    TNode *neighbor = it->first;
-                    
-                    if (neighbor->cls != noCls) {
-                        
-                        bool itemFound = false; 
-                        for (std::map<int, int>::iterator it2 = neighborhoodMapping.begin(); it2 != neighborhoodMapping.end(); it2++) { 
-                            if (it2->first == neighbor->cls) { 
-                                itemFound = true; 
-                                it2->second = it2->second + 1; 
-                                break; 
-                            } 
-                        } 
-
-                        if (!itemFound) { 
-                            neighborhoodMapping[neighbor->cls] = 1; 
-                        } 
-                    }
-                }
-                
-                for (std::map<int, int>::iterator it = node->classesMapping.begin(); it != node->classesMapping.end(); it++) { 
-   
-                    if (it->second > 0 && neighborhoodMapping.find(it->first)->second > 0) {
-                        boom = true;
-                        TVector wNew(node->w);
-                        createNodeMap(wNew, it->first);
-                    }
-                } 
-
-                if (boom) {
-                    deadNodeSet.insert(node);
-                }
-            }
-        }
-        
-        if (deadNodeSet.size() > 0) {
-            TPNodeSet::iterator itMesh = deadNodeSet.begin();
-            while (itMesh != deadNodeSet.end()) {
-                eraseNode((*itMesh));
-                itMesh++;
-            }
-
-            deadNodeSet.clear();
-        }
-    }
-    
-    void printCurrentClassesMapping () {
-        TPNodeSet::iterator itMesh = meshNodeSet.begin(); 
-        while (itMesh != meshNodeSet.end()) { 
-            (*itMesh)->wins = 0; 
-             
-            dbgOut(-1) << "Node " << (*itMesh)->getId() << " - class " << (*itMesh)->cls << ": " << endl; 
-            for (std::map<int, int>::iterator it = (*itMesh)->classesMapping.begin(); it != (*itMesh)->classesMapping.end(); it++) { 
-                dbgOut(-1) << "cls: " << it->first << ", count: " << it->second << endl; 
-            } 
-             
-            dbgOut(-1) << endl; 
-             
-            itMesh++; 
-        } 
-    }
-    
     void handleDifferentClass(TNode *winner1, const TVector& w, int cls) {
         TNode *newWinner = winner1;
         while((newWinner = getNextWinner(newWinner)) != NULL) { // saiu do raio da ativação -> não há um novo vencedor
@@ -668,19 +542,15 @@ public:
             // empurrar o primeiro winner que tem classe diferente da amostra
             updateNode(*winner1, w, -push_rate);
             
-//            newWinner->cls = cls;
-//            updateConnections(newWinner);
             newWinner->wins++;
             
-            updateClassesMapping(newWinner, cls);
-            
             // puxar o novo vencedor
-            updateNode(*newWinner, w, e_b_sup);
+            updateNode(*newWinner, w, e_b);
             
             TPNodeConnectionMap::iterator it;
             for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
                 TNode* node = it->first;
-                updateNode(*node, w, e_n_sup);
+                updateNode(*node, w, e_n);
             }
             
             supCountNewWinnersFound++; 
@@ -688,20 +558,20 @@ public:
         } else if (meshNodeSet.size() < maxNodeNumber) {
             
             // cria um novo nodo na posição da amostra
-//            createNodeMap(w, cls);
+            createNodeMap(w, cls);
             
-            TVector wNew(winner1->w);
-            TNode *nodeNew = createNodeMap(wNew, cls);
-            
-            TVector aNew(winner1->a);
-            nodeNew->a = aNew;
-            
-            TVector dsNew(winner1->ds);
-            nodeNew->ds = dsNew;   
-            
-            updateNode(*nodeNew, w, e_b_sup);
-
-            updateNode(*winner1, w, -push_rate);
+//            TVector wNew(winner1->w);
+//            TNode *nodeNew = createNodeMap(wNew, cls);
+//            
+//            TVector aNew(winner1->a);
+//            nodeNew->a = aNew;
+//            
+//            TVector dsNew(winner1->ds);
+//            nodeNew->ds = dsNew;   
+//            
+//            updateNode(*nodeNew, w, e_b_sup);
+//
+//            updateNode(*winner1, w, -push_rate);
             
             supCountDupNodes++; 
         } 
