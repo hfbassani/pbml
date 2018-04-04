@@ -3,8 +3,13 @@ import pandas as pd
 import numpy as np
 from scipy.io import arff
 from sklearn import metrics
+import os
 from os import listdir
 from os.path import isfile, join
+
+def createFolders (path):
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
 
 def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=None):
 
@@ -65,7 +70,7 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
 
                     corrects = metrics.accuracy_score(predict, true, normalize=False)
                     correctSamples[len(correctSamples) - 1].append(corrects)
-                    accuracy = float(corrects) / len(data) #metrics.accuracy_score(predict, true)#
+                    accuracy = float(corrects) / len(data)
                     accs[len(accs) - 1].append(accuracy)
 
                     results_inc = results.ix[results[len(results.columns) - 1] != 999]
@@ -74,11 +79,11 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
 
                     incorrectSamples[len(incorrectSamples) - 1].append(incorrects)
                 else:
-                    noisySamples[len(noisySamples) - 1].append(np.nan)
-                    noLabelSamples[len(noLabelSamples) - 1].append(np.nan)
-                    accs[len(accs) - 1].append(np.nan)
-                    incorrectSamples[len(incorrectSamples) - 1].append(np.nan)
-                    correctSamples[len(correctSamples) - 1].append(np.nan)
+                    noisySamples[len(noisySamples) - 1].append(len(data))
+                    noLabelSamples[len(noLabelSamples) - 1].append(0)
+                    accs[len(accs) - 1].append(0)
+                    incorrectSamples[len(incorrectSamples) - 1].append(0)
+                    correctSamples[len(correctSamples) - 1].append(0)
 
             max_value_index = np.nanargmax(accs[len(accs) - 1])
             max_values.append(np.nanmax(accs[len(accs) - 1]))
@@ -152,6 +157,7 @@ output = args.o
 params = args.p
 paramNames = args.n
 
+createFolders(output)
 eval(resultsPath=results, truePath=true, r=repeat, outputPath=output, paramFile=params, paramNamesFile=paramNames)
 
 
