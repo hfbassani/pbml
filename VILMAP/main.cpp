@@ -246,7 +246,7 @@ int main(int argc, char** argv) {
     //runStudyOfCaseAfterTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
 
     //runStudyOfCaseAfterTrainingBrentDataBase(&som, clusteringSOM, dssom, featuresDict, outputM, epocs);
-
+    //runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
     dbgOut(1) << "Done." << endl;
 }
 
@@ -345,7 +345,7 @@ void runTestAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNo
 }
 
 void runStudyOfCase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
-    int experiment = 47; // Número do experimento
+    int experiment = 6; // Número do experimento
     int fileNumber = 0; // Número do arquivo de entrada
     string filename = "c1_cat.txt";
     std::vector<float> params = loadParametersFile();
@@ -385,7 +385,7 @@ void runStudyOfCase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *d
         dbgOut(1) << "end Dimension = " << i << endl;
     }
 
-    outputM.PATH = "output/";
+    outputM.PATH = "output_test/";
     outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
     dbgOut(1) << std::to_string(experiment) << "% do arquivo " << std::to_string(fileNumber) << endl;
 
@@ -838,7 +838,7 @@ std::vector<float> loadParametersFile(int number) {
 }
 
 std::vector<float> loadParametersFile() {
-    string name1 = "input/21Mar_0";
+    string name1 = "input/27Mar_0";
     std::ifstream file(name1.c_str());
     std::string text;
     std::vector<float> params;
@@ -990,7 +990,7 @@ void runTimeSeriesMotifDiscovery(VILMAP *som, ClusteringMeshSOM clusteringSOM, S
     dbgOut(1) << "run Time Series Motif Discovery " << endl;
 
     som->reset();
-    som->a_t = 0.4335352;
+    som->a_t = 0.540622;
     som->dsbeta = 0.0922593;
     som->e_b = 0.0595755;
     som->e_n = 0.247219;
@@ -1011,7 +1011,7 @@ void runTimeSeriesMotifDiscovery(VILMAP *som, ClusteringMeshSOM clusteringSOM, S
         //som->saveSOM("networks/TimeSeries/som_arq_TE_" + std::to_string(i));
         dbgOut(1) << "som->size() = " << std::to_string(som->size()) << " D = " << std::to_string(i) << endl;
     }
-    som->saveSOM("networks/TimeSeries/som_arq_0");
+    som->saveSOM("networks/TimeSeries/som_timeSeries_0");
 }
 
 vector<string> splitString(string str, char delimiter) {
