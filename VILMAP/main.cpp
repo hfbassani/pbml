@@ -175,15 +175,15 @@ int main(int argc, char** argv) {
         return false;
     }
 
-    dbgOut(1) << "Running VILARFDSSOM for file: " << filename << endl;
+    dbgOut(1) << "Running VILMAP for file: " << filename << endl;
     mkdir("output/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     srand(time(0));
     srand(seed);
-    //cout << "Loading False data in Memory..." << endl;
+    //dbgOut(1) << "Loading False data in Memory..." << endl;
     //loadFalseDataInMemory(); //[i][j] i - fileNumber // j - InputSize
-    //cout << "Loading True data in Memory..." << endl;
+    //dbgOut(1) << "Loading True data in Memory..." << endl;
     //loadTrueDataInMemory();
-    cout << "Running test" << endl;
+    dbgOut(1) << "Running test" << endl;
 
 
 
@@ -201,7 +201,7 @@ int main(int argc, char** argv) {
     //std::vector<FeaturesVector> phonemesFalseData;
     int phonemesNum = loadTrueFeatureMatrix(file, dictionary, featuresDict, phonemesData, filename + ".new");
     //loadFalseFeatureMatrix(featuresDict, phonemesFalseData, "input/phonemes_falseFile", phonemesNum);
-    cout << "init true" << endl;
+    dbgOut(1) << "init true" << endl;
     MatMatrix<float> data;
     //std::vector<int> groups;
     //std::map<int, int> groupLabels;
@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
             file_true << "\n";
         }
     }
-    //cout << "init false" << endl;
+    //dbgOut(1) << "init false" << endl;
     //string name_false = "falseData_" + std::to_string(tam) + "_arq_c1";
     //std::ofstream file_false;
     //file_false.open(name_false.c_str());
@@ -238,15 +238,15 @@ int main(int argc, char** argv) {
     /*/////////
 
     //createParametersFile(&params); //createTrainingTestFiles(som.d_min, som.d_max, file, dictionary, featuresDict, "phonemes_" + filename);
-    //runCompleteTest(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    runCompleteTest(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
     //runStudyOfCase(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
-    //runTestAfterTraining(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    runTestAfterTraining(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
-    runStudyOfCaseAfterTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
-    
+    //runStudyOfCaseAfterTraining(&som, clusteringSOM, dssom, featuresDict, outputM);
+
     //runStudyOfCaseAfterTrainingBrentDataBase(&som, clusteringSOM, dssom, featuresDict, outputM, epocs);
-
+    //runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
     dbgOut(1) << "Done." << endl;
 }
 
@@ -255,49 +255,52 @@ void runCompleteTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *
     int fileNumber = 0;
     string filename = "";
     std::vector<float> params = loadParametersFile();
-    for (fileNumber = paramsNumber - 1; fileNumber < paramsNumber; fileNumber++) {
-        filename = "sentences_" + std::to_string(fileNumber) + ".txt";
-        cout << "FileNumber = " << std::to_string(fileNumber) << endl;
+    //for (fileNumber = paramsNumber - 1; fileNumber < paramsNumber; fileNumber++) {
+    //    filename = "sentences_" + std::to_string(fileNumber) + ".txt";
+    //    dbgOut(1) << "FileNumber = " << std::to_string(fileNumber) << endl;
+    dbgOut(1) << "runCompleteTest" << endl;
+    for (int i = 0; i < params.size(); i += 10) {
+        som->reset();
+        som->a_t = params[i];
+        som->lp = params[i + 1];
+        som->dsbeta = params[i + 2];
+        som->e_b = params[i + 4];
+        som->e_n = params[i + 5];
+        som->epsilon_ds = params[i + 6];
+        som->minwd = params[i + 7];
+        //experiment = (i / 7) + ((paramsNumber - 1) * 17);
+        experiment = (i / 10);
+        MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
+        dbgOut(1) << "f-" << fileNumber << " e-" << experiment;
+        //if(experiment < 95){
+        //    continue;
+        //}
+        //Faz o treinamento e teste para a quantidade de dimensões solicitadas com taxas
+        som->d_max = 6;
+        som->d_min = 2;
+        for (int i = som->d_min; i <= som->d_max; i++) {
+            //Taxa de true positive
+            MatMatrix<float> data = loadTrueData(i, fileNumber);
+            clusteringSOM.setData(data);
+            som->resetSize(clusteringSOM.getInputSize());
+            clusteringSOM.trainSOM(1); // 1 - Epocs
+            taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("output/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, som->a_t));
 
-        for (int i = 0; i < params.size(); i += 10) {
-            som->reset();
-            som->a_t = params[i];
-            som->lp = params[i + 1];
-            som->dsbeta = params[i + 2];
-            som->e_b = params[i + 4];
-            som->e_n = params[i + 5];
-            som->epsilon_ds = params[i + 6];
-            som->minwd = params[i + 7];
-            //experiment = (i / 7) + ((paramsNumber - 1) * 17);
-            experiment = (i / 10);
-            MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
-            cout << "f-" << fileNumber << " e-" << experiment;
-            //Faz o treinamento e teste para a quantidade de dimensões solicitadas com taxas
-            som->d_max = 6;
-            for (int i = som->d_min; i <= som->d_max; i++) {
-                //Taxa de true positive
-                MatMatrix<float> data = loadTrueData(i, fileNumber);
-                clusteringSOM.setData(data);
-                som->resetSize(clusteringSOM.getInputSize());
-                clusteringSOM.trainSOM(1); // 1 - Epocs
-                taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("output/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, som->a_t));
-
-                //Taxa de false negative
-                MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
-                clusteringSOM.setData(dataFalse);
-                taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + filename, dataFalse, featuresDict, dssom, som->a_t));
-                if (i == som->d_max) {
-                    som->saveSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(i));
-                }
-
+            //Taxa de false negative
+            MatMatrix<float> dataFalse = loadFalseData(i, fileNumber);
+            clusteringSOM.setData(dataFalse);
+            taxaFalse.concatRows(clusteringSOM.writeClusterResultsReadable("output/false_" + std::to_string(i) + "_" + filename, dataFalse, featuresDict, dssom, som->a_t));
+            if (i == som->d_max) {
+                som->saveSOM("networks_sentences/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(i));
             }
-            outputM.PATH = "output/metrics" + std::to_string(paramsNumber) + "/";
-            outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
-            dbgOut(1) << std::to_string(experiment + 1) << "% do arquivo " << std::to_string(fileNumber) << endl;
-            som->reset();
-        }
 
+        }
+        outputM.PATH = "output/metrics" + std::to_string(paramsNumber) + "/";
+        outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
+        dbgOut(1) << std::to_string(experiment + 1) << "% do arquivo " << std::to_string(fileNumber) << endl;
+        som->reset();
     }
+    //}
 }
 
 void runTestAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
@@ -306,12 +309,13 @@ void runTestAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNo
     som->d_min = 2;
     int fileNumber = 0;
     int experiment;
-    for (fileNumber = paramsNumber - 1; fileNumber < paramsNumber; fileNumber++) { // For para arquivos
+    dbgOut(1) << "runTestAfterTraining" << endl;
+    //for (fileNumber = paramsNumber - 1; fileNumber < paramsNumber; fileNumber++) { // For para arquivos
         for (experiment = 0; experiment <= 99; experiment++) { // For para experimentos
             MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
-            cout << "f-" << fileNumber << " e-" << experiment;
+            dbgOut(1) << "f-" << fileNumber << " e-" << experiment;
             //Testa com todos os arquivos de entrada depois que arede já foi treinada
-            som->readSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
+            som->readSOM("networks_sentences/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
 
 
             for (int i = som->d_min; i <= som->d_max; i++) { // For para tamanhos de entrada
@@ -337,11 +341,11 @@ void runTestAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNo
 
         }
 
-    }
+    //}
 }
 
 void runStudyOfCase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
-    int experiment = 47; // Número do experimento
+    int experiment = 6; // Número do experimento
     int fileNumber = 0; // Número do arquivo de entrada
     string filename = "c1_cat.txt";
     std::vector<float> params = loadParametersFile();
@@ -357,13 +361,13 @@ void runStudyOfCase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *d
     som->minwd = params[i + 7];
 
     MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
-    cout << "f-" << fileNumber << " e-" << experiment << endl;
+    dbgOut(1) << "f-" << fileNumber << " e-" << experiment << endl;
     //Faz o treinamento e teste para a quantidade de dimensões solicitadas com taxas
     som->d_max = 6;
     for (int i = som->d_min; i <= som->d_max; i++) {
         //Taxa de true positive
         //MatMatrix<float> data = loadTrueData(i, fileNumber);
-        cout << "init Dimension = " << i << endl;
+        dbgOut(1) << "init Dimension = " << i << endl;
         MatMatrix<float> data = loadTrueData(i, fileNumber);
         clusteringSOM.setData(data);
         som->resetSize(clusteringSOM.getInputSize());
@@ -378,10 +382,10 @@ void runStudyOfCase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *d
         som->saveSOM("networks/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(i));
         //}
 
-        cout << "end Dimension = " << i << endl;
+        dbgOut(1) << "end Dimension = " << i << endl;
     }
 
-    outputM.PATH = "output/";
+    outputM.PATH = "output_test/";
     outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
     dbgOut(1) << std::to_string(experiment) << "% do arquivo " << std::to_string(fileNumber) << endl;
 
@@ -392,7 +396,7 @@ void runStudyOfCaseAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, S
     int fileNumber = 4;
     string filename = "sentences_" + std::to_string(fileNumber) + ".txt";
 
-    cout << "f-" << fileNumber << " e-" << experiment;
+    dbgOut(1) << "f-" << fileNumber << " e-" << experiment;
     MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
     //Testa com todos os arquivos de entrada depois que arede já foi treinada
     som->readSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
@@ -419,14 +423,14 @@ void runStudyOfCaseAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, S
 }
 
 void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp) {
-//    Funcao criada para comparar e gerar resultados do artigo
+    //    Funcao criada para comparar e gerar resultados do artigo
     int experiment = 14;
     int fileNumber = 0;
     MatMatrix<float> data = loadTrueData(6, fileNumber);
     MatMatrix<float> dataFalse = loadFalseData(6, fileNumber);
     string filename = "sentences_" + std::to_string(fileNumber) + ".txt";
-    for (experiment = exp; experiment <= exp+15; experiment++) {
-        cout << "f-" << fileNumber << " e-" << experiment;
+    for (experiment = exp; experiment <= exp + 35; experiment++) {
+        dbgOut(1) << "f-" << fileNumber << " e-" << experiment;
         MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
         //Testa com todos os arquivos de entrada depois que arede já foi treinada
         som->readSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
@@ -434,12 +438,12 @@ void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clu
         for (int i = 6; i <= 6; i++) { // For para tamanhos de entrada
 
             //Taxa de true positive
-           
+
             clusteringSOM.setData(data);
             som->resetSize(clusteringSOM.getInputSize());
             float at_min = 0.60;
             for (int qtd = 0; qtd < 50; qtd++) {
-                std::cout << "|";
+                dbgOut(1) << "|";
                 taxaTrue.concatRows(clusteringSOM.writeClusterResultsArticle("output/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, at_min));
                 at_min += 0.01;
             }
@@ -460,12 +464,12 @@ void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clu
 
             }
             //Taxa de false negative
-            
+
             clusteringSOM.setData(dataFalse);
             som->resetSize(clusteringSOM.getInputSize());
             at_min = 0.60;
             for (int qtd = 0; qtd < 50; qtd++) {
-                std::cout << "|";
+                dbgOut(1) << "|";
                 taxaFalse.concatRows(clusteringSOM.writeClusterResultsArticle("output/false_" + std::to_string(i) + "_" + filename, dataFalse, featuresDict, dssom, at_min));
                 at_min += 0.01;
             }
@@ -486,7 +490,7 @@ void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clu
 
             }
         }
-        if(experiment>=99){
+        if (experiment >= 99) {
             break;
         }
     }
@@ -497,7 +501,7 @@ void learningTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dss
     int fileNumber = 5;
     string filename = "sentences_" + std::to_string(fileNumber) + ".txt";
 
-    cout << "f-" << fileNumber << " e-" << experiment;
+    dbgOut(1) << "f-" << fileNumber << " e-" << experiment;
     MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
     //Testa com todos os arquivos de entrada depois que arede já foi treinada
     som->readSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6) + "_#");
@@ -509,7 +513,7 @@ void learningTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dss
         clusteringSOM.setData(data);
         som->resetSize(clusteringSOM.getInputSize());
         //taxaTrue.concatRows(clusteringSOM.writeClusterResultsReadable("outputTest/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, som->a_t));
-        cout << " Dimension = " << i;
+        dbgOut(1) << " Dimension = " << i;
 
         clusteringSOM.writeClusterResultsHTML("outputTest/result_size-" + std::to_string(i) + ".html", data, featuresDict, dssom, som->a_t, i, experiment, fileNumber);
 
@@ -681,7 +685,10 @@ void createPhonemaData(std::string &featuresDict, MatMatrix<float> &data) {
 
 MatMatrix<float> loadFalseData(int tam, int fileNumber) {
     MatMatrix<float> mat;
-    std::ifstream inputFile("falsedata_article");
+    std::ifstream inputFile("input/falseData_"+ std::to_string(tam) +"_arq_0");
+    if (!inputFile.is_open()) {
+        dbgOut(0) << "Error openning inputFile. "  << endl;
+    }
     std::string text;
     std::string temp = "";
     MatVector<float> output_vect;
@@ -707,7 +714,10 @@ MatMatrix<float> loadFalseData(int tam, int fileNumber) {
 
 MatMatrix<float> loadTrueData(int tam, int fileNumber) {
     MatMatrix<float> mat;
-    std::ifstream inputFile("truedata_article");
+    std::ifstream inputFile("input/trueData_"+ std::to_string(tam) +"_arq_0");
+    if (!inputFile.is_open()) {
+        dbgOut(0) << "Error openning inputFile. "  << endl;
+    }
     std::string text;
     std::string temp = "";
     MatVector<float> output_vect;
@@ -725,7 +735,7 @@ MatMatrix<float> loadTrueData(int tam, int fileNumber) {
         }
 
         if (output_vect.size() > 0) {
-            if (output_vect.size() < 72) {
+            if (output_vect.size() < 72) {//para não produzir dimensão inválida. Fazer tratamento antes de colocar como estímulo na rede
                 for (int i = output_vect.size(); i < 72; i++) {
                     output_vect.append(5);
                 }
@@ -828,7 +838,7 @@ std::vector<float> loadParametersFile(int number) {
 }
 
 std::vector<float> loadParametersFile() {
-    string name1 = "input/ParamsRapha_0";
+    string name1 = "input/27Mar_0";
     std::ifstream file(name1.c_str());
     std::string text;
     std::vector<float> params;
@@ -977,10 +987,10 @@ void loadTrueDataInMemory() {
 }
 
 void runTimeSeriesMotifDiscovery(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM) {
-    cout << "run Time Series Motif Discovery " << endl;
+    dbgOut(1) << "run Time Series Motif Discovery " << endl;
 
     som->reset();
-    som->a_t = 0.4335352;
+    som->a_t = 0.540622;
     som->dsbeta = 0.0922593;
     som->e_b = 0.0595755;
     som->e_n = 0.247219;
@@ -999,9 +1009,9 @@ void runTimeSeriesMotifDiscovery(VILMAP *som, ClusteringMeshSOM clusteringSOM, S
         som->resetSize(clusteringSOM.getInputSize());
         clusteringSOM.trainSOM(1); // 1 - Epocs
         //som->saveSOM("networks/TimeSeries/som_arq_TE_" + std::to_string(i));
-        cout << "som->size() = " << std::to_string(som->size()) << " D = " << std::to_string(i) << endl;
+        dbgOut(1) << "som->size() = " << std::to_string(som->size()) << " D = " << std::to_string(i) << endl;
     }
-    som->saveSOM("networks/TimeSeries/som_arq_0");
+    som->saveSOM("networks/TimeSeries/som_timeSeries_0");
 }
 
 vector<string> splitString(string str, char delimiter) {
@@ -1029,7 +1039,7 @@ void createInputDataFromTimeSeries(int dimension, string path) {
         getline(file, text);
         vector<string> tempVector = splitString(text, ',');
         if (tempVector.size() < 1) {
-            cout << text;
+            dbgOut(1) << text;
         }
         for (int i = 1; i < tempVector.size(); i++) {
             Features features;
@@ -1068,7 +1078,7 @@ MatMatrix<float> createOneInputDataFromTimeSeries(int dimension, string path) {
         getline(file, text);
         vector<string> tempVector = splitString(text, ',');
         if (tempVector.size() < 1) {
-            cout << text;
+            dbgOut(1) << text;
         }
         for (int i = 1; i < tempVector.size(); i++) {
             Features features;

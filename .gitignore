@@ -300,11 +300,11 @@ ENV/
 
 
 
-visom/output*
-visom/networks*
-visom/input
-visom/test*
-visom/Test*
+VILMAP/output*
+VILMAP/networks*
+VILMAP/input
+VILMAP/test*
+VILMAP/Test*
 
 *.arff
 *.csv
