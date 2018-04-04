@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
+import argparse
 
 image_path = "plots/"
 
@@ -302,17 +303,39 @@ def plot_gammas_vs_hthresholds(filename, save=False, plot=True):
 
 #-------------------------------------------------------------------#
 if not os.path.isdir(image_path): os.mkdir(image_path)
-fileName = "../outputMetrics/test_wide_ranges.csv"
 
-# plot_synthetic_data_graphs(fileName=fileName, save=True, plot=False)
-#subplot_synthetic_data_graphs(fileName=fileName, save=True, plot=False)
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', help='File Path', required=True)
+parser.add_argument('-r', help='Number of Heade Rows', required=False, type=int)
+parser.add_argument('-p', help='Parameters to plot', nargs='*', required=False, type=str, default=None)
+parser.add_argument('-s', help='Plot synthethic data', action='store_true', required=False)
+parser.add_argument('--plot', help='Normal plot', action='store_true', required=False)
+parser.add_argument('--subplot', help='Subplot', action='store_true', required=False)
+parser.add_argument('--save', help='Subplot', action='store_true', required=False)
+parser.add_argument('--show', help='Subplot', action='store_true', required=False)
 
-#paramsToPlot = ["a_t", "lp", "dsbeta", "age_wins", "e_b", "e_n", "epsilon_ds", "minwd",
-#                "epochs", "push_rate", "supervision_rate"]
-paramsToPlot = ["a_t", "lp", "e_b"]
-#                "epochs", "push_rate", "supervision_rate"]#, "lp", "push_rate", "supervision_rate"]
-plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, save=True, plot=False)
-#subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, save=True, plot=False)
+args = parser.parse_args()
 
-# plot_gammas_vs_hthresholds(fileName, save=True, plot=False)
+fileName = args.i
+header_rows = args.r
+paramsToPlot = args.p # ["a_t", "lp", "dsbeta", "age_wins", "e_b", "e_n", "epsilon_ds", "minwd","epochs", "push_rate", "supervision_rate"]
+
+synthetic_plot = args.s
+plot = args.plot
+subplot = args.subplot
+
+save = args.save
+show = args.show
+
+if synthetic_plot:
+    if plot:
+        plot_synthetic_data_graphs(fileName=fileName, save=save, plot=show)
+    elif subplot:
+        subplot_synthetic_data_graphs(fileName=fileName, save=save, plot=show)
+
+else:
+    if plot:
+        plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, save=save, plot=show)
+    elif subplot:
+        subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, save=save, plot=show)
 
