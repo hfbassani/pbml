@@ -10,18 +10,10 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
 
     accs = []
     max_values = []
-    max_value_num_nodes = []
-    max_value_num_noisy = []
-    max_value_num_unlabeled_node = []
     index_set = []
     mean_value = []
     std_value = []
     datasetNames = []
-
-
-    num_nodes = []
-    noisySamples = []
-    noLabelNodes = []
 
     files = [f for f in listdir(truePath) if isfile(join(truePath, f))]
     files = sorted(files)
@@ -31,15 +23,11 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
             data, _ = arff.loadarff(open(join(truePath, file), 'rb'))
             data = data['class']
             accs.append([])
-            num_nodes.append([])
-            noisySamples.append([])
-            noLabelNodes.append([])
             for i in range(r):
                 results = open(join(resultsPath, "{0}_{1}.results".format(file[:-5], i)), 'rb')
                 results = results.readlines()
                 print join(resultsPath, "{0}_{1}.results".format(file[:-5], i))
                 nodes = (int)(results[0].split("\t")[0])
-                num_nodes[len(num_nodes) - 1].append(nodes)
 
                 if nodes + 1 < len(results):
                     results = pd.read_csv(join(resultsPath, "{0}_{1}.results".format(file[:-5], i)),
@@ -51,15 +39,12 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
                     true = map(int, data[indexes])
 
                     corrects = metrics.accuracy_score(predict, true, normalize=False)
-                    accuracy = float(corrects) / len(data) #metrics.accuracy_score(predict, true)#
+                    accuracy = float(corrects) / len(data)
                     accs[len(accs) - 1].append(accuracy)
 
                 else:
-                    noisySamples[len(noisySamples) - 1].append(np.nan)
-                    noLabelNodes[len(noLabelNodes) - 1].append(np.nan)
                     accs[len(accs) - 1].append(np.nan)
 
-            max_value_index = np.nanargmax(accs[len(accs) - 1])
             max_values.append(np.nanmax(accs[len(accs) - 1]))
             index_set.append(np.nanargmax(accs[len(accs) - 1]))
 
