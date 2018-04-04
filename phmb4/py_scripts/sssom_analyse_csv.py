@@ -2,13 +2,10 @@ import argparse
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import os
 from os import listdir
 from os.path import isfile, join
 import subprocess
 import itertools
-
-image_path = "plots/"
 
 def analyse (folder, rows, plot, save, extension, extra_results):
     datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
@@ -27,7 +24,7 @@ def summarize(folder, rows):
         headerRows = 9
 
     files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv")  and not f.startswith('analysis-')]
-    files = sorted(files, key=lambda x: int(x[:-4].split("-l")[1]))
+    files = sorted(files, key=lambda x: int(x[:-4].split("-l")[-1]))
 
     method = files[0].split("-l")[0]
 
@@ -66,7 +63,6 @@ def summarize(folder, rows):
 
     for i in range(len(headers)):
         local_max_values = headers[i]["max_value"]
-        local_mean_value = headers[i]["mean_value"]
 
         if rows > 4:
             local_num_nodes = headers[i]["num_nodes"]
@@ -87,7 +83,6 @@ def summarize(folder, rows):
         datasets_num_unlabeled_samples = []
         datasets_num_correct_samples = []
         datasets_num_incorrect_samples = []
-        datasets_mean_value = []
 
         means_max_values = []
         means_num_nodes = []
@@ -95,7 +90,6 @@ def summarize(folder, rows):
         means_num_unlabeled_samples = []
         means_num_correct_samples = []
         means_num_incorrect_samples = []
-        means_mean_value = []
         std_max_values = []
 
         for j in range(0, len(folds), len(folds) / len(datasets)):
@@ -124,10 +118,6 @@ def summarize(folder, rows):
                 local_incorrect = np.array(local_num_incorrect_samples)[j:j + len(folds) / len(datasets)]
                 datasets_num_incorrect_samples.append(local_incorrect)
                 means_num_incorrect_samples.append(np.nanmean(local_incorrect))
-
-            local_mean_value = np.array(local_mean_value)[j:j + len(folds) / len(datasets)]
-            datasets_mean_value.append(local_mean_value)
-            means_mean_value.append(np.nanmean(local_mean_value))
 
         line += files[i] + "\n"
         line += "means_max_values\t" + "\t".join(map(str, means_max_values)) + "\n"
@@ -179,14 +169,12 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
 
         if save:
             for extension in extensions:
-                plt.savefig(join(folder,"{0}-wcci.{1}".format(datasets[i], extension)))
+                plt.savefig(join(folder,"{0}-wcci.{1}".format(title, extension)))
 
         if plot:
             plt.show()
         else:
             plt.close()
-
-if not os.path.isdir(image_path): os.mkdir(image_path)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Directory Path', required=True)
