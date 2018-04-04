@@ -144,17 +144,24 @@ public:
     }
 
     inline void updateNode(TNode &node, const TVector &w, TNumber e, int index) {
+        TVector a_temp;
         uint end = 0;
         if (node.w.size() < w.size()) {
             end = node.w.size();
         } else {
             end = w.size();
         }
-        uint begin = 0;
-        if (node.w.size() > w.size() && index != 0) {
-            begin = index; //o nodo será atualizado começando na posição de maior ativação
-            end = begin + w.size();
+        uint begin = index;//o nodo será atualizado começando na posição de maior ativação
+        if (begin > node.w.size()-2){
+            return;
         }
+        if (node.w.size() > w.size()) {
+            end = begin + w.size();
+            if(end > node.w.size()){
+                end = node.w.size();
+            }
+        }
+        
         //update averages
         for (uint i = begin, t = 0; i < end; i++, t++) {
             //update neuron weights
@@ -163,26 +170,28 @@ public:
                 distance = 1;
             }
             node.a[i] = e * dsbeta * distance + (1 - e * dsbeta) * node.a[i];
+            a_temp.append(node.a[i]);
         }
 
-        float max = node.a.max();
-        float min = node.a.min();
-        float average = node.a.mean();
+        float max = a_temp.max();
+        float min = a_temp.min();
+        float average = a_temp.mean();
         //float dsa = node.ds.mean();
 
         //update neuron ds weights
-        for (uint i = begin; i < node.a.size(); i++) {
+        for (uint i = begin; i < end; i++) {
             if ((max - min) != 0) {
                 //node.ds[i] = 1 - (node.a[i] - min) / (max - min);
                 node.ds[i] = 1 / (1 + exp((node.a[i] - average) / (((max - min) * epsilon_ds) + 0.000001)));
-            } else
+            }else{
                 node.ds[i] = 1;
+            }
         }
 
         //Passo 6.1: Atualiza o peso do vencedor
         //Atualiza o nó vencedor
         for (uint i = begin, t = 0; i < end; i++, t++) {
-            node.w = node.w[i] + e * (w[t] - node.w[i]);
+            node.w[i] = node.w[i] + e * (w[t] - node.w[i]);
         }
 
     }
@@ -381,7 +390,7 @@ public:
                 }
             }
             updateMap(v);
-            
+
         }
         return *this;
     }
@@ -410,21 +419,21 @@ public:
     }
 
     VILMAP& updateMap(const TVector &w) {
-        
+
         using namespace std;
         TNode *winner1 = 0;
-        
+
         //Passo 3 : encontra o nó vencedor
         winner1 = getWinner(w); //winner
         winner1->wins++;
-        
-        if(winner1->w.size() == 1){
+
+        if (winner1->w.size() == 1) {
             //eraseNode(*winner1)
             createFirstNode(w.size());
             winner1 = getWinner(w); //winner
             winner1->wins++;
         }
-        
+
         //Teste de dimensão
 
         if (winner1->w.size() < w.size()) {
@@ -446,13 +455,11 @@ public:
             nodeNew->generation = nodeNew->w.size();
             //Conecta o nodo
             updateConnections(nodeNew);
-            
+
 
         } else if (a >= a_t) { // caso contrário
             // Atualiza o peso do vencedor
-            if(winner1->index_at =! 0){
-                        winner1->index_at;
-            }
+            
             updateNode(*winner1, w, e_b, winner1->index_at);
 
             //Passo 6.2: Atualiza o peso dos vizinhos
@@ -464,7 +471,7 @@ public:
                 } else {//Topologia 2
                     updateNode(*node, w, e_n, winner1->index_at);
                 }
-                
+
             }
         }
         /*
@@ -673,7 +680,7 @@ public:
         TVector wNew(v);
         createNode(nodeID++, wNew);
     }
-    
+
     void createFirstNode(int dimw) {
         destroyMesh();
         TVector v(dimw);
