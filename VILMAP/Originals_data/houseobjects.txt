@@ -1,0 +1,75 @@
+armoire
+bathtub
+bed
+blender
+bookcase
+bowl
+bunk bed
+can opener
+canister
+cedar chest
+chair
+chest
+china closet
+chopping board
+clock
+computer
+cooker
+cooking pan
+crib
+cup
+cutting board
+desk
+desk chair
+door
+dresser
+duvet
+end table
+fire extinguisher
+food processor
+fork
+glass
+goblet
+gravy boat
+iron
+ironing board
+kitchen scale
+knife
+knife block
+ladle
+mat
+mattress
+measuring cup
+meat grinder
+microwave oven
+mirror
+mixer
+napkin
+night table
+notebook
+peeler
+pillow
+plate
+platter
+pot
+refrigerator
+saucer
+server
+shaker
+sheet
+shower
+silver chest
+sink
+sofa
+spatula
+spoon
+stereo
+table
+telephone
+thermos
+toilet
+towel
+tray
+TV
+TV stand
+window

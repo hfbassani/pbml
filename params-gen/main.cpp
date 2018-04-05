@@ -17,7 +17,7 @@
 using namespace std;
 
 void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters);
-void createParametersFileHybrid(MyParameters * params, string fileName, int qtdParameters);
+void createParametersFileSSSOM(MyParameters * params, string fileName, int qtdParameters);
 void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters);
 void createParametersMLP_SVM(MyParameters * params, string fileName, int qtdParameters);
 void createLVQParameters(MyParameters * params, string fileName, int qtdParameters);
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
         if (originalVersion) {
             createParametersFileOriginalLARFDSSOM(&params, filename + "_" + std::to_string(i), qtd_parameter);   
         } else if(hybridVersion){
-            createParametersFileHybrid(&params, filename + "_" + std::to_string(i), qtd_parameter);
+            createParametersFileSSSOM(&params, filename + "_" + std::to_string(i), qtd_parameter);
         } else if(SVMMLP){
             createParametersMLP_SVM(&params, filename + "_" + std::to_string(i), qtd_parameter);
         } else if(lvq){
@@ -136,11 +136,11 @@ void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileNam
     file.close();
 }
 
-void createParametersFileHybrid(MyParameters * params, string fileName, int qtdParameters) {
+void createParametersFileSSSOM(MyParameters * params, string fileName, int qtdParameters) {
     std::ofstream file;
     file.open(fileName.c_str());
     
-    cout << "createParametersFileHybrid" << endl;
+    cout << "createParametersFileSSSOM" << endl;
     
     for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
         file << params->a_t.value << "\n";
@@ -153,7 +153,6 @@ void createParametersFileHybrid(MyParameters * params, string fileName, int qtdP
         file << params->minwd << "\n";
         file << round(params->epochs) << "\n";
         file << params->pushRate << "\n";
-        file << params->supervisionRate << "\n";
         file << params->seed << "\n";
     }
     

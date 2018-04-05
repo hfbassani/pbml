@@ -74,8 +74,8 @@ int main(int argc, char** argv) {
         dbgOut(0) << "Results Directory Created" << endl;
     }
     
-    std::vector<string> inputFiles = loadStringFile(inputPath);
     std::vector<float> params = loadParametersFile(parametersFile);
+    std::vector<string> inputFiles = loadStringFile(inputPath);
 
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
         runExperiments(params, inputFiles[i], resultPath, isSubspaceClustering, isFilterNoise, isSorted, normalize);
@@ -95,7 +95,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
     clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
     clusteringSOM.setFilterNoise(isFilterNoise);    
     
-    int numberOfParameters = 11;
+    int numberOfParameters = 12;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         som.a_t = params[i];
@@ -113,6 +113,8 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         
         string index = std::to_string((i/numberOfParameters));
         
+        srand(params[i + 11]);
+        
         som.maxNodeNumber = 70;
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
@@ -121,6 +123,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
 
         clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
 
+//        clusteringSOM.outConfusionMatrix(clusteringSOM.groups, clusteringSOM.groupLabels);
     }
 }
 

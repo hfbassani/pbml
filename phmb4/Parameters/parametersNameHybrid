@@ -8,5 +8,4 @@ epsilon_ds
 minwd
 epochs
 push_rate
-supervision_rate
 seed
