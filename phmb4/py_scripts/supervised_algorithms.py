@@ -6,12 +6,12 @@ from sklearn import preprocessing
 import pandas as pd
 import numpy as np
 from scipy.io import arff
+import os
 from os import listdir
 from os.path import isfile, join
 import random
 
 def run_svm(train_X, train_Y, test_X, test_Y, c=1.0, kernel='rbf', degree=3):
-    # clf = svm.SVR()
     clf = svm.SVC(C=c, kernel=kernel, degree=degree, gamma='auto',
                   coef0=0.0, shrinking=True, probability=False,
                   tol=1e-3, cache_size=200, class_weight=None,
@@ -42,19 +42,29 @@ def run_mlp(train_X, train_Y, test_X, test_Y, neurons=100, hidden_layers=1, lr=0
 
     return accuracy
 
-def todo (folder, paramsFolder, numDatasets, output, supervision_rate):
+def run (folder, paramsFolder, output, supervision):
     testFolder = folder.replace("_Train", "_Test")
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
-    outputFile = open("svm_mlp{0}-l{1}.results".format(output, supervision_rate), 'w+')
-
-    arffFiles = []
     svm_acc = []
+
+    max_values_svm = []
+    index_set_svm = []
+    mean_value_svm = []
+    std_value_svm = []
+
     mlp_acc = []
+
+    max_values_mlp = []
+    index_set_mlp = []
+    mean_value_mlp = []
+    std_value_mlp = []
+
+    datasetNames = []
+
     for file in files:
-        if ".arff" in file:
-            arffFiles.append(file)
+        if file.endswith(".arff") and "sup_" in file:
             svm_acc.append([])
             mlp_acc.append([])
 
@@ -67,6 +77,14 @@ def todo (folder, paramsFolder, numDatasets, output, supervision_rate):
             train_Y = np.array(train_Y)
 
             testFile = file.replace("train_", "test_")
+            testFile = testFile.replace("sup_", "")
+
+            if not testFolder.endswith("Test") and not testFolder.endswith("Test/"):
+                if testFolder.endswith("/"):
+                    testFolder = testFolder[:-4]
+                else:
+                    testFolder = testFolder[:-3]
+
             test_X, meta_testX = arff.loadarff(open(join(testFolder, testFile), 'rb'))
             test_X = pd.DataFrame(test_X)
             test_Y = test_X['class']
@@ -83,26 +101,10 @@ def todo (folder, paramsFolder, numDatasets, output, supervision_rate):
             train_X = alldata[:len(train_X)]
             test_X = alldata[len(train_X):]
 
-            while True:
-                rng = np.random.RandomState(random.randint(1, 200000))
-                random_unlabeled_points = rng.rand(len(train_X)) < supervision_rate
-
-                labels_spread = np.copy(train_Y)
-                labels_spread[random_unlabeled_points] = str(-1)
-
-                curr_train_X = train_X[random_unlabeled_points]
-                curr_train_Y = train_Y[random_unlabeled_points]
-
-                if len(curr_train_X) >= int(round(len(train_X) * supervision_rate)):
-                    break;
-
-            train_X = curr_train_X
-            train_Y = curr_train_Y
-
             params = open(paramsFolder, 'r')
             params = np.array(params.readlines())
 
-            for paramsSet in range(0, len(params), 11):
+            for paramsSet in range(0, len(params), 440):
                 # c = float(params[paramsSet])
                 # kernel = getKernel(int(params[paramsSet + 1]))
                 # degree = int(params[paramsSet + 2])
@@ -120,53 +122,52 @@ def todo (folder, paramsFolder, numDatasets, output, supervision_rate):
                                        momentum, mlp_epochs, activation, lr_decay, solver))
 
 
+            # max_values_svm.append(np.nanmax(svm_acc[len(svm_acc) - 1]))
+            # index_set_svm.append(np.nanargmax(svm_acc[len(svm_acc) - 1]))
+
+            # mean_value_svm.append(np.nanmean(svm_acc[len(svm_acc) - 1]))
+            # std_value_svm.append(np.nanstd(svm_acc[len(svm_acc) - 1], ddof=1))
+
+            max_values_mlp.append(np.nanmax(mlp_acc[len(mlp_acc) - 1]))
+            index_set_mlp.append(np.nanargmax(mlp_acc[len(mlp_acc) - 1]))
+
+            mean_value_mlp.append(np.nanmean(mlp_acc[len(mlp_acc) - 1]))
+            std_value_mlp.append(np.nanstd(mlp_acc[len(mlp_acc) - 1], ddof=1))
+
+            datasetNames.append(file[:-5])
+
             outputText = "{0}\nMLP: {1}({2})[{3}]\n\n".format(file,
                                                                         # np.mean(svm_acc[len(svm_acc) - 1]), np.std(svm_acc[len(svm_acc) - 1], ddof=1), np.argmax(svm_acc[len(svm_acc) - 1]),
                                                                         np.mean(mlp_acc[len(mlp_acc) - 1]), np.std(mlp_acc[len(mlp_acc) - 1], ddof=1), np.argmax(mlp_acc[len(mlp_acc) - 1]))
             print outputText
-            outputFile.write(outputText)
 
-    # writeMeans(svm_acc, numDatasets, arffFiles, outputFile, "SVM")
-    # writeBests(svm_acc, numDatasets, arffFiles, outputFile, "SVM")
+    # writeResults(output, supervision, "svm", svm_acc, max_values_svm, index_set_svm,
+    #              mean_value_svm, std_value_svm, datasetNames)
+    writeResults(output, supervision, "mlp", mlp_acc, max_values_mlp, index_set_mlp, mean_value_mlp,
+                 std_value_mlp, datasetNames)
 
-    writeMeans(mlp_acc, numDatasets, arffFiles, outputFile, "MLP")
-    writeBests(mlp_acc, numDatasets, arffFiles, outputFile, "MLP")
+def writeResults(outputPath, supervision, method, accs, max_values, index_set, mean_value, std_value,
+                 datasetNames):
+    if supervision == 1.0:
+        outputFile = open(join(outputPath, "{0}-l100.csv".format(method)), 'w+')
+    else:
+        outputFile = open(
+            join(outputPath, "{0}-l{1}.csv".format(method, ('%.2f' % (supervision)).split(".")[1])), 'w+')
 
-def writeMeans (accs, numDatasets, arffFiles, outputFile, title):
-    nRow = len(accs) / numDatasets
-    outputFile.write("----> {0} Means (stds)\n".format(title))
-    for i in range(nRow):
-        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
-        for j in range(0, len(accs), nRow):
-            outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(accs[j + i]), np.std(accs[j + i], ddof=1)))
-        outputFile.write("\n")
+    line = "max_value," + ",".join(map(str, max_values)) + "\n"
+    line += "index_set," + ",".join(map(str, index_set)) + "\n"
+    line += "mean_value," + ",".join(map(str, mean_value)) + "\n"
+    line += "std_value," + ",".join(map(str, std_value)) + "\n\n"
 
-    outputFile.write("Mean (std)\t")
-    for i in range(0, len(accs), nRow):
-        m_means = []
-        for j in range(nRow):
-            m_means.append(np.mean(accs[j + i]))
-        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
+    line += "experiment," + ",".join(datasetNames) + "\n"
 
-    outputFile.write("\n\n")
+    for i in range(len(accs[0])):
+        line += str(i)
+        for j in range(len(datasetNames)):
+            line += "," + str(accs[j][i])
+        line += "\n"
 
-def writeBests (accs, numDatasets, arffFiles, outputFile, title):
-    nRow = len(accs) / numDatasets
-    outputFile.write("----> {0} Bests\n".format(title))
-    for i in range(nRow):
-        outputFile.write(arffFiles[i][len(arffFiles[i]) - 10:-5] + '\t\t')
-        for j in range(0, len(accs), nRow):
-            outputFile.write("{0:.4f}\t\t\t".format(np.amax(accs[j + i])))
-        outputFile.write("\n")
-
-    outputFile.write("Mean (std)\t")
-    for i in range(0, len(accs), nRow):
-        m_means = []
-        for j in range(nRow):
-            m_means.append(np.amax(accs[j + i]))
-        outputFile.write("{0:.4f} ({1:.4f})\t".format(np.mean(m_means), np.std(m_means, ddof=1)))
-
-    outputFile.write("\n\n")
+    outputFile.write(line)
 
 def getKernel(kernel):
     if kernel == 1:
@@ -205,15 +206,15 @@ def getSolver(solver):
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Train Data Directory', required=True)
 parser.add_argument('-p', help='Parameters', required=True)
-parser.add_argument('-n', help='Number of Datasets', required=True, type=int)
-parser.add_argument('-s', help='Percentage of Supervision', required=True, type=float)
 parser.add_argument('-o', help='Output', required=True)
+parser.add_argument('-s', help='Percentage of Supervision', required=True, type=float)
 args = parser.parse_args()
 
 folder = args.i
 params = args.p
-n = args.n
 output = args.o
 supervision = args.s
 
-todo(folder, params, n, output, supervision)
+if not os.path.isdir(output): os.mkdir(output)
+
+run(folder, params, output, supervision)
