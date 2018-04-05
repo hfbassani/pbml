@@ -35,6 +35,8 @@ public:
     TVector a;
     TVector ds;
     int cls;
+    
+    std::map<int, int> classesMapping;
 
     SSSOMNode(int idIn, const TVector &v) : NodeW(idIn, v) {
         ds.size(v.size());

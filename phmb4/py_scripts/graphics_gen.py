@@ -2,12 +2,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
+import argparse
 
 image_path = "plots/"
 
 #---------------------- Synthetic Data Graphs ----------------------#
 
-def plot_noise_graph(ce, savePlots=False):
+def check_plot_save (path, save, plot):
+    if save:
+        plt.savefig(path)
+
+    if plot:
+        plt.show()
+    else:
+        plt.close()
+
+def plot_noise_graph(ce, save=False, plot=True):
     noise_values = np.linspace(10, 70, num=4)
     noise_labels = ['10%', '30%', '50%', '70%']
 
@@ -21,10 +31,7 @@ def plot_noise_graph(ce, savePlots=False):
     plt.yticks(np.linspace(0, 1, num=11))
     plt.xticks(noise_values)
 
-    if savePlots:
-        plt.savefig("{0}{1}.png".format(image_path, title))
-
-    plt.show()
+    check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
 def subplot_noise_graph(ce, ax):
     noise_values = np.linspace(10, 70, num=4)
@@ -39,7 +46,7 @@ def subplot_noise_graph(ce, ax):
     ax.set_yticks(np.linspace(0, 1, num=11))
     ax.set_xticks(noise_values)
 
-def plot_samples_graph(ce, savePlots=False):
+def plot_samples_graph(ce, save=False, plot=True):
     samples_size = np.linspace(1500, 5500, num=5)
 
     fig, ax = plt.subplots()
@@ -52,10 +59,7 @@ def plot_samples_graph(ce, savePlots=False):
     plt.yticks(np.linspace(0, 1, num=11))
     plt.xticks(samples_size)
 
-    if savePlots:
-        plt.savefig("{0}{1}.png".format(image_path, title))
-
-    plt.show()
+    check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
 def subplot_samples_graph(ce, ax):
     samples_size = np.linspace(1500, 5500, num=5)
@@ -69,7 +73,7 @@ def subplot_samples_graph(ce, ax):
     ax.set_yticks(np.linspace(0, 1, num=11))
     ax.set_xticks(samples_size)
 
-def plot_dimensions_graph(ce, savePlots=False):
+def plot_dimensions_graph(ce, save=False, plot=True):
     x = [5, 10, 15, 20, 25, 50, 75]
 
     fig, ax = plt.subplots()
@@ -82,10 +86,7 @@ def plot_dimensions_graph(ce, savePlots=False):
     plt.xticks(np.linspace(5, 75, num=8))
     plt.yticks(np.linspace(0, 1, num=11))
 
-    if savePlots:
-        plt.savefig("{0}{1}.png".format(image_path, title))
-
-    plt.show()
+    check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
 def subplot_dimensions_graph(ce, ax):
     x = [5, 10, 15, 20, 25, 50, 75]
@@ -99,7 +100,7 @@ def subplot_dimensions_graph(ce, ax):
     ax.set_xticks(np.linspace(5, 75, num=8))
     ax.set_yticks(np.linspace(0, 1, num=11))
 
-def plot_irrelevant_dims_graph(ce, savePlots=False):
+def plot_irrelevant_dims_graph(ce, save=False, plot=True):
     irrelevant_dims_size = np.linspace(0, 5, num=6)
 
     fig, ax = plt.subplots()
@@ -112,10 +113,7 @@ def plot_irrelevant_dims_graph(ce, savePlots=False):
     plt.xticks(irrelevant_dims_size)
     plt.yticks(np.linspace(0, 1, num=11))
 
-    if savePlots:
-        plt.savefig("{0}{1}.png".format(image_path, title))
-
-    plt.show()
+    check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
 def subplot_irrelevant_dims_graph(ce, ax):
     irrelevant_dims_size = np.linspace(0, 5, num=6)
@@ -129,15 +127,15 @@ def subplot_irrelevant_dims_graph(ce, ax):
     ax.set_xticks(irrelevant_dims_size)
     ax.set_yticks(np.linspace(0, 1, num=11))
 
-def plot_synthetic_data_graphs(fileName, savePlots=False):
+def plot_synthetic_data_graphs(fileName, save=False, plot=True):
     results = get_headers(fileName)
 
-    plot_dimensions_graph(results["max_value"][:7], savePlots=savePlots)
-    plot_noise_graph(results["max_value"][7:11], savePlots=savePlots)
-    plot_samples_graph(results["max_value"][11:16], savePlots=savePlots)
-    plot_irrelevant_dims_graph(results["max_value"][16:], savePlots=savePlots)
+    plot_dimensions_graph(results["max_value"][:7], save=save, plot=plot)
+    plot_noise_graph(results["max_value"][7:11], save=save, plot=plot)
+    plot_samples_graph(results["max_value"][11:16], save=save, plot=plot)
+    plot_irrelevant_dims_graph(results["max_value"][16:], save=save, plot=plot)
 
-def subplot_synthetic_data_graphs(fileName, savePlots=False):
+def subplot_synthetic_data_graphs(fileName, save=False, plot=True):
     results = get_headers(fileName)
 
     fig, axs = plt.subplots(nrows=2, ncols=2)
@@ -149,15 +147,12 @@ def subplot_synthetic_data_graphs(fileName, savePlots=False):
 
     fig.tight_layout()
 
-    if (savePlots):
-        plt.savefig("{0}best_values.png".format(image_path))
-
-    plt.show()
+    check_plot_save(path="{0}best_values.png".format(image_path), save=save, plot=plot)
 
 #-------------------------------------------------------------------#
 #---------------------- Common Methods -----------------------------#
 
-def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, savePlots=False):
+def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, save=False, plot=True):
     fig, ax = plt.subplots()
     ax.yaxis.grid()
     ax.set_ylim([0, 1])
@@ -166,10 +161,7 @@ def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, savePlots=False):
     plt.plot(x, y, marker, color=color, clip_on=False)
     plt.yticks(np.linspace(0, 1, num=11))
 
-    if savePlots:
-        plt.savefig("{0}{1}.png".format(image_path, title))
-
-    plt.show()
+    check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
 def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
     ax.yaxis.grid()
@@ -180,7 +172,7 @@ def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
     ax.set_yticks(np.linspace(0, 1, num=11))
 
 def get_headers(fileName):
-    headers = pd.read_csv(fileName, nrows=7, header=None)
+    headers = pd.read_csv(fileName, nrows=9, header=None)
     headers = headers.transpose()
     headers = headers.rename(columns=headers.iloc[0])
     headers = headers.drop([0])
@@ -190,7 +182,7 @@ def get_headers(fileName):
     return headers
 
 def get_params_and_results(fileName):
-    results = pd.read_csv(fileName, skiprows=8, header=None)
+    results = pd.read_csv(fileName, skiprows=10, header=None)
 
     firstParamIndex = results.iloc[0]
     firstParamIndex = firstParamIndex[firstParamIndex == "a_t"].index[0]
@@ -209,7 +201,7 @@ def get_params_and_results(fileName):
 #-------------------------------------------------------------------#
 #---------------------- Parameters Graphs --------------------------#
 
-def plot_params_results(fileName, paramsToPlot=None, savePlots=False):
+def plot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
 
     params, results = get_params_and_results(fileName)
 
@@ -219,16 +211,16 @@ def plot_params_results(fileName, paramsToPlot=None, savePlots=False):
     for param in paramsToPlot:
         for result in results.columns:
 #            if "Accuracy" in result:
-            plot_x_y(params[param], results[result], "{0} - {1}".format(param, result), savePlots=savePlots)
+            plot_x_y(params[param], results[result], "{0} - {1}".format(param, result), save=save, plot=plot)
 
-def subplot_params_results(fileName, paramsToPlot=None, savePlots=False):
+def subplot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
     params, results = get_params_and_results(fileName)
 
     if paramsToPlot == None:
         paramsToPlot = params.columns
 
     if len(paramsToPlot) == 1:
-        plot_params_results(fileName, paramsToPlot, savePlots)
+        plot_params_results(fileName, paramsToPlot, save=save, plot=plot)
 
     ncols = 2
     nrows = int(np.ceil(len(paramsToPlot) / 2.0))
@@ -262,12 +254,9 @@ def subplot_params_results(fileName, paramsToPlot=None, savePlots=False):
 
         fig.tight_layout()
 
-        if (savePlots):
-            plt.savefig("{0}{1}.png".format(image_path, result))
+        check_plot_save(path="{0}{1}.png".format(image_path, result), save=save, plot=plot)
 
-        plt.show()
-
-def plot_gammas_vs_hthresholds(filename, savePlots=False):
+def plot_gammas_vs_hthresholds(filename, save=False, plot=True):
     headers = get_headers(fileName)
     params, _ = get_params_and_results(fileName)
 
@@ -310,24 +299,43 @@ def plot_gammas_vs_hthresholds(filename, savePlots=False):
 
             plt.yticks(np.linspace(0, 1, num=11))
 
-            if savePlots:
-                plt.savefig("{0}gammas_x_hthresh{1}.png".format(image_path, i))
-            
-            plt.show()
+            check_plot_save(path="{0}gammas_x_hthresh{1}.png".format(image_path, i), save=save, plot=plot)
 
 #-------------------------------------------------------------------#
 if not os.path.isdir(image_path): os.mkdir(image_path)
-fileName = "../outputMetrics/test_wide_ranges.csv"
 
-# plot_synthetic_data_graphs(fileName=fileName, savePlots=True)
-#subplot_synthetic_data_graphs(fileName=fileName, savePlots=True)
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', help='File Path', required=True)
+parser.add_argument('-r', help='Number of Heade Rows', required=False, type=int)
+parser.add_argument('-p', help='Parameters to plot', nargs='*', required=False, type=str, default=None)
+parser.add_argument('-s', help='Plot synthethic data', action='store_true', required=False)
+parser.add_argument('--plot', help='Normal plot', action='store_true', required=False)
+parser.add_argument('--subplot', help='Subplot', action='store_true', required=False)
+parser.add_argument('--save', help='Subplot', action='store_true', required=False)
+parser.add_argument('--show', help='Subplot', action='store_true', required=False)
 
-#paramsToPlot = ["a_t", "lp", "dsbeta", "age_wins", "e_b", "e_n", "epsilon_ds", "minwd",
-#                "epochs", "push_rate", "supervision_rate"]
-paramsToPlot = ["a_t", "lp", "e_b"]
-#                "epochs", "push_rate", "supervision_rate"]#, "lp", "push_rate", "supervision_rate"]
-plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=False)
-#subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, savePlots=True)
+args = parser.parse_args()
 
-# plot_gammas_vs_hthresholds(fileName, savePlots=False)
+fileName = args.i
+header_rows = args.r
+paramsToPlot = args.p # ["a_t", "lp", "dsbeta", "age_wins", "e_b", "e_n", "epsilon_ds", "minwd","epochs", "push_rate", "supervision_rate"]
+
+synthetic_plot = args.s
+plot = args.plot
+subplot = args.subplot
+
+save = args.save
+show = args.show
+
+if synthetic_plot:
+    if plot:
+        plot_synthetic_data_graphs(fileName=fileName, save=save, plot=show)
+    elif subplot:
+        subplot_synthetic_data_graphs(fileName=fileName, save=save, plot=show)
+
+else:
+    if plot:
+        plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, save=save, plot=show)
+    elif subplot:
+        subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, save=save, plot=show)
 
