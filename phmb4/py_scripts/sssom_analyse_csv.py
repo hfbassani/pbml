@@ -142,8 +142,8 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
     plot_means = np.transpose(means)
     plot_stds = np.transpose(stds)
 
-    markers = itertools.cycle(('x', 'D', 'o'))
-    linestyles = itertools.cycle(('-.', '--', '-'))
+    markers = itertools.cycle(('x', 'D', 'o', '*'))
+    linestyles = itertools.cycle(('-.', '--', '-', ':'))
 
     for i in xrange(len(datasets)):
         fig, ax = plt.subplots()
