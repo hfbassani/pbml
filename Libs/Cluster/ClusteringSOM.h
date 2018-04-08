@@ -182,45 +182,38 @@ public:
     float activation(DSNode* node, MatVector<float> &w) {
         int end = 0;
         float tempDistance = 0;
-        node->index_at = 0;
         float distance = 0;
+        float sum = 0;
+        float tempSum = 0;
+        node->index_at = 0;
         if (node->w.size() <= w.size()) {
             end = node->w.size();
             for (uint i = 0; i < end; i++) {
                 distance += node->ds[i] * qrt((w[i] - node->w[i]));
-                if (std::isnan(w[i]) || std::isnan(distance)) {
-                    std::cout << i << " - Debug 1" << endl;
-                }
+                sum += node->ds[i];
             }
         } else {
 
-            distance = 999;
+            distance = 99999999;
             for (uint i = 0; i <= (node->w.size() - w.size()); i += 12) {
                 tempDistance = 0;
+                tempSum = 0;
                 for (uint j = 0; j < w.size(); j++) {
                     //cout << i << " - " << j << " - " << tempDistance << " | ";
                     tempDistance += node->ds[i + j] * qrt((w[j] - node->w[i + j]));
-                    if (std::isnan(w[j]) || std::isnan(tempDistance)) {
-                        std::cout << i << " - Debug 2" << endl;
-                    }
-
+                    tempSum += node->ds[i + j];
                 }
 
                 if (tempDistance < distance) {
                     distance = tempDistance;
                     node->index_at = i;
+                    sum = tempSum;
                 }
             }
         }
-
-
-        //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
-
-
-        float sum = node->ds.sum();
+        //dbgOut(1) <<"N:" << node->w.size() << "\t" << "E:" << w.size();
 
         return (sum / (sum + distance + 0.0000001));
-
     }
 
     MatVector<int> writeClusterResultsReadable(const std::string &filename, MatMatrix<float> &data, std::string &featuresDict,
@@ -320,7 +313,7 @@ public:
             DSNode* winner = som->getWinner(sample);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
-            
+
             a = activation(winner, sample);
 
             if (a >= at_min) {
@@ -465,15 +458,15 @@ public:
             MatVector<float> sample;
             MatVector<float> sampleFilter;
             trainingData->getRow(i, sample);
-            
-            for(int t = 0; t < sample.size(); t++){
-                if (sample[t] != 5){
+
+            for (int t = 0; t < sample.size(); t++) {
+                if (sample[t] != 5) {
                     sampleFilter.append(sample[t]);
-                }else{
+                } else {
                     break;
                 }
             }
-            
+
             if (filterNoise && isNoise(sampleFilter))
                 continue;
 
@@ -481,9 +474,9 @@ public:
             DSNode* winner = som->getWinner(sampleFilter);
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
-            
+
             a = activation(winner, sampleFilter);
-            
+
             if (a >= at_min) {
                 at_know++;
                 winner->at_Know = winner->at_Know + 1;
@@ -497,10 +490,10 @@ public:
             MatVector<float> rowOfDataFilter;
             MatVector<float> rowOfData;
             data.getRow(i, rowOfData);
-            for(int t = 0; t < rowOfData.size(); t++){
-                if (rowOfData[t] != 5){
+            for (int t = 0; t < rowOfData.size(); t++) {
+                if (rowOfData[t] != 5) {
                     rowOfDataFilter.append(rowOfData[t]);
-                }else{
+                } else {
                     break;
                 }
             }
@@ -604,7 +597,7 @@ public:
             winners.push_back(winner->getId());
             //Verificar ativação para calculo de métricas 
 
-            
+
             a = activation(winner, sample);
             uint index = winner->index_at;
             if (a >= at_min) {

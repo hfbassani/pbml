@@ -75,39 +75,36 @@ public:
         int end = 0;
         float tempDistance = 0;
         float distance = 0;
+        float sum = 0;
+        float tempSum = 0;
         node.index_at = 0;
         if (node.w.size() <= w.size()) {
             end = node.w.size();
             for (uint i = 0; i < end; i++) {
                 distance += node.ds[i] * qrt((w[i] - node.w[i]));
+                sum += node.ds[i];
             }
         } else {
 
             distance = 99999999;
             for (uint i = 0; i <= (node.w.size() - w.size()); i += 12) {
                 tempDistance = 0;
+                tempSum = 0;
                 for (uint j = 0; j < w.size(); j++) {
                     //cout << i << " - " << j << " - " << tempDistance << " | ";
                     tempDistance += node.ds[i + j] * qrt((w[j] - node.w[i + j]));
-                    if (std::isnan(w[j]) || std::isnan(tempDistance)) {
-                        std::cout << i << " - Debug 2" << endl;
-                    }
-
+                    tempSum += node.ds[i + j];
                 }
 
                 if (tempDistance < distance) {
                     distance = tempDistance;
                     node.index_at = i;
+                    sum = tempSum;
                 }
             }
         }
-
-
         //dbgOut(1) <<"N:" << node.w.size() << "\t" << "E:" << w.size();
-
-
-        float sum = node.ds.sum();
-
+        
         return (sum / (sum + distance + 0.0000001));
     }
 
