@@ -41,6 +41,7 @@ public:
     LHSParameter c;
     LHSParameter kernel;
     LHSParameter degree;
+    LHSParameter svm_gamma;
     
     //MLP
     LHSParameter neurons;
@@ -99,6 +100,7 @@ public:
         addParameterD(c, "seed");
         addParameterD(kernel, "seed");
         addParameterD(degree, "seed");
+        addParameterD(svm_gamma, "seed");
         
         addParameterD(neurons, "seed");
         addParameterD(hidden_layers, "seed");
@@ -163,6 +165,7 @@ public:
         c.setRange(0.1, 10) = 0.1;
         kernel.setRange(1, 4) = 1;
         degree.setRange(3, 5) = 3;
+        svm_gamma.setRange(0.1, 1) = 0.1;
         
         neurons.setRange(1, 100) = 1;
         hidden_layers.setRange(1, 3) = 1;
@@ -212,6 +215,7 @@ public:
         addParameterToLHS(c);
         addParameterToLHS(kernel);
         addParameterToLHS(degree);
+        addParameterToLHS(svm_gamma);
         
         addParameterToLHS(neurons);
         addParameterToLHS(hidden_layers);

@@ -10,17 +10,6 @@ from os import listdir
 from os.path import isfile, join
 import random
 
-
-def run_LabelPropagation(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20, n_neighbors=7, max_iter=1000):
-    clf = semi_supervised.LabelPropagation(kernel=kernel, gamma=gamma, n_neighbors=n_neighbors, max_iter=max_iter)
-
-    clf.fit(train_X, train_Y)
-
-    accuracy = metrics.accuracy_score(clf.predict(test_X), test_Y)
-
-    return accuracy
-
-
 def run_LabelSpreading(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20, n_neighbors=7, alpha=0.2, max_iter=30):
     clf = semi_supervised.LabelSpreading(kernel=kernel, gamma=gamma, n_neighbors=n_neighbors, alpha=alpha,
                                          max_iter=max_iter)
@@ -30,7 +19,6 @@ def run_LabelSpreading(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20,
     accuracy = metrics.accuracy_score(clf.predict(test_X), test_Y)
 
     return accuracy
-
 
 def run(folder, paramsFolder, output, supervision):
     testFolder = folder.replace("_Train", "_Test")
@@ -44,19 +32,11 @@ def run(folder, paramsFolder, output, supervision):
     mean_value_spr = []
     std_value_spr = []
 
-    propagation_acc = []
-
-    max_values_prop = []
-    index_set_prop = []
-    mean_value_prop = []
-    std_value_prop = []
-
     datasetNames = []
 
     for file in files:
         if file.endswith(".arff") and "sup_" not in file:
             spreading_acc.append([])
-            propagation_acc.append([])
 
             train_X, meta_trainX = arff.loadarff(open(join(folder, file), 'rb'))
             train_X = pd.DataFrame(train_X)
@@ -94,7 +74,7 @@ def run(folder, paramsFolder, output, supervision):
             params = open(paramsFolder, 'r')
             params = np.array(params.readlines())
 
-            for paramsSet in range(0, len(params), 9):
+            for paramsSet in range(0, len(params), 5):
                 kernel_spreading = getKernel(int(params[paramsSet]))
                 gamma_spreading = float(params[paramsSet + 1])
                 n_neighbors_spreading = int(params[paramsSet + 2])
@@ -112,46 +92,19 @@ def run(folder, paramsFolder, output, supervision):
                                                                                 alpha=alpha_spreading,
                                                                                 max_iter=max_iter_spreading))
 
-                kernel_propagation = getKernel(int(params[paramsSet + 5]))
-                gamma_propagation = float(params[paramsSet + 6])
-                n_neighbors_propagation = int(params[paramsSet + 7])
-                max_iter_propagation = int(params[paramsSet + 8])
-
-                rng = np.random.RandomState(random.randint(1, 200000))
-                random_unlabeled_points = rng.rand(len(train_Y)) > supervision
-                labels_prop = np.copy(train_Y)
-                labels_prop[random_unlabeled_points] = str(-1)
-                propagation_acc[len(propagation_acc) - 1].append(
-                    run_LabelPropagation(train_X, labels_prop, test_X, test_Y,
-                                         kernel=kernel_propagation,
-                                         gamma=gamma_propagation,
-                                         n_neighbors=n_neighbors_propagation,
-                                         max_iter=max_iter_propagation))
-
             max_values_spr.append(np.nanmax(spreading_acc[len(spreading_acc) - 1]))
             index_set_spr.append(np.nanargmax(spreading_acc[len(spreading_acc) - 1]))
 
             mean_value_spr.append(np.nanmean(spreading_acc[len(spreading_acc) - 1]))
             std_value_spr.append(np.nanstd(spreading_acc[len(spreading_acc) - 1], ddof=1))
 
-            max_values_prop.append(np.nanmax(propagation_acc[len(propagation_acc) - 1]))
-            index_set_prop.append(np.nanargmax(propagation_acc[len(propagation_acc) - 1]))
-
-            mean_value_prop.append(np.nanmean(propagation_acc[len(propagation_acc) - 1]))
-            std_value_prop.append(np.nanstd(propagation_acc[len(propagation_acc) - 1], ddof=1))
 
             datasetNames.append(file[:-5])
-            outputText = "{0}\nPropagation: {1}({2})[{3}]\nSpreading: {4}({5})[{6}]\n\n".format(file,
-                                                                                                np.nanmean(propagation_acc[len(propagation_acc) - 1]),
-                                                                                                np.nanstd(propagation_acc[len(propagation_acc) - 1], ddof=1),
-                                                                                                np.nanargmax(propagation_acc[len(propagation_acc) - 1]),
-                                                                                                np.nanmean(spreading_acc[len(spreading_acc) - 1]),
-                                                                                                np.nanstd(spreading_acc[len(spreading_acc) - 1], ddof=1),
-                                                                                                np.nanargmax(spreading_acc[len(spreading_acc) - 1]))
+            outputText = "{0}\nSpreading: {1}({2})[{3}]\n\n".format(file, np.nanmean(spreading_acc[len(spreading_acc) - 1]),
+                                                                    np.nanstd(spreading_acc[len(spreading_acc) - 1], ddof=1),
+                                                                    np.nanargmax(spreading_acc[len(spreading_acc) - 1]))
             print outputText
 
-    writeResults(output, supervision, "label-propagation", propagation_acc, max_values_prop, index_set_prop,
-                 mean_value_prop, std_value_prop, datasetNames)
     writeResults(output, supervision, "label-spreading", spreading_acc, max_values_spr, index_set_spr, mean_value_spr,
                  std_value_spr, datasetNames)
 

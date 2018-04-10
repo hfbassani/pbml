@@ -44,13 +44,10 @@ def analyse (folder, rows):
     line = " \t" + "\t".join(datasets) + "\n"
     for i in range(len(headers)):
         local_max_values = headers[i]["max_value"]
-        local_mean_value = headers[i]["mean_value"]
 
         datasets_max_values = []
-        datasets_mean_value = []
 
         means_max_values = []
-        means_mean_value = []
         std_max_values = []
 
         for j in range(0, len(folds), len(folds) / len(datasets)):
@@ -59,15 +56,11 @@ def analyse (folder, rows):
             means_max_values.append(np.nanmean(local_data))
             std_max_values.append(np.nanstd(local_data, ddof=1))
 
-            local_mean_value = np.array(local_mean_value)[j:j + len(folds) / len(datasets)]
-            datasets_mean_value.append(local_mean_value)
-            means_mean_value.append(np.nanmean(local_mean_value))
-
         line += files[i] + "\n"
         line += "means_max_values\t" + "\t".join(map(str, means_max_values)) + "\n"
         line += "std_max_values\t" + "\t".join(map(str, std_max_values)) + "\n"
 
-    outputFile = open(join(folder + ".csv"), "w+")
+    outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
     outputFile.write(line)
 
 parser = argparse.ArgumentParser()

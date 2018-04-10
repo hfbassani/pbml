@@ -16,11 +16,14 @@
 
 using namespace std;
 
-void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters);
-void createParametersFileSSSOM(MyParameters * params, string fileName, int qtdParameters);
+void createLARFDSSOMParameters(MyParameters * params, string fileName, int qtdParameters);
+void createSSSOMParameters(MyParameters * params, string fileName, int qtdParameters);
 void createParametersFileExperiments(MyParameters * params, string fileName, int qtdParameters);
-void createParametersMLP_SVM(MyParameters * params, string fileName, int qtdParameters);
-void createLVQParameters(MyParameters * params, string fileName, int qtdParameters);
+void createMLPParameters(MyParameters * params, string fileName, int qtdParameters);
+void createSVMParameters(MyParameters * params, string fileName, int qtdParameters);
+void createGLVQParameters(MyParameters * params, string fileName, int qtdParameters);
+void createLabelSpreadingParameters(MyParameters * params, string fileName, int qtdParameters);
+void createLabelPropagationParameters(MyParameters * params, string fileName, int qtdParameters);
 
 std::vector<float> loadParametersFile(int number);
 
@@ -34,11 +37,14 @@ int main(int argc, char** argv) {
     bool simulatedData = false;
     bool hybridVersion = false;
 
-    bool SVMMLP = false;
-    bool lvq = false;
+    bool SVM = false;
+    bool MLP = false;
+    bool GRLVQ = false;
+    bool PROP = false;
+    bool SPR = false;
     
     int c;
-    while ((c = getopt(argc, argv, "f:n:r:sohdl")) != -1) {
+    while ((c = getopt(argc, argv, "f:n:r:sohMSGPL")) != -1) {
         switch (c) {
             case 'f':
                 filename.assign(optarg);
@@ -58,10 +64,18 @@ int main(int argc, char** argv) {
             case 'h':
                 hybridVersion = true;
                 break;
-            case 'd':
-                SVMMLP = true;
-            case 'l':
-                lvq = true;
+            case 'M':
+                MLP = true;
+            case 'S':
+                SVM = true;
+            case 'G':
+                GRLVQ = true;
+                break;
+            case 'P':
+                PROP = true;
+                break;
+            case 'L':
+                SPR = true;
                 break;
         }
     }
@@ -82,13 +96,19 @@ int main(int argc, char** argv) {
     
     for (int i = 0 ; i < qtd_files ; ++i) {
         if (originalVersion) {
-            createParametersFileOriginalLARFDSSOM(&params, filename + "_" + std::to_string(i), qtd_parameter);   
+            createLARFDSSOMParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);   
         } else if(hybridVersion){
-            createParametersFileSSSOM(&params, filename + "_" + std::to_string(i), qtd_parameter);
-        } else if(SVMMLP){
-            createParametersMLP_SVM(&params, filename + "_" + std::to_string(i), qtd_parameter);
-        } else if(lvq){
-            createLVQParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
+            createSSSOMParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
+        } else if(MLP){
+            createMLPParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
+        } else if(SVM){
+            createSVMParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
+        } else if(GRLVQ){
+            createGLVQParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
+        } else if(PROP){
+            createLabelPropagationParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
+        } else if(SPR){
+            createLabelSpreadingParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
         } else {
             createParametersFileExperiments(&params, filename + "_" + std::to_string(i), qtd_parameter);
         }
@@ -114,7 +134,7 @@ std::vector<float> loadParametersFile(string fileName) {
     return params;
 }
 
-void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileName, int qtdParameters) {
+void createLARFDSSOMParameters(MyParameters * params, string fileName, int qtdParameters) {
     std::ofstream file;
     file.open(fileName.c_str());
     
@@ -136,7 +156,7 @@ void createParametersFileOriginalLARFDSSOM(MyParameters * params, string fileNam
     file.close();
 }
 
-void createParametersFileSSSOM(MyParameters * params, string fileName, int qtdParameters) {
+void createSSSOMParameters(MyParameters * params, string fileName, int qtdParameters) {
     std::ofstream file;
     file.open(fileName.c_str());
     
@@ -159,7 +179,7 @@ void createParametersFileSSSOM(MyParameters * params, string fileName, int qtdPa
     file.close();
 }
 
-void createLVQParameters(MyParameters * params, string fileName, int qtdParameters) {
+void createGLVQParameters(MyParameters * params, string fileName, int qtdParameters) {
     std::ofstream file;
     file.open(fileName.c_str());
 
@@ -202,18 +222,13 @@ void createParametersFileExperiments(MyParameters * params, string fileName, int
     file.close();
 }
 
-void createParametersMLP_SVM(MyParameters * params, string fileName, int qtdParameters) {
+void createMLPParameters(MyParameters * params, string fileName, int qtdParameters) {
     std::ofstream file;
     file.open(fileName.c_str());
 
-    cout << "createParametersMLP_SVM" << endl;
+    cout << "createParametersMLP" << endl;
     
     for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
-        file << params->c << "\n";
-        file << round(params->kernel) << "\n";
-        file << round(params->degree) << "\n";
-        
-        
         file << round(params->neurons) << "\n";;
         file << round(params->hidden_layers) << "\n";
         file << params->lr << "\n";
@@ -222,6 +237,55 @@ void createParametersMLP_SVM(MyParameters * params, string fileName, int qtdPara
         file << round(params->activation) << "\n";
         file << round(params->lr_decay) << "\n";
         file << round(params->solver) << "\n";
+    }
+    
+    file.close();
+}
+
+void createSVMParameters(MyParameters * params, string fileName, int qtdParameters) {
+    std::ofstream file;
+    file.open(fileName.c_str());
+
+    cout << "createParametersSVM" << endl;
+    
+    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
+        file << params->c << "\n";
+        file << round(params->kernel) << "\n";
+        file << round(params->degree) << "\n";
+        file << params->svm_gamma << "\n";
+    }
+    
+    file.close();
+}
+
+void createLabelSpreadingParameters(MyParameters * params, string fileName, int qtdParameters) {
+    std::ofstream file;
+    file.open(fileName.c_str());
+
+    cout << "createParametersSpreading" << endl;
+    
+    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
+        file << round(params->kernel_spreading) << "\n";
+        file << params->gamma_spreading << "\n";
+        file << round(params->neighbors_spreading) << "\n";
+        file << params->alpha_spreading << "\n";
+        file << round(params->epochs_spreading) << "\n";
+    }
+    
+    file.close();
+}
+
+void createLabelPropagationParameters(MyParameters * params, string fileName, int qtdParameters) {
+    std::ofstream file;
+    file.open(fileName.c_str());
+
+    cout << "createParametersPropagation" << endl;
+    
+    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
+        file << round(params->kernel_propagation) << "\n";
+        file << params->gamma_propagation << "\n";
+        file << round(params->neighbors_propagation) << "\n";
+        file << round(params->epochs_propagation) << "\n";
     }
     
     file.close();

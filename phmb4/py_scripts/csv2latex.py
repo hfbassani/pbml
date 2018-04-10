@@ -1,16 +1,13 @@
 import argparse
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from os import listdir
 from os.path import isfile, join
-import subprocess
-import itertools
 
-def analyse (folder, rows, plot, save, extension, extra_results):
+def csv2latex (folder, rows):
     datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
 
-    plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results)
+    latex_table(plot_means, plot_stds, datasets)
 
     if folder.endswith("/"):
         folder = folder[:-1]
@@ -135,66 +132,32 @@ def summarize(folder, rows):
 
     return datasets, method, line, plot_means, plot_stds
 
-def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results):
-    percentage_values = np.linspace(1, 100, num=7)
-    percentage_labels = ['1%', '5%', '10%', '25%', '50%', '75%', '100%']
+def latex_table(means, stds, datasets):
+    table = "\hline \n"
+    table += "\\bfseries  Metric & \\bfseries "
+    dataset_names = [dataset.replace("sup_", "").split("_")[1].capitalize() for dataset in datasets]
 
-    plot_means = np.transpose(means)
-    plot_stds = np.transpose(stds)
+    table += " & \\bfseries ".join(dataset_names) + " \\\\ \n"
+    table += "\hline\hline \n"
 
-    markers = itertools.cycle(('x', 'D', '*'))
-    linestyles = itertools.cycle(('-.', '--', ':'))
+    for i in xrange(len(means)):
+        local_mean = means[i]
+        local_std = stds[i]
 
-    for i in xrange(len(datasets)):
-        fig, ax = plt.subplots()
-        ax.yaxis.grid()
-        ax.set_ylim([0, 1])
-        ax.set_xticklabels(percentage_labels)
+        for j in xrange(len(local_mean)):
+            table += " & " + '%.3f' % (local_mean[j]) + " (" + '%.3f' % (local_std[j]) + ")"
 
-        title = datasets[i].split("_")[1].capitalize()
-        plt.title(title, fontsize=14)
-        plt.yticks(np.linspace(0, 1, num=11))
-        plt.xticks(percentage_values)
+        table += " \\\\ \n"
 
-        for extra in extra_results:
-            datasets_extra, method_extra, line_extra, plot_means_extra, plot_stds_extra = summarize(extra, 4)
-
-            plt.errorbar(percentage_values, [item[i] for item in plot_means_extra], [item[i] for item in plot_stds_extra], label=method_extra,
-                         linestyle=linestyles.next(), marker=markers.next(), clip_on=False, markeredgewidth=2, capsize=5)
-
-        plt.errorbar(percentage_values, plot_means[i], plot_stds[i], label='SS-SOM',
-                     linestyle='-', marker='o', clip_on=False, markeredgewidth=2, capsize=5)
-
-        plt.legend(loc='best')
-
-        if save:
-            for extension in extensions:
-                plt.savefig(join(folder,"{0}-wcci.{1}".format(title, extension)))
-
-        if plot:
-            plt.show()
-        else:
-            plt.close()
+    table += "\hline"
+    print table
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Directory Path', required=True)
 parser.add_argument('-r', help='Number of Heade Rows', required=False, type=int)
-parser.add_argument('-p', help='Plot Graphs', action='store_true', required=False)
-parser.add_argument('-s', help='Save Graphs', action='store_true', required=False)
-parser.add_argument('-e', help='Extension', nargs='+', required=True, type=str)
-parser.add_argument('-a', help='Additional .csv files to plot', nargs='+', required=False, type=str)
-
 args = parser.parse_args()
 
 folder = args.i
 rows = args.r
-plot_flag = args.p
-save_flag = args.s
-extensions = args.e
-extra_results = args.a
 
-analyse(folder, rows, plot_flag, save_flag, extensions, extra_results)
-
-for extension in extensions:
-    if extension.endswith("pdf") and save_flag:
-        subprocess.call(["sh", "crop.sh", "{0}".format(folder)])
+csv2latex(folder, rows)
