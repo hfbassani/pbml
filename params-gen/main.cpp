@@ -253,6 +253,7 @@ void createSVMParameters(MyParameters * params, string fileName, int qtdParamete
         file << round(params->kernel) << "\n";
         file << round(params->degree) << "\n";
         file << params->svm_gamma << "\n";
+        file << params->coef0 << "\n";
     }
     
     file.close();

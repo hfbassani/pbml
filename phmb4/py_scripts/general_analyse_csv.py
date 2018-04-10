@@ -60,6 +60,9 @@ def analyse (folder, rows):
         line += "means_max_values\t" + "\t".join(map(str, means_max_values)) + "\n"
         line += "std_max_values\t" + "\t".join(map(str, std_max_values)) + "\n"
 
+    if folder.endswith("/"):
+        folder = folder[:-1]
+
     outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
     outputFile.write(line)
 

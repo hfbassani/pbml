@@ -9,9 +9,9 @@ import os
 from os import listdir
 from os.path import isfile, join
 
-def run_svm(train_X, train_Y, test_X, test_Y, c=1.0, kernel='rbf', degree=3, gamma=0.1):
+def run_svm(train_X, train_Y, test_X, test_Y, c=1.0, kernel='rbf', degree=3, gamma=0.1, coef0=0.0):
     clf = svm.SVC(C=c, kernel=kernel, degree=degree, gamma=gamma,
-                  coef0=0.0, shrinking=True, probability=False,
+                  coef0=coef0, shrinking=True, probability=False,
                   tol=1e-3, cache_size=200, class_weight=None,
                   verbose=False, max_iter=-1, decision_function_shape=None,
                   random_state=None)
@@ -76,12 +76,13 @@ def run (folder, paramsFolder, output):
             params = open(paramsFolder, 'r')
             params = np.array(params.readlines())
 
-            for paramsSet in range(0, len(params), 4):
+            for paramsSet in range(0, len(params), 5):
                 c = float(params[paramsSet])
                 kernel = getKernel(int(params[paramsSet + 1]))
                 degree = int(params[paramsSet + 2])
                 gamma = float(params[paramsSet + 3])
-                svm_acc[len(svm_acc) - 1].append(run_svm(train_X, train_Y, test_X, test_Y, c, kernel, degree, gamma))
+                coef0 = float(params[paramsSet + 4])
+                svm_acc[len(svm_acc) - 1].append(run_svm(train_X, train_Y, test_X, test_Y, c, kernel, degree, gamma, coef0))
 
             max_values_svm.append(np.nanmax(svm_acc[len(svm_acc) - 1]))
             index_set_svm.append(np.nanargmax(svm_acc[len(svm_acc) - 1]))

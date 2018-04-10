@@ -42,6 +42,7 @@ public:
     LHSParameter kernel;
     LHSParameter degree;
     LHSParameter svm_gamma;
+    LHSParameter coef0;
     
     //MLP
     LHSParameter neurons;
@@ -87,7 +88,7 @@ public:
         addParameterD(age_wins, "Max competitions");
         addParameterD(e_b, "learning rate");
         addParameterD(e_b_sup, "learning rate");
-        addParameterD(e_n, "Cluster Percentage");
+        addParameterD(e_n, "neighbors learning rate");
         addParameterD(epsilon_ds, "Relevance rate");
         addParameterD(minwd, "Relevance rate");
         addParameterD(epochs, "Epochs");
@@ -101,6 +102,7 @@ public:
         addParameterD(kernel, "seed");
         addParameterD(degree, "seed");
         addParameterD(svm_gamma, "seed");
+        addParameterD(coef0, "seed");
         
         addParameterD(neurons, "seed");
         addParameterD(hidden_layers, "seed");
@@ -166,6 +168,7 @@ public:
         kernel.setRange(1, 4) = 1;
         degree.setRange(3, 5) = 3;
         svm_gamma.setRange(0.1, 1) = 0.1;
+        coef0.setRange(0.01, 1) = 0.01;
         
         neurons.setRange(1, 100) = 1;
         hidden_layers.setRange(1, 3) = 1;
@@ -216,6 +219,7 @@ public:
         addParameterToLHS(kernel);
         addParameterToLHS(degree);
         addParameterToLHS(svm_gamma);
+        addParameterToLHS(coef0);
         
         addParameterToLHS(neurons);
         addParameterToLHS(hidden_layers);
