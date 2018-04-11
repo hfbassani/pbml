@@ -4,7 +4,7 @@ import numpy as np
 from os import listdir
 from os.path import isfile, join
 
-def csv2latex (folder, rows):
+def csv2latex_mean_std (folder, rows):
     datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
 
     latex_table(plot_means, plot_stds, datasets)
@@ -160,4 +160,4 @@ args = parser.parse_args()
 folder = args.i
 rows = args.r
 
-csv2latex(folder, rows)
+csv2latex_mean_std(folder, rows)

@@ -183,6 +183,7 @@ parser.add_argument('-p', help='Plot Graphs', action='store_true', required=Fals
 parser.add_argument('-s', help='Save Graphs', action='store_true', required=False)
 parser.add_argument('-e', help='Extension', nargs='+', required=True, type=str)
 parser.add_argument('-a', help='Additional .csv files to plot', nargs='+', required=False, type=str)
+parser.add_argument('-c', help='Crop PDF', action='store_true', required=False)
 
 args = parser.parse_args()
 
@@ -192,9 +193,10 @@ plot_flag = args.p
 save_flag = args.s
 extensions = args.e
 extra_results = args.a
+crop = args.c
 
 analyse(folder, rows, plot_flag, save_flag, extensions, extra_results)
 
 for extension in extensions:
-    if extension.endswith("pdf") and save_flag:
+    if extension.endswith("pdf") and save_flag and crop:
         subprocess.call(["sh", "crop.sh", "{0}".format(folder)])
