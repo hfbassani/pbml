@@ -181,11 +181,14 @@ parser.add_argument('-i', help='Directory Path', required=True)
 parser.add_argument('-r', help='Number of Heade Rows', required=False, type=int)
 parser.add_argument('-p', help='Plot Graphs', action='store_true', required=False)
 parser.add_argument('-s', help='Save Graphs', action='store_true', required=False)
-parser.add_argument('-e', help='Extension', nargs='+', required=True, type=str)
-parser.add_argument('-a', help='Additional .csv files to plot', nargs='+', required=False, type=str)
+parser.add_argument('-e', help='Extension', nargs='+', required=False, type=str)
+parser.add_argument('-a', help='Additional .csv files to plot', nargs='+', required=False, type=str, default=[])
 parser.add_argument('-c', help='Crop PDF', action='store_true', required=False)
 
 args = parser.parse_args()
+
+if args.s and not args.e:
+    parser.error("[-s save] requires [-e extension(s)].")
 
 folder = args.i
 rows = args.r
