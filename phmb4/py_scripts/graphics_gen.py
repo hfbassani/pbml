@@ -175,6 +175,7 @@ def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, save=False, plot=T
     x = x.values.astype(float)
     y = y.values.astype(float)
 
+    plt.rc('font', family='serif')
     plt.title(title, fontsize=fontSize)
     plt.plot(x, y, marker, color=color, clip_on=False)
     plt.yticks(np.linspace(0, 1, num=11))
@@ -187,6 +188,7 @@ def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
     ax.yaxis.grid()
     ax.set_ylim([0, 1])
 
+    ax.rc('font', family='serif')
     ax.set_title(title, fontsize=fontSize)
     ax.plot(x, y, marker, color=color, clip_on=False)
     ax.set_yticks(np.linspace(0, 1, num=11))

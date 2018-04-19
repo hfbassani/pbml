@@ -152,6 +152,8 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
         ax.set_xticklabels(percentage_labels)
 
         title = datasets[i].split("_")[1].capitalize()
+
+        plt.rc('font', family='serif')
         plt.title(title, fontsize=14)
         plt.yticks(np.linspace(0, 1, num=11))
         plt.xticks(percentage_values)
@@ -205,6 +207,5 @@ save_flag = args.s
 extensions = args.e
 extra_results = args.a
 crop = args.c
-pdf2png = args.pdf2png
 
 analyse(folder, rows, plot_flag, save_flag, extensions, extra_results, crop)
