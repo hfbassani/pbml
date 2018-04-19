@@ -7,10 +7,10 @@ from os.path import isfile, join
 import subprocess
 import itertools
 
-def analyse (folder, rows, plot, save, extension, extra_results):
+def analyse (folder, rows, plot, save, extension, extra_results, crop):
     datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
 
-    plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results)
+    plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results, crop)
 
     if folder.endswith("/"):
         folder = folder[:-1]
@@ -135,7 +135,7 @@ def summarize(folder, rows):
 
     return datasets, method, line, plot_means, plot_stds
 
-def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results):
+def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results, crop):
     percentage_values = np.linspace(1, 100, num=7)
     percentage_labels = ['1%', '5%', '10%', '25%', '50%', '75%', '100%']
 
@@ -169,7 +169,12 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
 
         if save:
             for extension in extensions:
-                plt.savefig(join(folder,"{0}-wcci.{1}".format(title, extension)))
+                plotPath = join(folder,"{0}-wcci.{1}".format(title, extension))
+
+                if crop:
+                    plt.savefig(plotPath, bbox_inches='tight', pad_inches = 0)
+                else:
+                    plt.savefig(plotPath)
 
         if plot:
             plt.show()
@@ -190,6 +195,9 @@ args = parser.parse_args()
 if args.s and not args.e:
     parser.error("[-s save] requires [-e extension(s)].")
 
+if args.c and not args.s or not args.e:
+    parser.error("[-c crop] requires [-s save] and [-e extension(s)].")
+
 folder = args.i
 rows = args.r
 plot_flag = args.p
@@ -197,9 +205,6 @@ save_flag = args.s
 extensions = args.e
 extra_results = args.a
 crop = args.c
+pdf2png = args.pdf2png
 
-analyse(folder, rows, plot_flag, save_flag, extensions, extra_results)
-
-for extension in extensions:
-    if extension.endswith("pdf") and save_flag and crop:
-        subprocess.call(["sh", "crop.sh", "{0}".format(folder)])
+analyse(folder, rows, plot_flag, save_flag, extensions, extra_results, crop)

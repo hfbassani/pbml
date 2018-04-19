@@ -155,8 +155,6 @@ def check_plot_save (path, save, plot):
         plt.close()
 
 def plot_fit_linear(to_plot, x, y):
-    x = x.values
-    y = y.values.astype(np.float)
 
     # Create linear regression object
     regr = linear_model.LinearRegression()
@@ -173,6 +171,9 @@ def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, save=False, plot=T
     fig, ax = plt.subplots()
     ax.yaxis.grid()
     ax.set_ylim([0, 1])
+
+    x = x.values.astype(float)
+    y = y.values.astype(float)
 
     plt.title(title, fontsize=fontSize)
     plt.plot(x, y, marker, color=color, clip_on=False)
