@@ -205,7 +205,7 @@ rows = args.r
 plot_flag = args.p
 save_flag = args.s
 extensions = args.e
-extra_results = args.a
+extra_results = sorted(args.a)
 crop = args.c
 
 analyse(folder, rows, plot_flag, save_flag, extensions, extra_results, crop)
