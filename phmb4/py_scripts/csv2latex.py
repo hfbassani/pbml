@@ -114,7 +114,7 @@ def summarize(folder, rows):
 def latex_table(means, stds, datasets):
     table = "\\begin{table*}[ht] \n"
     table += "\small \n"
-    table += "\\renewcommand{\arraystretch}{1.3} \n"
+    table += "\\renewcommand{\\arraystretch}{1.3} \n"
     table += "\caption{Accuracy Results for Real-World Datasets} \n"
     table += "\label{tab:results} \n"
     table += "\centering \n"
