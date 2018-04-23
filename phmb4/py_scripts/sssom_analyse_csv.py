@@ -4,16 +4,16 @@ import pandas as pd
 import numpy as np
 from os import listdir
 from os.path import isfile, join
-import subprocess
 import itertools
 
 def analyse (folder, rows, plot, save, extension, extra_results, crop):
-    datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
-
-    plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results, crop)
 
     if folder.endswith("/"):
         folder = folder[:-1]
+
+    datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
+
+    plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results, crop)
 
     outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
     outputFile.write(line)
@@ -23,7 +23,8 @@ def summarize(folder, rows):
     if rows == None:
         headerRows = 9
 
-    files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv")  and not f.startswith('analysis-')]
+    files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv")
+             and not f.startswith('analysis-') and not f.startswith('parameters-')]
     files = sorted(files, key=lambda x: int(x[:-4].split("-l")[-1]))
 
     method = files[0].split("-l")[0]
@@ -45,12 +46,13 @@ def summarize(folder, rows):
 
             if len(datasets) <= 0:
                 results = pd.read_csv(join(folder, file), skiprows=headerRows + 1, header=None)
-
                 datasets = results.iloc[0]
                 if 'a_t' in datasets.values:
                     datasets = datasets[1: datasets[datasets == "a_t"].index[0]]
+                    save_params_file(results, "a_t", folder)
                 elif 'num_nodes' in datasets.values:
                     datasets = datasets[1: datasets[datasets == "num_nodes"].index[0]]
+                    save_params_file(results, "num_nodes", folder)
                 else:
                     datasets = datasets[1: ]
 
@@ -134,6 +136,25 @@ def summarize(folder, rows):
         plot_stds.append(std_max_values)
 
     return datasets, method, line, plot_means, plot_stds
+
+def save_params_file(results, starting_param_name, fileName):
+    parameters = results.rename(columns=results.iloc[0])
+    parameters = parameters.drop([0])
+    parameters = parameters.astype(np.float64)
+    parameters = parameters.iloc[:, parameters.columns.get_loc(starting_param_name):]
+
+    min_row = parameters.min(0)
+    max_row = parameters.max(0)
+    min_max = pd.DataFrame([list(min_row), list(max_row)], columns=parameters.columns)
+
+    full_data = min_max.append(parameters, ignore_index=True)
+
+    first_column = map(str, range(len(parameters.index)))
+    first_column.insert(0, 'max')
+    first_column.insert(0, 'min')
+    full_data.insert(0, '', first_column)
+
+    full_data.to_csv(join(folder, "parameters-" + fileName + ".csv"), sep=',', index=False)
 
 def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results, crop):
     percentage_values = np.linspace(1, 100, num=7)
