@@ -1,16 +1,17 @@
 import argparse
-import pandas as pd
 import numpy as np
 from os import listdir
 from os.path import isfile, join
+import utils
 
 def csv2latex_mean_std (folder, rows):
-    datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
-
-    latex_table(plot_means, plot_stds, datasets)
 
     if folder.endswith("/"):
         folder = folder[:-1]
+
+    datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
+
+    latex_table(plot_means, plot_stds, datasets)
 
     outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
     outputFile.write(line)
@@ -20,39 +21,17 @@ def summarize(folder, rows):
     if rows == None:
         headerRows = 9
 
-    files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv")  and not f.startswith('analysis-')]
-    files = sorted(files, key=lambda x: int(x[:-4].split("-l")[-1]))
+    files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv")
+             and not f.startswith('analysis-') and not f.startswith('parameters-')]
+
+    if len(files) > 1:
+        files = sorted(files, key=lambda x: int(x[:-4].split("-l")[-1]))
+    else:
+        files = sorted(files)
 
     method = files[0].split("-l")[0]
 
-    datasets = []
-    folds = []
-    headers = []
-
-    for file in files:
-        if ".csv" in file:
-            header = pd.read_csv(join(folder, file), nrows=headerRows, header=None)
-            header = header.transpose()
-            header = header.rename(columns=header.iloc[0])
-            header = header.drop([0])
-            header = header.dropna(axis=0, how='any')
-            header = header.astype(np.float64)
-
-            headers.append(header)
-
-            if len(datasets) <= 0:
-                results = pd.read_csv(join(folder, file), skiprows=headerRows + 1, header=None)
-
-                datasets = results.iloc[0]
-                if 'a_t' in datasets.values:
-                    datasets = datasets[1: datasets[datasets == "a_t"].index[0]]
-                elif 'num_nodes' in datasets.values:
-                    datasets = datasets[1: datasets[datasets == "num_nodes"].index[0]]
-                else:
-                    datasets = datasets[1: ]
-
-                folds = list(map(lambda x: x[len(x) - 5:], datasets))
-                datasets = np.unique(map(lambda x: x.split("_x")[0], datasets))
+    datasets, folds, headers = utils.read_header(files, folder, headerRows)
 
     plot_means = []
     plot_stds = []
@@ -133,7 +112,14 @@ def summarize(folder, rows):
     return datasets, method, line, plot_means, plot_stds
 
 def latex_table(means, stds, datasets):
-    table = "\hline \n"
+    table = "\\begin{table*}[ht] \n"
+    table += "\small \n"
+    table += "\\renewcommand{\arraystretch}{1.3} \n"
+    table += "\caption{Accuracy Results for Real-World Datasets} \n"
+    table += "\label{tab:results} \n"
+    table += "\centering \n"
+    table += "\\begin{tabular}{c||ccccccc} \n"
+    table += "\hline \n"
     table += "\\bfseries  Metric & \\bfseries "
     dataset_names = [dataset.replace("sup_", "").split("_")[1].capitalize() for dataset in datasets]
 
@@ -149,7 +135,9 @@ def latex_table(means, stds, datasets):
 
         table += " \\\\ \n"
 
-    table += "\hline"
+    table += "\hline \n"
+    table += "\end{tabular} \n"
+    table += "\end{table*}"
     print table
 
 parser = argparse.ArgumentParser()

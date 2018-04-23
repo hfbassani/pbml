@@ -1,45 +1,24 @@
 import argparse
-import pandas as pd
 import numpy as np
 from os import listdir
 from os.path import isfile, join
+import utils
 
 def analyse (folder, rows):
+    if folder.endswith("/"):
+        folder = folder[:-1]
+
     headerRows = rows
     if rows == None:
         headerRows = 4
 
     files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv") and not f.startswith('analysis-')]
-    files = sorted(files, key=lambda x: int(x[:-4].split("-l")[1]))
+    if len(files) > 1:
+        files = sorted(files, key=lambda x: int(x[:-4].split("-l")[-1]))
+    else:
+        files = sorted(files)
 
-    datasets = []
-    folds = []
-    headers = []
-
-    for file in files:
-        if ".csv" in file:
-            header = pd.read_csv(join(folder, file), nrows=headerRows, header=None)
-            header = header.transpose()
-            header = header.rename(columns=header.iloc[0])
-            header = header.drop([0])
-            header = header.dropna(axis=0, how='any')
-            header = header.astype(np.float64)
-
-            headers.append(header)
-
-            if len(datasets) <= 0:
-                results = pd.read_csv(join(folder, file), skiprows=headerRows + 1, header=None)
-
-                datasets = results.iloc[0]
-                if 'a_t' in datasets.values:
-                    datasets = datasets[1: datasets[datasets == "a_t"].index[0]]
-                elif 'num_nodes' in datasets.values:
-                    datasets = datasets[1: datasets[datasets == "num_nodes"].index[0]]
-                else:
-                    datasets = datasets[1:]
-
-                folds = list(map(lambda x:x[len(x) - 5:],datasets))
-                datasets = np.unique(map(lambda x: x.split("_x")[0], datasets))
+    datasets, folds, headers = utils.read_header(files, folder, headerRows)
 
     line = " \t" + "\t".join(datasets) + "\n"
     for i in range(len(headers)):
@@ -59,9 +38,6 @@ def analyse (folder, rows):
         line += files[i] + "\n"
         line += "means_max_values\t" + "\t".join(map(str, means_max_values)) + "\n"
         line += "std_max_values\t" + "\t".join(map(str, std_max_values)) + "\n"
-
-    if folder.endswith("/"):
-        folder = folder[:-1]
 
     outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
     outputFile.write(line)

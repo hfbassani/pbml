@@ -1,10 +1,10 @@
 import argparse
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
 from os import listdir
 from os.path import isfile, join
 import itertools
+import utils
 
 def analyse (folder, rows, plot, save, extension, extra_results, crop):
 
@@ -25,39 +25,15 @@ def summarize(folder, rows):
 
     files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv")
              and not f.startswith('analysis-') and not f.startswith('parameters-')]
-    files = sorted(files, key=lambda x: int(x[:-4].split("-l")[-1]))
+
+    if len(files) > 1:
+        files = sorted(files, key=lambda x: int(x[:-4].split("-l")[-1]))
+    else:
+        files = sorted(files)
 
     method = files[0].split("-l")[0]
 
-    datasets = []
-    folds = []
-    headers = []
-
-    for file in files:
-        if ".csv" in file:
-            header = pd.read_csv(join(folder, file), nrows=headerRows, header=None)
-            header = header.transpose()
-            header = header.rename(columns=header.iloc[0])
-            header = header.drop([0])
-            header = header.dropna(axis=0, how='any')
-            header = header.astype(np.float64)
-
-            headers.append(header)
-
-            if len(datasets) <= 0:
-                results = pd.read_csv(join(folder, file), skiprows=headerRows + 1, header=None)
-                datasets = results.iloc[0]
-                if 'a_t' in datasets.values:
-                    datasets = datasets[1: datasets[datasets == "a_t"].index[0]]
-                    save_params_file(results, "a_t", folder)
-                elif 'num_nodes' in datasets.values:
-                    datasets = datasets[1: datasets[datasets == "num_nodes"].index[0]]
-                    save_params_file(results, "num_nodes", folder)
-                else:
-                    datasets = datasets[1: ]
-
-                folds = list(map(lambda x: x[len(x) - 5:], datasets))
-                datasets = np.unique(map(lambda x: x.split("_x")[0], datasets))
+    datasets, folds, headers = utils.read_header(files, folder, headerRows)
 
     plot_means = []
     plot_stds = []
@@ -137,24 +113,6 @@ def summarize(folder, rows):
 
     return datasets, method, line, plot_means, plot_stds
 
-def save_params_file(results, starting_param_name, fileName):
-    parameters = results.rename(columns=results.iloc[0])
-    parameters = parameters.drop([0])
-    parameters = parameters.astype(np.float64)
-    parameters = parameters.iloc[:, parameters.columns.get_loc(starting_param_name):]
-
-    min_row = parameters.min(0)
-    max_row = parameters.max(0)
-    min_max = pd.DataFrame([list(min_row), list(max_row)], columns=parameters.columns)
-
-    full_data = min_max.append(parameters, ignore_index=True)
-
-    first_column = map(str, range(len(parameters.index)))
-    first_column.insert(0, 'max')
-    first_column.insert(0, 'min')
-    full_data.insert(0, '', first_column)
-
-    full_data.to_csv(join(folder, "parameters-" + fileName + ".csv"), sep=',', index=False)
 
 def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results, crop):
     percentage_values = np.linspace(1, 100, num=7)
@@ -218,7 +176,7 @@ args = parser.parse_args()
 if args.s and not args.e:
     parser.error("[-s save] requires [-e extension(s)].")
 
-if args.c and not args.s or not args.e:
+if args.c and (not args.s or not args.e):
     parser.error("[-c crop] requires [-s save] and [-e extension(s)].")
 
 folder = args.i
