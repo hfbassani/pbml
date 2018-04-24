@@ -106,7 +106,7 @@ output = args.o
 params = args.p
 paramNames = args.n
 
-utils.createFolders(results)
+utils.createFolders(output)
 eval(resultsPath=results, truePath=true, r=repeat, outputPath=output, paramFile=params, paramNamesFile=paramNames)
 
 
