@@ -5,6 +5,7 @@ from scipy.io import arff
 from sklearn import metrics
 from os import listdir
 from os.path import isfile, join
+import utils
 
 def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=None):
 
@@ -105,6 +106,7 @@ output = args.o
 params = args.p
 paramNames = args.n
 
+utils.createFolders(results)
 eval(resultsPath=results, truePath=true, r=repeat, outputPath=output, paramFile=params, paramNamesFile=paramNames)
 
 

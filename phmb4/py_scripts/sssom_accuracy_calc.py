@@ -3,13 +3,9 @@ import pandas as pd
 import numpy as np
 from scipy.io import arff
 from sklearn import metrics
-import os
 from os import listdir
 from os.path import isfile, join
-
-def createFolders (path):
-    if not os.path.exists(os.path.dirname(path)):
-        os.makedirs(os.path.dirname(path))
+import utils
 
 def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=None):
 
@@ -157,7 +153,7 @@ output = args.o
 params = args.p
 paramNames = args.n
 
-createFolders(output)
+utils.createFolders(output)
 eval(resultsPath=results, truePath=true, r=repeat, outputPath=output, paramFile=params, paramNamesFile=paramNames)
 
 

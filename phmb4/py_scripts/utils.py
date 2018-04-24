@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from os.path import join
+import os
 
 def save_params_file(results, starting_param_name, fileName):
     parameters = results.rename(columns=results.iloc[0])
@@ -54,3 +55,7 @@ def read_header(files, folder, headerRows):
                 datasets = np.unique(map(lambda x: x.split("_x")[0], datasets))
 
     return datasets, folds, headers
+
+def createFolders (path):
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
