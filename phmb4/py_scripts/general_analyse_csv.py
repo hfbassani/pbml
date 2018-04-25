@@ -12,7 +12,9 @@ def analyse (folder, rows):
     if rows == None:
         headerRows = 4
 
-    files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv") and not f.startswith('analysis-')]
+    files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv")
+             and not f.startswith('analysis-') and not f.startswith('parameters-')]
+
     if len(files) > 1:
         files = sorted(files, key=lambda x: int(x[:-4].split("-l")[-1]))
     else:
