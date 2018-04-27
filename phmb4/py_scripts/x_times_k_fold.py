@@ -7,10 +7,7 @@ from os import listdir
 from os.path import isfile, join
 from sklearn import preprocessing
 import os
-
-def get_type(type):
-    if type == "numeric":
-        return "real"
+import utils
 
 def create_arff_file (path, fileName, data, meta):
     arffFile = open(join(path, fileName), 'w+')
@@ -23,7 +20,7 @@ def create_arff_file (path, fileName, data, meta):
     for i in xrange(len(meta.names())):
         attr = meta.names()[i]
         if attr != "class":
-            arffFile.write("@attribute {0} {1}\n".format(attr, get_type(meta.types()[i])))
+            arffFile.write("@attribute {0} {1}\n".format(attr, utils.get_type(meta.types()[i])))
         else:
             arffFile.write("@attribute {0} {{".format(attr))
             sorted_labels = sorted(map(int, np.unique(labels)))
@@ -131,5 +128,4 @@ outputFolder = args.o
 X = args.x
 K = args.k
 
-# create_true_files_from_path(folder)
 create_xtimes_kfolds(xTimes=X, kFolds=K, folder=folder, outputFolder=outputFolder)

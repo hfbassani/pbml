@@ -4,18 +4,7 @@ import numpy as np
 from scipy.io import arff
 import os
 import re
-import sys
-
-def check_directory(filePath):
-    if os.path.isdir(filePath):
-        if not filePath.endswith("/"):
-            return filePath + "/"
-    else:
-        sys.exit("Invalid directory")
-
-def get_type(type):
-    if type == "numeric":
-        return "real"
+import utils
 
 def create_ordered_arff(arffFilePath, trueFileName, trueFileContent, outputPath):
     dim = int(re.findall("\d+", trueFileContent[0])[0])
@@ -43,7 +32,7 @@ def create_ordered_arff(arffFilePath, trueFileName, trueFileContent, outputPath)
     for i in xrange(len(meta.names())):
         attr = meta.names()[i]
         if attr != "class":
-            orderedFile.write("@attribute {0} {1}\n".format(attr, get_type(meta.types()[i])))
+            orderedFile.write("@attribute {0} {1}\n".format(attr, utils.get_type(meta.types()[i])))
         else:
             orderedFile.write("@attribute {0} {{".format(attr))
             orderedFile.write("{0}".format(",".join(labels)))
@@ -88,8 +77,8 @@ args = parser.parse_args()
 filePath = args.i
 outputPath = args.o
 
-filePath = check_directory(filePath)
-outputPath = check_directory(outputPath)
+filePath = utils.check_directory(filePath)
+outputPath = utils.check_directory(outputPath)
 
 arffFiles = []
 trueFiles = []

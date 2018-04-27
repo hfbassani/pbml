@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from os.path import join
 import os
+import sys
 
 def save_params_file(results, starting_param_name, fileName):
     parameters = results.rename(columns=results.iloc[0])
@@ -59,3 +60,14 @@ def read_header(files, folder, headerRows):
 def createFolders (path):
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
+
+def check_directory(filePath):
+    if os.path.isdir(filePath):
+        if not filePath.endswith("/"):
+            return filePath + "/"
+    else:
+        sys.exit("Invalid directory")
+
+def get_type(type):
+    if type == "numeric":
+        return "real"

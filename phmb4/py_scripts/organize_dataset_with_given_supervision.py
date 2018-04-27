@@ -3,22 +3,9 @@ import pandas as pd
 import numpy as np
 from scipy.io import arff
 import os
-import sys
 from os.path import join
 import random
-
-def check_directory(filePath):
-    if os.path.isdir(filePath):
-        if not filePath.endswith("/"):
-            return filePath + "/"
-        else:
-        	return filePath
-    else:
-        sys.exit("Invalid directory")
-
-def get_type(type):
-    if type == "numeric":
-        return "real"
+import utils
 
 def create_arff(arffFilePath, filePath, outputPath, supervision_r):
 
@@ -51,7 +38,7 @@ def write_file(arffFilePath, data, meta, outputPath, saved_labels):
     for i in xrange(len(meta.names())):
         attr = meta.names()[i]
         if attr != "class":
-            newFile.write("@attribute {0} {1}\n".format(attr, get_type(meta.types()[i])))
+            newFile.write("@attribute {0} {1}\n".format(attr, utils.get_type(meta.types()[i])))
         else:
             newFile.write("@attribute {0} {{".format(attr))
             newFile.write("{0}".format(",".join(saved_labels)))
@@ -67,18 +54,18 @@ parser.add_argument('-s', help='Percentage of Supervision', nargs='+', required=
 args = parser.parse_args()
 
 filePath = args.i
-filePath = check_directory(filePath)
+filePath = utils.check_directory(filePath)
 
 for supervision in args.s:
+    outputPath = filePath
 
-	outputPath = filePath
-	if outputPath.endswith("/"):
-	    outputPath = outputPath[:-1]
+    if outputPath.endswith("/"):
+        outputPath = outputPath[:-1]
 
-	outputPath += "S" + ('%.2f' % supervision).split(".")[1]
+    outputPath += "S" + ('%.2f' % supervision).split(".")[1]
 
-	if not os.path.isdir(outputPath): os.mkdir(outputPath)
+    if not os.path.isdir(outputPath): os.mkdir(outputPath)
 
-	for file in os.listdir(filePath):
-	    if file.endswith(".arff"):
-	        create_arff(arffFilePath=file, filePath=filePath, outputPath=outputPath, supervision_r=supervision)
+    for file in os.listdir(filePath):
+        if file.endswith(".arff"):
+            create_arff(arffFilePath=file, filePath=filePath, outputPath=outputPath, supervision_r=supervision)
