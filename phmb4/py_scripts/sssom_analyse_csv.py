@@ -111,7 +111,7 @@ def summarize(folder, rows):
         plot_means.append(means_max_values)
         plot_stds.append(std_max_values)
 
-    return datasets, method, line, plot_means, plot_stds
+    return datasets, method, line, np.array(plot_means), np.array(plot_stds)
 
 
 def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results, crop):
@@ -140,7 +140,7 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
         for extra in extra_results:
             datasets_extra, method_extra, line_extra, plot_means_extra, plot_stds_extra = summarize(extra, 4)
 
-            plt.errorbar(percentage_values, [item[i] for item in plot_means_extra], [item[i] for item in plot_stds_extra], label=method_extra,
+            plt.errorbar(percentage_values, plot_means_extra[:, i], plot_stds_extra[:, i], label=method_extra,
                          linestyle=linestyles.next(), marker=markers.next(), clip_on=False, markeredgewidth=2, capsize=5)
 
         plt.errorbar(percentage_values, plot_means[i], plot_stds[i], label='SS-SOM',
