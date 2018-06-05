@@ -26,7 +26,9 @@ def create_arff(arffFilePath, filePath, outputPath, supervision_r):
 
     data['class'] = curr_labels
 
-    write_file(arffFilePath, data, meta, outputPath, saved_labels)
+    curr_labels = set(curr_labels)
+
+    write_file(arffFilePath, data, meta, outputPath, curr_labels)
 
     data = data[data["class"] != str(999)]
     write_file("sup_" + arffFilePath, data, meta, outputPath, saved_labels)
