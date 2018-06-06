@@ -266,18 +266,11 @@ class SSSOM(LARFDSSOM):
             self.handle_different_class(activations, w, y)
 
     def handle_different_class(self, activations, w, y):
-        sorted_activations, indices = torch.sort(activations, descending=True)
-        indices = indices[sorted_activations >= self.a_t]
-        wrong_max = indices[0]
+        wrong_winner, new_winners = self.next_winners(activations, y)
 
-        no_classes = self.classes[indices] == self.no_class
-        same_classes = self.classes[indices] == y
-
-        winners = indices[no_classes | same_classes]
-
-        if winners.size(0) > 0:
-            winner = winners[0]
-            self.update_node(w, -self.e_push, wrong_max.item())
+        if wrong_winner is not None and new_winners is not None:
+            winner = new_winners[0]
+            self.update_node(w, -self.e_push, wrong_winner.item())
             self.wins[winner] += 1
 
             self.update_node(w, self.e_b, winner.item())
@@ -289,6 +282,27 @@ class SSSOM(LARFDSSOM):
 
         elif self.weights.size(0) < self.max_node_number:
             self.add_node(w, y)
+
+    def next_winners(self, activations, y):
+        wrong_max = None
+        winners = None
+
+        sorted_activations, indices = torch.sort(activations, descending=True)
+
+        indices = indices[sorted_activations >= self.a_t]
+
+        if indices.size(0) > 0:
+            wrong_max = indices[0]
+
+            no_classes = self.classes[indices] == self.no_class
+            same_classes = self.classes[indices] == y
+
+            winners = indices[no_classes | same_classes]
+
+            if winners.size(0) == 0:
+                winners = None
+
+        return wrong_max, winners
 
     def initialize_map(self, w, y=None):
         super(SSSOM, self).initialize_map(w, y)
