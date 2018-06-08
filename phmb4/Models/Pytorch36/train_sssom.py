@@ -75,6 +75,8 @@ keepMap = opt.k
 
 trainSorted = opt.S
 
+parameters_count = 11
+
 if len(testPaths) > 0:
     for i, (train, test) in enumerate(zip(inputPaths, testPaths)):
         train_data = ArffDataset(train)
@@ -83,7 +85,7 @@ if len(testPaths) > 0:
         test_loader = DataLoader(test_data,
                                  batch_size=opt.batchSize,
                                  num_workers=opt.workers)
-        for paramsSet in range(0, len(parameters), 11):
+        for paramsSet in range(0, len(parameters), parameters_count):
             sssom = SSSOM(use_cuda=use_cuda,
                           ngpu=ngpu,
                           dim=train_data.X.shape[1],
@@ -119,5 +121,5 @@ if len(testPaths) > 0:
             fileName = test.split("/")[-1].split(".")[0]
 
             sssom.write_output(join(resultsFolder,
-                                    fileName + "_" + str(paramsSet) + ".results"),
+                                    fileName + "_" + str(int(paramsSet / parameters_count)) + ".results"),
                                sssom.cluster_classify(test_loader, opt.s, opt.f))
