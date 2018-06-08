@@ -10,6 +10,7 @@ from os.path import join
 import os
 import argparse
 import torch
+import torch.backends.cudnn as cudnn
 import random
 import numpy as np
 
@@ -25,7 +26,7 @@ def read_lines(file_path):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--workers', type=int, help='number of data loading workers', default=0)
+parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
 parser.add_argument('--batchSize', type=int, default=1, help='input batch size')
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
@@ -54,6 +55,12 @@ if torch.cuda.is_available() and not opt.cuda:
 if not os.path.exists(os.path.dirname(opt.r)):
     os.makedirs(os.path.dirname(opt.r))
 
+use_cuda = torch.cuda.is_available() and opt.cuda
+
+if use_cuda:
+    torch.cuda.init()
+
+ngpu = int(opt.ngpu)
 inputPaths = read_lines(opt.i)
 testPaths = read_lines(opt.t)
 resultsFolder = opt.r
@@ -75,9 +82,11 @@ if len(testPaths) > 0:
         test_data = ArffDataset(test)
         test_loader = DataLoader(test_data,
                                  batch_size=opt.batchSize,
-                                 num_workers=int(opt.workers))
-        for paramsSet in range(0, 11, 11):
-            sssom = SSSOM(dim=train_data.X.shape[1],
+                                 num_workers=opt.workers)
+        for paramsSet in range(0, len(parameters), 11):
+            sssom = SSSOM(use_cuda=use_cuda,
+                          ngpu=ngpu,
+                          dim=train_data.X.shape[1],
                           max_node_number=train_data.X.shape[0],
                           no_class=999,
                           a_t=float(parameters[0]),
@@ -94,13 +103,17 @@ if len(testPaths) > 0:
             manualSeed = int(parameters[0 + 10])
             random.seed(manualSeed)
             torch.manual_seed(manualSeed)
-            torch.cuda.manual_seed_all(manualSeed)
 
-            # TODO: set seed properly
             train_loader = DataLoader(train_data,
                                       batch_size=opt.batchSize,
                                       shuffle=not trainSorted,
-                                      num_workers=int(opt.workers))
+                                      num_workers=opt.workers)
+
+            if use_cuda:
+                torch.cuda.manual_seed_all(manualSeed)
+                sssom.cuda()
+                cudnn.benchmark = True
+
             sssom.fit(train_loader)
 
             fileName = test.split("/")[-1].split(".")[0]

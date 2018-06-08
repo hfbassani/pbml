@@ -8,24 +8,26 @@ import itertools
 
 class LARFDSSOM(nn.Module):
 
-    def __init__(self, dim, max_node_number=70,
+    def __init__(self, use_cuda, ngpu, dim, max_node_number=70,
                  a_t=0.3, lp=0.001, dsbeta=0.0001, age_wins=100,
                  e_b=0.5, e_n=0.01, eps_ds=0.01, minwd=0.5, epochs=100):
         super(LARFDSSOM, self).__init__()
 
+        self.device = torch.device("cuda:0" if use_cuda else "cpu")
+        self.ngpu = ngpu
         self.step = 0
         self.dim = dim
         self.max_node_number = max_node_number
 
-        self.a_t = torch.tensor(a_t)
-        self.lp = torch.tensor(lp)
-        self.dsbeta = torch.tensor(dsbeta)
-        self.age_wins = torch.tensor(age_wins)
-        self.e_b = torch.tensor(e_b)
-        self.e_n = torch.tensor(e_n) * self.e_b
-        self.eps_ds = torch.tensor(eps_ds)
-        self.minwd = torch.tensor(minwd)
-        self.epochs = torch.tensor(epochs)
+        self.a_t = torch.tensor(a_t, device=self.device)
+        self.lp = torch.tensor(lp, device=self.device)
+        self.dsbeta = torch.tensor(dsbeta, device=self.device)
+        self.age_wins = torch.tensor(age_wins, device=self.device)
+        self.e_b = torch.tensor(e_b, device=self.device)
+        self.e_n = torch.tensor(e_n, device=self.device) * self.e_b
+        self.eps_ds = torch.tensor(eps_ds, device=self.device)
+        self.minwd = torch.tensor(minwd, device=self.device)
+        self.epochs = torch.tensor(epochs, device=self.device)
 
         # Initialize the map Map
         self.weights = None
@@ -35,7 +37,9 @@ class LARFDSSOM(nn.Module):
         self.wins = None
 
     def forward(self, x, y=None):
-        x = x.unsqueeze(0)
+        # sssom = torch.nn.DataParallel(sssom)
+        x = x.to(self.device).unsqueeze(0)
+        y = y.to(self.device)
 
         if self.weights is None:
             self.initialize_map(x, y)
@@ -44,7 +48,7 @@ class LARFDSSOM(nn.Module):
 
         if self.step >= self.age_wins:
             self.remove_loosers()
-            self.wins = torch.zeros(self.wins.size(0))
+            self.wins = torch.zeros(self.wins.size(0), device=self.device)
             self.update_all_connections()
 
             self.step = 0
@@ -74,22 +78,28 @@ class LARFDSSOM(nn.Module):
 
     def initialize_map(self, w, y=None):
         self.weights = torch.tensor(w)
-        self.moving_avg = torch.zeros(1, self.dim)
-        self.relevances = torch.ones(1, self.dim)
+        self.moving_avg = torch.zeros(1, self.dim, device=self.device)
+        self.relevances = torch.ones(1, self.dim, device=self.device)
 
-        self.neighbors = torch.zeros(1, 1, dtype=torch.uint8)
-        self.wins = torch.zeros(1)
+        self.neighbors = torch.zeros(1, 1, dtype=torch.uint8, device=self.device)
+        self.wins = torch.zeros(1, device=self.device)
 
     def add_node(self, w, y=None):
         self.weights = torch.cat((self.weights, w), 0)
-        self.moving_avg = torch.cat((self.moving_avg, torch.zeros(1, self.dim)), 0)
-        self.relevances = torch.cat((self.relevances, torch.ones(1, self.dim)), 0)
 
-        self.neighbors = torch.cat((self.neighbors, torch.zeros(self.neighbors.size(0), 1, dtype=torch.uint8)), 1)
-        self.neighbors = torch.cat((self.neighbors, torch.zeros(1, self.neighbors.size(1), dtype=torch.uint8)), 0)
+        zeros = torch.zeros(1, self.dim, device=self.device)
+        ones = torch.ones(1, self.dim, device=self.device)
+
+        self.moving_avg = torch.cat((self.moving_avg, zeros), 0)
+        self.relevances = torch.cat((self.relevances, ones), 0)
+
+        self.neighbors = torch.cat((self.neighbors,
+                                    torch.zeros(self.neighbors.size(0), 1, dtype=torch.uint8, device=self.device)), 1)
+        self.neighbors = torch.cat((self.neighbors,
+                                    torch.zeros(1, self.neighbors.size(1), dtype=torch.uint8, device=self.device)), 0)
         self.update_connections(self.weights.size(0) - 1)
 
-        self.wins = torch.cat((self.wins, torch.zeros(1)))
+        self.wins = torch.cat((self.wins, torch.zeros(1, device=self.device)))
 
     def update_connections(self, node_index):
         dists = self.relevance_distances(self.relevances[node_index], self.relevances)
@@ -111,7 +121,9 @@ class LARFDSSOM(nn.Module):
             minimum = torch.min(self.moving_avg[index])
             avg = torch.mean(self.moving_avg[index])
 
-        self.relevances[index] = torch.div(torch.tensor(1, dtype=torch.float), 1 + torch.exp(torch.div(torch.sub(self.moving_avg[index], avg), torch.mul(self.eps_ds, torch.sub(maximum, minimum)))))
+        one = torch.tensor(1, dtype=torch.float, device=self.device)
+
+        self.relevances[index] = torch.div(one, one + torch.exp(torch.div(torch.sub(self.moving_avg[index], avg), torch.mul(self.eps_ds, torch.sub(maximum, minimum)))))
         self.relevances[self.relevances != self.relevances] = 1.  # if (max - min) == 0 then set to 1
 
         self.weights[index] = torch.add(self.weights[index], torch.mul(lr, torch.sub(w, self.weights[index])))
@@ -134,7 +146,7 @@ class LARFDSSOM(nn.Module):
         dists = self.relevance_distances(dists_stacked, dists_stacked_transposed)
         dists_connections = dists < self.minwd
 
-        self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8)) * dists_connections
+        self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8, device=self.device)) * dists_connections
 
     def weighted_distance(self, w):
         sub = torch.sub(w, self.weights)
@@ -176,7 +188,7 @@ class LARFDSSOM(nn.Module):
     def cluster(self, dataloader, is_subspace, filter_noise):
         clustering = pd.DataFrame(columns=['sample_ind', 'cluster'])
         for i, data in enumerate(dataloader, 0):
-            activations = self.activation(data[0][0])
+            activations = self.activation(data[0][0].to(self.device))
             ind_max = torch.argmax(activations).item()
 
             if filter_noise and activations[ind_max] < self.a_t:
@@ -194,7 +206,7 @@ class LARFDSSOM(nn.Module):
 
         content = str(self.weights.size(0)) + "\t" + str(self.weights.size(1)) + "\n"
 
-        for i, relevance in enumerate(self.relevances):
+        for i, relevance in enumerate(self.relevances.cpu()):
             content += str(i) + "\t" + "\t".join(map(str, relevance.numpy())) + "\n"
 
         result_text = result.to_string(header=False, index=False)
@@ -210,23 +222,24 @@ class LARFDSSOM(nn.Module):
 
 class SSSOM(LARFDSSOM):
 
-    def __init__(self, dim, max_node_number=70, no_class=999,
+    def __init__(self, use_cuda, ngpu, dim, max_node_number=70, no_class=999,
                  a_t=0.3, lp=0.001, dsbeta=0.0001, age_wins=100, e_b=0.5,
                  e_n=0.01, eps_ds=0.01, minwd=0.5, epochs=100, e_push=0.001):
 
-        super(SSSOM, self).__init__(dim, max_node_number,
+        super(SSSOM, self).__init__(use_cuda, ngpu, dim, max_node_number,
                                     a_t, lp, dsbeta, age_wins,
                                     e_b, e_n, eps_ds, minwd, epochs)
 
-        self.no_class = torch.tensor(no_class)
+        self.no_class = torch.tensor(no_class, device=self.device)
 
-        self.e_push = torch.tensor(e_push) * self.e_b
+        self.e_push = torch.tensor(e_push, device=self.device) * self.e_b
 
         # Initialize the map Map
         self.classes = None
 
     def forward(self, x, y=None):
-        x = x.unsqueeze(0)
+        x = x.to(self.device).unsqueeze(0)
+        y = y.to(self.device)
 
         if self.weights is None:
             self.initialize_map(x, y)
@@ -237,7 +250,7 @@ class SSSOM(LARFDSSOM):
 
         if self.step >= self.age_wins:
             self.remove_loosers()
-            self.wins = torch.zeros(self.wins.size(0))
+            self.wins = torch.zeros(self.wins.size(0), device=self.device)
             self.update_all_connections()
 
             self.step = 0
@@ -310,13 +323,13 @@ class SSSOM(LARFDSSOM):
         if y is None:
             y = self.no_class
 
-        self.classes = torch.full([1], y, dtype=torch.long)
+        self.classes = torch.full([1], y, dtype=torch.long, device=self.device)
 
     def add_node(self, w, y=None):
         if y is None:
             y = self.no_class
 
-        self.classes = torch.cat((self.classes, torch.full([1], y, dtype=torch.long)))
+        self.classes = torch.cat((self.classes, torch.full([1], y, dtype=torch.long, device=self.device)))
 
         super(SSSOM, self).add_node(w, y)
 
@@ -349,12 +362,12 @@ class SSSOM(LARFDSSOM):
 
         connections = dists_connections & classes_connections
 
-        self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8)) * connections.squeeze(0)
+        self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8, device=self.device)) * connections.squeeze(0)
 
     def cluster_classify(self, dataloader, is_subspace, filter_noise):
         clustering_classify = pd.DataFrame(columns=['sample_ind', 'cluster', 'class'])
         for i, data in enumerate(dataloader, 0):
-            activations = self.activation(data[0][0])
+            activations = self.activation(data[0][0].to(self.device))
             ind_max = torch.argmax(activations).item()
 
             if filter_noise and activations[ind_max] < self.a_t:
