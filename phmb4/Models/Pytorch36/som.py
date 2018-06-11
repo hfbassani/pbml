@@ -38,7 +38,7 @@ class LARFDSSOM(nn.Module):
 
     def forward(self, x, y=None):
         # sssom = torch.nn.DataParallel(sssom)
-        x = x.to(self.device).unsqueeze(0)
+        x = x.to(self.device)
         y = y.to(self.device)
 
         if self.weights is None:
@@ -169,26 +169,26 @@ class LARFDSSOM(nn.Module):
         self.max_node_number = self.weights.size(0)
 
         data = next(dataiter)
-        self.forward(data[0][0], data[1][0])
+        self.forward(data[0], data[1])
 
         self.age_wins_cycle(dataiter)
 
     def age_wins_cycle(self, dataiter):
         while self.step != 1:
             data = next(dataiter)
-            self.forward(data[0][0], data[1][0])
+            self.forward(data[0], data[1])
 
     def fit(self, dataloader):
         for epoch in range(self.epochs):
             for i, data in enumerate(dataloader):
-                self.forward(data[0][0], data[1][0])
+                self.forward(data[0], data[1])
 
         self.finish_map(dataloader)
 
     def cluster(self, dataloader, is_subspace, filter_noise):
         clustering = pd.DataFrame(columns=['sample_ind', 'cluster'])
         for i, data in enumerate(dataloader, 0):
-            activations = self.activation(data[0][0].to(self.device))
+            activations = self.activation(data[0].to(self.device))
             ind_max = torch.argmax(activations).item()
 
             if filter_noise and activations[ind_max] < self.a_t:
@@ -238,7 +238,7 @@ class SSSOM(LARFDSSOM):
         self.classes = None
 
     def forward(self, x, y=None):
-        x = x.to(self.device).unsqueeze(0)
+        x = x.to(self.device)
         y = y.to(self.device)
 
         if self.weights is None:
@@ -323,13 +323,13 @@ class SSSOM(LARFDSSOM):
         if y is None:
             y = self.no_class
 
-        self.classes = torch.full([1], y, dtype=torch.long, device=self.device)
+        self.classes = y.to(self.device)
 
     def add_node(self, w, y=None):
         if y is None:
             y = self.no_class
 
-        self.classes = torch.cat((self.classes, torch.full([1], y, dtype=torch.long, device=self.device)))
+        self.classes = torch.cat((self.classes, y.to(self.device)))
 
         super(SSSOM, self).add_node(w, y)
 
@@ -367,7 +367,7 @@ class SSSOM(LARFDSSOM):
     def cluster_classify(self, dataloader, is_subspace, filter_noise):
         clustering_classify = pd.DataFrame(columns=['sample_ind', 'cluster', 'class'])
         for i, data in enumerate(dataloader, 0):
-            activations = self.activation(data[0][0].to(self.device))
+            activations = self.activation(data[0].to(self.device))
             ind_max = torch.argmax(activations).item()
 
             if filter_noise and activations[ind_max] < self.a_t:
