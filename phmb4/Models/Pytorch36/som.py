@@ -450,7 +450,7 @@ class SSSOM(LARFDSSOM):
         #     if indices_lt_at is not None and self.weights.size(0) + indices_lt_at.size(0) < self.max_node_number:
         #         self.add_node(w[indices_lt_at])
         #
-        #     if indices_geq_at is not None: # duas amostras de rótulos diferentes ganharam pro mesmo nodo (que pode ter um rótulo, ou não), o que fazer?
+        #     if indices_geq_at is not None: # duas amostras de rotulos diferentes ganharam pro mesmo nodo (que pode ter um rotulo, ou noo), o que fazer?
         #         new_w, new_ind = self.group_data_by_mean(w, indices_max[indices_geq_at])
         #         self.wins[new_ind] += 1
         #         self.update_node(new_w, self.e_b, new_ind)
