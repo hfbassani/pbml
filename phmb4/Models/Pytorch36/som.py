@@ -404,7 +404,7 @@ class SSSOM(LARFDSSOM):
                     add_w, add_y = self.group_data_by_mean(grouped_w[indices_lt_at], grouped_y[indices_lt_at])
                     self.add_node(add_w, add_y)
 
-                if indices_geq_at is not None:  # duas amostras de rótulos diferentes ganharam pro mesmo nodo (que pode ter um rótulo, ou não), o que fazer?
+                if indices_geq_at is not None:  # duas amostras de rotulos diferentes ganharam pro mesmo nodo (que pode ter um rotulo, ou nao), o que fazer?
                     new_w, new_y = self.group_data_by_mean(grouped_w[indices_geq_at], grouped_y[indices_geq_at])
                     new_ind = class_criterion_nodes[indices_geq_at]
 
