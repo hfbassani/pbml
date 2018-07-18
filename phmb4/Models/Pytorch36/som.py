@@ -99,7 +99,6 @@ class LARFDSSOM(nn.Module):
         if batch_size > 1:
             self.batch_update_map(w)
         else:
-            dists = self.dist(w)
             activations = self.activation(w)
             ind_max = torch.argmax(activations)
 
@@ -112,7 +111,6 @@ class LARFDSSOM(nn.Module):
                 self.update_neighbors(w, ind_max)
 
     def batch_update_map(self, w):
-        dists = self.dist(w)
         activations = self.activation(w)
         activations_max, indices_max = torch.max(activations, dim=1)
 
@@ -147,9 +145,6 @@ class LARFDSSOM(nn.Module):
             # get neighbors
             node_neighbors = self.neighbors[node].nonzero().squeeze(1)
             self.update_node(w, self.e_n, node_neighbors)
-
-    def dist(self, w):
-        return torch.sqrt(1 / self.activation(w))
 
     def activation(self, w):
         dists = self.weighted_distance(w)
@@ -207,14 +202,19 @@ class LARFDSSOM(nn.Module):
         self.weights[index] = torch.add(self.weights[index], torch.mul(lr, torch.sub(w, self.weights[index])))
 
     def remove_loosers(self):
-        remaining_indexes = (self.wins >= self.step * self.lp).nonzero().squeeze(1)
+        remaining_indexes = (self.wins >= self.step * self.lp).nonzero()
 
-        self.weights = self.weights[remaining_indexes]
-        self.moving_avg = self.moving_avg[remaining_indexes]
-        self.relevances = self.relevances[remaining_indexes]
+        if remaining_indexes.size(0) > 0 :
+            remaining_indexes = remaining_indexes.squeeze(1)
 
-        self.neighbors = []
-        self.wins = self.wins[remaining_indexes]
+            self.weights = self.weights[remaining_indexes]
+            self.moving_avg = self.moving_avg[remaining_indexes]
+            self.relevances = self.relevances[remaining_indexes]
+
+            self.neighbors = []
+            self.wins = self.wins[remaining_indexes]
+        else:
+            remaining_indexes = None
 
         return remaining_indexes
 
@@ -367,7 +367,6 @@ class SSSOM(LARFDSSOM):
         if batch_size > 1:
             self.batch_update_map_sup(w, y)
         else:
-            dists = self.dist(w)
             activations = self.activation(w)
             ind_max = torch.argmax(activations)
             ind_max = torch.full((1,), ind_max, dtype=torch.int64, device=self.device)
@@ -388,7 +387,6 @@ class SSSOM(LARFDSSOM):
                 self.handle_different_class(activations, w, y)
 
     def batch_update_map_sup(self, w, y):
-        dists = self.dist(w)
         activations = self.activation(w)
         activations_max, indices_max = torch.max(activations, dim=1)
 
@@ -626,7 +624,9 @@ class SSSOM(LARFDSSOM):
 
     def remove_loosers(self):
         remaining_indexes = super(SSSOM, self).remove_loosers()
-        self.classes = self.classes[remaining_indexes]
+
+        if remaining_indexes is not None:
+            self.classes = self.classes[remaining_indexes]
 
         return remaining_indexes
 
