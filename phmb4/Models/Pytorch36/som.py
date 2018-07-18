@@ -99,6 +99,7 @@ class LARFDSSOM(nn.Module):
         if batch_size > 1:
             self.batch_update_map(w)
         else:
+            dists = self.dist(w)
             activations = self.activation(w)
             ind_max = torch.argmax(activations)
 
@@ -111,6 +112,7 @@ class LARFDSSOM(nn.Module):
                 self.update_neighbors(w, ind_max)
 
     def batch_update_map(self, w):
+        dists = self.dist(w)
         activations = self.activation(w)
         activations_max, indices_max = torch.max(activations, dim=1)
 
@@ -143,8 +145,11 @@ class LARFDSSOM(nn.Module):
 
         if has_neighbors.size(0) > 0:
             # get neighbors
-            node_neighbors = self.neighbors[node].nonzero().squeeze(0)
+            node_neighbors = self.neighbors[node].nonzero().squeeze(1)
             self.update_node(w, self.e_n, node_neighbors)
+
+    def dist(self, w):
+        return torch.sqrt(1 / self.activation(w))
 
     def activation(self, w):
         dists = self.weighted_distance(w)
@@ -168,8 +173,9 @@ class LARFDSSOM(nn.Module):
         self.neighbors = torch.cat((self.neighbors,
                                     torch.zeros(batch_size, self.neighbors.size(1), dtype=torch.uint8, device=self.device)), 0)
 
-        update_ind = torch.range(0, batch_size - 1, device=self.device, dtype=torch.long) + self.weights.size(0) - 1
-        self.update_connections(update_ind)
+        # update_ind = torch.range(0, batch_size - 1, device=self.device, dtype=torch.long) + self.weights.size(0) - 1
+        # self.update_connections(update_ind)
+        self.update_all_connections()
 
         self.wins = torch.cat((self.wins, torch.zeros(batch_size, device=self.device)))
 
@@ -361,6 +367,7 @@ class SSSOM(LARFDSSOM):
         if batch_size > 1:
             self.batch_update_map_sup(w, y)
         else:
+            dists = self.dist(w)
             activations = self.activation(w)
             ind_max = torch.argmax(activations)
             ind_max = torch.full((1,), ind_max, dtype=torch.int64, device=self.device)
@@ -372,7 +379,8 @@ class SSSOM(LARFDSSOM):
                 elif activations[ind_max] >= self.a_t:
                     self.wins[ind_max] += 1
                     self.classes[ind_max] = y
-                    self.update_connections(ind_max)
+                    self.update_all_connections()
+                    # self.update_connections(ind_max)
                     self.update_node(w, self.e_b, ind_max)
 
                     self.update_neighbors(w, ind_max)
@@ -380,6 +388,7 @@ class SSSOM(LARFDSSOM):
                 self.handle_different_class(activations, w, y)
 
     def batch_update_map_sup(self, w, y):
+        dists = self.dist(w)
         activations = self.activation(w)
         activations_max, indices_max = torch.max(activations, dim=1)
 
@@ -493,7 +502,7 @@ class SSSOM(LARFDSSOM):
         return torch.cat((indices, node.unsqueeze(0))).sort()[0]
 
     def handle_different_class(self, activations, w, y):
-        wrong_winners, new_winners = self.next_winners(activations, y)
+        new_winners, wrong_winners = self.next_winners(activations, y)
         if wrong_winners is None and new_winners is None:
             new_w, new_y = self.group_data_by_mean(w, y)
             self.add_node(new_w, new_y)
@@ -518,55 +527,63 @@ class SSSOM(LARFDSSOM):
 
                     self.update_node(new_w, self.e_b, new_winner)
 
-                self.update_all_connections()
+                    self.update_neighbors(new_w, new_winner)
 
     def next_winners(self, activations, y):
-        wrong_max = None
+        wrong_winners = None
         winners = None
 
         sorted_activations, indexes = torch.sort(activations, descending=True)
 
-        for local_act, local_ind, local_y in zip(sorted_activations, indexes, y):
-            geq_indexes = local_ind[local_act >= self.a_t]
+        if len(indexes.size()) == 1:  # len(index.size()) == 1 means that it is not a batch operation
+            indexes = indexes[sorted_activations >= self.a_t]
+            winners, wrong_winners = self.get_next(indexes, indexes, winners, wrong_winners, y)
 
-            if geq_indexes.size(0) > 0:
-                local_wrong = torch.full((1,), local_ind[0], dtype=torch.int64, device=self.device)
-                if wrong_max is None:
-                    wrong_max = local_wrong
-                else:
-                    wrong_max = torch.cat((wrong_max, local_wrong))
+        else:
+            for local_act, local_ind, local_y in zip(sorted_activations, indexes, y):
+                geq_indexes = local_ind[local_act >= self.a_t]
+                winners, wrong_winners = self.get_next(local_ind, geq_indexes, winners, wrong_winners, local_y)
 
-                no_classes = self.classes[geq_indexes] == self.no_class
-                same_classes = self.classes[geq_indexes] == local_y
+        return winners, wrong_winners
 
-                curr_winner = geq_indexes[no_classes | same_classes]
+    def get_next(self, curr, indexes, winners, wrong_winners, y):
+        if curr.size(0) > 0:
+            wrong = torch.full((1,), curr[0], dtype=torch.int64, device=self.device)
 
-                if curr_winner.size(0) == 0:
-                    curr_winner = torch.full((1,), -1, dtype=torch.int64, device=self.device)
+            if wrong_winners is None:
+                wrong_winners = wrong
+            else:
+                wrong_winners = torch.cat((wrong_winners, wrong))
 
-                if winners is None:
-                    winners = curr_winner
-                else:
-                    winners = torch.cat((winners, curr_winner))
+            no_classes = self.classes[indexes] == self.no_class
+            same_classes = self.classes[indexes] == y
+            curr_winner = indexes[no_classes | same_classes]
 
-        return wrong_max, winners
+            curr_winner_size = curr_winner.size(0)
+            if curr_winner_size == 0:
+                curr_winner = torch.full((1,), -1, dtype=torch.int64, device=self.device)
+            elif curr_winner_size > 1:
+                curr_winner = torch.full((1,), curr_winner[0], dtype=torch.int64, device=self.device)
 
-    # def next_winners(self, activations, y):
-    #     wrong_max = None
-    #     winners = None
-    #
-    #     sorted_activations, indices = torch.sort(activations, descending=True)
-    #     indices = indices[sorted_activations >= self.a_t]
-    #
-    #     if indices.size(0) > 0:
-    #         wrong_max = indices[0]
-    #         no_classes = self.classes[indices] == self.no_class
-    #         same_classes = self.classes[indices] == y
-    #
-    #         winners = indices[no_classes | same_classes]
-    #
-    #         if winners.size(0) == 0:
-    #             winners = None
+            if winners is None:
+                winners = curr_winner
+            else:
+                winners = torch.cat((winners, curr_winner))
+        else:
+            invalid = torch.full((1,), -1, dtype=torch.int64, device=self.device)
+
+            if wrong_winners is None:
+                wrong_winners = invalid
+            else:
+                wrong_winners = torch.cat((wrong_winners, invalid))
+
+            if winners is None:
+                winners = invalid
+            else:
+                winners = torch.cat((winners, invalid))
+
+
+        return winners, wrong_winners
 
     def initialize_map(self, w, y=None, calculate_mean=False):
 
@@ -599,7 +616,8 @@ class SSSOM(LARFDSSOM):
         dists_connections = (dists < self.minwd)
 
         stacked_classes = torch.stack([self.classes] * node_index.size(0))
-        classes_connections = (stacked_classes == self.no_class) | (stacked_classes.t() == self.classes[node_index]).t()
+        stacked_classes_transposed = stacked_classes.t()
+        classes_connections = (stacked_classes == self.no_class) | (stacked_classes_transposed == self.no_class) | (stacked_classes.t() == self.classes[node_index]).t()
         connections = dists_connections & classes_connections
 
         for node, connection in zip(node_index, connections):
@@ -616,9 +634,9 @@ class SSSOM(LARFDSSOM):
         dists = self.relevance_distances(self.relevances, self.relevances)
         dists_connections = dists < self.minwd
 
-        classes_stacked = torch.stack([self.classes] * self.classes.size(0))
-        classes_stacked_transposed = classes_stacked.t()
-        classes_connections = (classes_stacked == self.no_class) | (classes_stacked == classes_stacked_transposed)
+        stacked_classes = torch.stack([self.classes] * self.classes.size(0))
+        stacked_classes_transposed = stacked_classes.t()
+        classes_connections = (stacked_classes == self.no_class) | (stacked_classes_transposed == self.no_class) | (stacked_classes == stacked_classes_transposed)
 
         connections = dists_connections & classes_connections
 
@@ -628,7 +646,7 @@ class SSSOM(LARFDSSOM):
         clustering_classify = pd.DataFrame(columns=['sample_ind', 'cluster', 'class'])
         for i, data in enumerate(dataloader, 0):
             activations = self.activation(data[0].to(self.device))
-            ind_max = torch.argmax(activations).item()
+            ind_max = torch.argmax(activations)
 
             if filter_noise and activations[ind_max] < self.a_t:
                 continue
@@ -646,7 +664,7 @@ class SSSOM(LARFDSSOM):
                         ind_max = winners[0]
 
                 clustering_classify = clustering_classify.append({'sample_ind': i,
-                                                                  'cluster': ind_max,
+                                                                  'cluster': ind_max.item(),
                                                                   'class': self.classes[ind_max].item()},
                                                                  ignore_index=True)
             else:

@@ -83,26 +83,26 @@ if len(testPaths) > 0:
 
         test_data = ArffDataset(test)
         test_loader = DataLoader(test_data,
-                                 batch_size=opt.batchSize,
                                  num_workers=opt.workers)
+
         for paramsSet in range(0, len(parameters), parameters_count):
             sssom = SSSOM(use_cuda=use_cuda,
                           ngpu=ngpu,
                           dim=train_data.X.shape[1],
                           max_node_number=train_data.X.shape[0],
                           no_class=999,
-                          a_t=float(parameters[0]),
-                          lp=float(parameters[0 + 1]),
-                          dsbeta=float(parameters[0 + 2]),
-                          age_wins=int(parameters[0 + 3]) * train_data.X.shape[0],
-                          e_b=float(parameters[0 + 4]),
-                          e_n=float(parameters[0 + 5]),
-                          eps_ds=float(parameters[0 + 6]),
-                          minwd=float(parameters[0 + 7]),
-                          epochs=int(parameters[0 + 8]),
-                          e_push=float(parameters[0 + 9]))
+                          a_t=float(parameters[paramsSet]),
+                          lp=float(parameters[paramsSet + 1]),
+                          dsbeta=float(parameters[paramsSet + 2]),
+                          age_wins=int(parameters[paramsSet + 3]) * train_data.X.shape[0],
+                          e_b=float(parameters[paramsSet + 4]),
+                          e_n=float(parameters[paramsSet + 5]),
+                          eps_ds=float(parameters[paramsSet + 6]),
+                          minwd=float(parameters[paramsSet + 7]),
+                          epochs=int(parameters[paramsSet + 8]),
+                          e_push=float(parameters[paramsSet + 9]))
 
-            manualSeed = int(parameters[0 + 10])
+            manualSeed = int(parameters[paramsSet + 10])
             random.seed(manualSeed)
             torch.manual_seed(manualSeed)
 
