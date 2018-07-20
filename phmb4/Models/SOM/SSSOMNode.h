@@ -36,7 +36,8 @@ public:
     TVector ds;
     int cls;
     
-    std::map<int, int> classesMapping;
+    int wins;
+    TNumber act;
 
     SSSOMNode(int idIn, const TVector &v) : NodeW(idIn, v) {
         ds.size(v.size());

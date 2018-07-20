@@ -209,7 +209,6 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         som.dsbeta = params[i + 2];
         som.age_wins = params[i + 3];
         som.e_b = params[i + 4];
-        som.e_b0 = som.e_b;
         som.e_n = params[i + 5] * som.e_b;
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7]; 

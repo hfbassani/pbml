@@ -22,47 +22,14 @@
 
 using namespace std;
 
-class GDSNodeMW;
 
-class GDSConnectionMW : public Connection<GDSNodeMW> {
-public:
-    int age;
-
-    GDSConnectionMW(TNode *node0, TNode *node1) : Connection<GDSNodeMW>(node0, node1), age(0) {
-    }
-};
-
-class GDSNodeMW : public SSSOMNode {
-public:
-
-    typedef GDSConnectionMW TConnection;
-    typedef std::map<GDSNodeMW*, TConnection*> TPNodeConnectionMap; //Para mapeamento local dos n�s e conex�es ligadas a this
-
-    int wins;
-    TPNodeConnectionMap nodeMap;
-    TNumber act;
-
-    inline int neighbors() {
-        return nodeMap.size();
-    }
-
-    GDSNodeMW(int idIn, const TVector &v) : SSSOMNode(idIn, v), wins(0), act(0) {
-    };
-
-    ~GDSNodeMW() {
-    };
-};
-
-class SSSOM : public SOM<GDSNodeMW> {
+class SSSOM : public SOM<SSSOMNode> {
 public:
     uint maxNodeNumber;
     int epochs;
     float minwd;
     float e_b;
-    float e_b0;
     float e_n;
-    float tau;
-    int nodesCounter;
 
     float push_rate;
     
@@ -72,17 +39,7 @@ public:
     float lp;           //remove percentage threshold
     float a_t;
 
-    int nodesLeft;
     int nodeID;
-    
-    int supCountDupNodes; 
-    int supCountNewWinnersFound; 
-    int supCountNewNodeUnderAt; 
-    int supCountRightWinner; 
-    int supCountPushOnly; 
-     
-    int unsupCountNewNode; 
-    int unsupCountUpdate; 
     
     inline float activation(const TNode &node, const TVector &w) {
 
@@ -90,11 +47,10 @@ public:
 
         for (uint i = 0; i < w.size(); i++) {
             distance += node.ds[i] * qrt((w[i] - node.w[i]));
-            //dbgOut(3) <<  node.a[i] << "\t" << w[i] << "\t" << node.w[i] << endl;
         }
 
         float sum = node.ds.sum();
-        return (sum / (sum + distance + 0.0000001));
+        return (sum / (sum + sqrt(distance) + 0.0000001));
 
         //float r = node.ds.sum();
 //        float e = (1/(qrt(node.ds.norm()) + 0.0000001));
@@ -104,28 +60,6 @@ public:
         //return exp(-qrt(e*r));
         //return (1 / (1 + qrt(e*r)));
         //return (1 / sqrt(1 + qrt(e*r)));
-    }
-
-    inline float getWinnerActivation(const TVector &w) {
-        TNode* winner = getWinner(w);        
-        float a = activation(*winner, w);
-        dbgOut(2) << winner->getId() << "\t" << a << endl;
-        return a;
-    }
-    
-    inline float dist2(const TNode &node, const TVector &w) {
-        /*float distance = 0;
-
-        for (uint i = 0; i < w.size(); i++) {
-            distance += node.ds[i] * qrt((w[i] - node.w[i]));
-        }
-
-        return distance / (node.ds.sum() + 0.0000001);*/
-        return 1/activation(node, w);
-    }
-
-    inline float dist(const TNode &node, const TVector &w) {
-        return sqrt(dist2(node, w));
     }
     
     inline float wdist(const TNode &node1, const TNode &node2) {
@@ -249,45 +183,6 @@ public:
                 
             }
         }
-
-        //printWinners();
-        return *this;
-    }
-
-    SSSOM& finishMap(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
-
-        dbgOut(1) << "Finishing map..." << endl;
-        do {
-            resetWins();
-            maxNodeNumber = meshNodeSet.size();
-            
-            if (!sorted) {
-                trainning(age_wins, groups, groupLabels);
-            } else {
-                orderedTrainning(age_wins, groups, groupLabels);
-            }
-            
-            resetWins();
-
-            TVector v;
-            for (int i=0; i<data.rows(); i++) {
-                data.getRow(i, v);
-                TNode *winner = getWinner(v);
-                if (activation(*winner, v)>= a_t) {
-                    winner->wins++;
-                    //step++;
-                }
-            }
-            step = data.rows();
-
-            int prefMeshSize = meshNodeSet.size();
-            removeLoosers();
-            updateAllConnections();
-            dbgOut(1) << "Finishing: " << prefMeshSize << "\t->\t" << meshNodeSet.size() << endl;
-
-            if (maxNodeNumber == meshNodeSet.size() || meshNodeSet.size()==1)
-                break;
-        } while (true);
         
         return *this;
     }
@@ -340,51 +235,6 @@ public:
         
         return *this;
     }
-    
-    void printWinners() {
-
-        TPNodeSet::iterator itMesh = meshNodeSet.begin();
-        while (itMesh != meshNodeSet.end()) {
-            
-            int count = 0;
-            for (int i=0; i<data.rows(); i++) {
-                TVector row;
-                data.getRow(i, row);
-                TNumber a = activation(*(*itMesh), row);
-                
-                if (a>=a_t) {
-                        dbgOut(1) << i << " ";
-                        count++;
-                }
-            }
-            dbgOut(1) << "\t" << (*itMesh)->getId() << "\t" << (*itMesh)->wins << "\t" << count << endl;
-            itMesh++;
-        }
-    }
-
-    /*
-    LARFDSSOM& finishMap() {
-        resetWins();
-
-        TVector v;
-        for (int i=0; i<data.rows(); i++) {
-            data.getRow(i, v);
-            TNode *winner = getWinner(v);
-            if (activation(*winner, v)>= a_t) {
-                winner->wins++;
-                //step++;
-            }
-        }
-
-        step = data.rows();
-        //if (step==0) step = 1;
-
-        removeLoosers();
-        updateAllConnections();
-
-        maxNodeNumber = meshNodeSet.size();
-        trainning(age_wins);
-    }/**/
 
     SSSOM& resetWins() {
 
@@ -444,7 +294,6 @@ public:
                       
             if ((a < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
                 createNodeMap(w, noCls);
-                unsupCountNewNode++; 
                 
             } else if (a >= a_t) { // caso contrário
                 
@@ -459,10 +308,7 @@ public:
                     updateNode(*node, w, e_n);
                 }
                 
-                unsupCountUpdate++; 
             }
-            
-//            e_b = learningDecay(e_b0, step + 1);
         }
 
         ageWinsCriterion();
@@ -487,7 +333,6 @@ public:
                 if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
                     // cria um novo nodo na posição da amostra
                     createNodeMap(w, cls);
-                    supCountNewNodeUnderAt++;
                     
                 } else if (winner1->act >= a_t){
                     winner1->wins++;
@@ -501,7 +346,6 @@ public:
                         updateNode(*node, w, e_n);
                     }
                     
-                    supCountRightWinner++; 
                 } 
             } else { // winner tem classe diferente da amostra
                 // caso winner seja de classe diferente, checar se existe algum
@@ -510,8 +354,6 @@ public:
 
                 handleDifferentClass(winner1, w, cls);
             }   
-            
-//            e_b_sup = learningDecay(e_b_sup0, step + 1);
         }
 
         ageWinsCriterion();
@@ -519,14 +361,6 @@ public:
         step++;
         
         return *this;
-    }
-    
-    float learningDecay(float base_lr, int step) {
-        float new_lr = (base_lr)/(1 + tau * step); //Equacao (Nova e Estevez, 2013 Neural Comput&Applic)
-        if (new_lr <= 0) 
-            new_lr = 0.000001;
-        
-        return new_lr;
     }
     
     void handleDifferentClass(TNode *winner1, const TVector& w, int cls) {
@@ -553,7 +387,6 @@ public:
                 updateNode(*node, w, e_n);
             }
             
-            supCountNewWinnersFound++; 
             
         } else if (meshNodeSet.size() < maxNodeNumber) {
             
@@ -573,26 +406,24 @@ public:
 //
 //            updateNode(*winner1, w, -push_rate);
             
-            supCountDupNodes++; 
         } 
     }
 
     virtual TNode *getFirstWinner(const TVector &w){
         TNode *winner = 0;
-        TNumber temp = 0;
         
-        TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
         winner = (*Mesh<TNode>::meshNodeSet.begin());
         winner->act = activation(*winner, w);
 
+        TNumber act = winner->act;
+        
         TPNodeSet::iterator it;
         it = Mesh<TNode>::meshNodeSet.begin();
         it++;
         for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
             (*it)->act = activation(*(*it), w);
-            temp = dist(*(*it), w);
-            if (d > temp) {
-                d = temp;
+            if ((*it)->act > act) {
+                act = (*it)->act;
                 winner = (*it);
             }
         }
@@ -644,70 +475,24 @@ public:
     
     inline TNode* getWinner(const TVector &w) {
         TNode *winner = 0;
-        TNumber temp = 0;
         
-        TNumber d = dist(*(*Mesh<TNode>::meshNodeSet.begin()), w);
         winner = (*Mesh<TNode>::meshNodeSet.begin());
+        winner->act = activation(*winner, w);
 
+        TNumber act = winner->act;
+        
         TPNodeSet::iterator it;
         it = Mesh<TNode>::meshNodeSet.begin();
         it++;
         for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
-            temp = dist(*(*it), w);
-            if (d > temp) {
-                d = temp;
+            (*it)->act = activation(*(*it), w);
+            if ((*it)->act > act) {
+                act = (*it)->act;
                 winner = (*it);
             }
         }
 
         return winner;
-    }
-
-    inline SSSOM& getWinners(const TVector &w, TNode* &winner1, TNode* &winner2) {
-        TPNodeSet::iterator it = Mesh<TNode>::meshNodeSet.begin();
-        TNumber minDist = dist2(*(*it), w);
-        
-        //find first winner
-        winner1 = (*it);
-        for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
-            TNumber dist = dist2(*(*it), w);
-            if (dist<minDist) {
-                minDist = dist;
-                winner1 = (*it);
-            }
-        }
-        
-        //find second winner
-        it = Mesh<TNode>::meshNodeSet.begin();
-        winner2 = (*it);
-        minDist = dist2(*(*it), w);
-        TNode* distWinner = NULL;
-        for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
-            if (*it!=winner1) {
-                TNumber dist = dist2(*(*it), w);
-                if (dist<minDist) {
-                    minDist = dist;
-                    winner2 = (*it);
-                    if (wdist(*winner1, *(*it)) <= minwd)
-                        distWinner = winner2;
-                }
-            }
-        }
-        
-        if (distWinner!=NULL)
-            winner2 = distWinner;
-
-        return *this;
-    }
-    
-    void getActivationVector(const TVector &sample, TVector &actVector) {
-        actVector.size(Mesh<TNode>::meshNodeSet.size());
-        
-        int i=0;
-        for (it = Mesh<TNode>::meshNodeSet.begin(); it != Mesh<TNode>::meshNodeSet.end(); it++) {
-            actVector[i] = activation(*(*it), sample);
-            i++;
-        }
     }
     
     bool isNoise(const TVector &w) {
@@ -716,36 +501,13 @@ public:
         return (a<a_t);
     }
 
-    void resetToDefault(int dimw = 2) {
-        SSSOM::dimw = dimw;
-        step = 0;
-        nodesLeft = 1;
-
-        maxNodeNumber = 100;
-        e_b = 0.05;
-        e_n = 0.0006;
-        counter_i = 0;
-        aloc_node = 0;
-        aloc_con = 0;
-        nodesCounter = 1;
-        nodeID = 0;
-
-        destroyMesh();
-        TVector v(dimw);
-        v.random();
-        TVector wNew(v);
-        createNode(0, wNew);
-    }
-
     void reset(int dimw) {
         SSSOM::dimw = dimw;
         step = 0;
-        nodesLeft = 1;
 
         counter_i = 0;
         aloc_node = 0;
         aloc_con = 0;
-        nodesCounter = 1;
         nodeID = 0;
 
         destroyMesh();
@@ -754,83 +516,15 @@ public:
 //        TVector wNew(v);
 //        createNodeMap(wNew, noCls);
     }
-    
-    void resetSize(int dimw) {
-        SSSOM::dimw = dimw;
-    }
-    
-    void binarizeRelevances() {
-        
-        TPNodeSet::iterator it;
-        for (it = Mesh<TNode>::meshNodeSet.begin(); it != Mesh<TNode>::meshNodeSet.end(); it++) {
-            TNode *node = *it;
-            float average = node->ds.mean();
-            for (int i=0; i<node->ds.size(); i++) {
-                if (node->ds[i]>average)
-                    node->ds[i] = 1;
-                else
-                    node->ds[i] = 0;
-            }
-        }
-    }
 
     void reset(void) {
         reset(dimw);
     }
 
     SSSOM(int dimw) {
-        resetToDefault(dimw);
     };
 
     ~SSSOM() {
-    }
-
-    template<class Number> SSSOM& outputCentersDs(MatMatrix<Number> &m) {
-        using namespace std;
-
-        uint wSize = (*meshNodeSet.begin())->ds.size();
-        uint meshNodeSetSize = meshNodeSet.size();
-        m.size(meshNodeSetSize, wSize);
-
-        int i = 0;
-        typename TPNodeSet::iterator it;
-        for (it = meshNodeSet.begin(); it != meshNodeSet.end(); it++) {
-            for (uint j = 0; j < wSize; j++)
-                m[i][j] = (*it)->ds[j];
-            i++;
-        }
-
-        return *this;
-    }
-    
-    virtual bool saveParameters(std::ofstream &file) {
-        
-        file << maxNodeNumber << "\t";
-        file << minwd << "\t";
-        file << e_b << "\t";
-        file << e_n << "\t";
-        file << dsbeta << "\t"; //Taxa de aprendizagem
-        file << epsilon_ds << "\t"; //Taxa de aprendizagem
-        file << age_wins << "\t";       //period to remove nodes
-        file << lp << "\t";          //remove percentage threshold
-        file << a_t << "\n";
-        return true;
-    }
-    
-    virtual bool readParameters(std::ifstream &file) {
-        
-        file >> maxNodeNumber;
-        file >> minwd;
-        file >> e_b;
-        file >> e_n;
-        file >> dsbeta; //Taxa de aprendizagem
-        file >> epsilon_ds; //Taxa de aprendizagem
-        file >> age_wins;       //period to remove nodes
-        file >> lp;           //remove percentage threshold
-        file >> a_t;
-        file.get();//skip line end
-        
-        return true;
     }
 };
 
