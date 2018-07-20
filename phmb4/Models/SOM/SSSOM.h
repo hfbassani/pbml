@@ -284,18 +284,15 @@ public:
         } else {
             TNode *winner1 = 0;
 
-            //Passo 3 : encontra o nó vencedor
             winner1 = getWinner(w); //winner
-        
-            //Passo 6: Calcula a atividade do nó vencedor
-            TNumber a = activation(*winner1, w); //DS activation
+            
             //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
             //e o limite de nodos não tiver sido atingido
                       
-            if ((a < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
+            if ((winner1->act < a_t) && (meshNodeSet.size() < maxNodeNumber)) {
                 createNodeMap(w, noCls);
                 
-            } else if (a >= a_t) { // caso contrário
+            } else if (winner1->act >= a_t) { // caso contrário
                 
                 winner1->wins++;
                 // Atualiza o peso do vencedor
