@@ -1,9 +1,11 @@
 # Author: Pedro Braga <phmb4@cin.ufpe.br>.
 
 import torch as torch
+import numpy as np
 import torch.nn as nn
 import pandas as pd
 import itertools
+import re
 
 
 class LARFDSSOM(nn.Module):
@@ -81,7 +83,8 @@ class LARFDSSOM(nn.Module):
         if y is None:
             new_w = w.mean(dim=0).unsqueeze(0)
         else:
-            unique_targets = torch.unique(y)
+
+            unique_targets = torch.from_numpy(np.unique(y)).to(self.device) # there is no GPU support for unique operation
             for target in unique_targets:
                 target_occurrences = (y == target).nonzero().squeeze(1)
                 w_target = w[target_occurrences].mean(dim=0).unsqueeze(0)
@@ -204,7 +207,7 @@ class LARFDSSOM(nn.Module):
     def remove_loosers(self):
         remaining_indexes = (self.wins >= self.step * self.lp).nonzero()
 
-        if remaining_indexes.size(0) > 0 :
+        if remaining_indexes.size(0) > 0:
             remaining_indexes = remaining_indexes.squeeze(1)
 
             self.weights = self.weights[remaining_indexes]
@@ -240,7 +243,6 @@ class LARFDSSOM(nn.Module):
         # return torch.sqrt(summation)
 
     def relevance_distances(self, x1, x2):
-
         if x1.dim() == 1:
             x1 = x1.unsqueeze(0)
 
@@ -301,7 +303,7 @@ class LARFDSSOM(nn.Module):
 
         result_text = result.to_string(header=False, index=False)
         result_text = result_text.replace("\n ", "\n")
-        result_text = result_text.replace("  ", "\t")
+        result_text = re.sub(' +', '\t', result_text)
 
         content += result_text
 
@@ -470,7 +472,8 @@ class SSSOM(LARFDSSOM):
 
     def group_by_winner_node(self, winners, w, y):
         groups = None
-        unique_nodes = torch.unique(winners)
+
+        unique_nodes = torch.from_numpy(np.unique(winners)).to(self.device)  # there is no GPU support for unique operation
 
         for node in unique_nodes:
             node_occurrences = (winners == node).nonzero().squeeze(1)
@@ -507,7 +510,7 @@ class SSSOM(LARFDSSOM):
 
         else:
             no_new_winners = (new_winners == -1).nonzero()
-            if no_new_winners.size(0) > 0 :
+            if no_new_winners.size(0) > 0:
                 no_new_winners = no_new_winners.squeeze(1)
                 new_w, new_y = self.group_data_by_mean(w[no_new_winners], y[no_new_winners])
                 self.add_node(new_w, new_y)
