@@ -81,7 +81,7 @@ class LARFDSSOM(nn.Module):
         if y is None:
             new_w = w.mean(dim=0).unsqueeze(0)
         else:
-            unique_targets = y.to(self.device).unique()
+            unique_targets = torch.unique(y)
             for target in unique_targets:
                 target_occurrences = (y == target).nonzero().squeeze(1)
                 w_target = w[target_occurrences].mean(dim=0).unsqueeze(0)
@@ -470,7 +470,7 @@ class SSSOM(LARFDSSOM):
 
     def group_by_winner_node(self, winners, w, y):
         groups = None
-        unique_nodes = winners.unique()
+        unique_nodes = torch.unique(winners)
 
         for node in unique_nodes:
             node_occurrences = (winners == node).nonzero().squeeze(1)
