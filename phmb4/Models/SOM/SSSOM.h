@@ -73,9 +73,7 @@ public:
     }
 
     inline void updateNode(TNode &node, const TVector &w, TNumber e) {
-        
-        TVector newA(node.a);
-        
+       
         //update averages
         for (uint i = 0; i < node.a.size(); i++) {
             //update neuron weights
@@ -86,9 +84,8 @@ public:
         float max = node.a.max();
         float min = node.a.min();
         float average = node.a.mean();
-        //float dsa = node.ds.mean();
 
-
+        
         //update neuron ds weights
         for (uint i = 0; i < node.a.size(); i++) {
             if ((max - min) != 0) {
@@ -97,12 +94,6 @@ public:
             }
             else
                 node.ds[i] = 1;
-
-//            if (node.ds[i] < 0.95*dsa)
-//                node.ds[i] = epsilon_ds;
-
-//            if (node.ds[i] < epsilon_ds)
-//                node.ds[i] = epsilon_ds;
         }
 
         //Passo 6.1: Atualiza o peso do vencedor
