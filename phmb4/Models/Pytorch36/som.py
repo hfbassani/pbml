@@ -302,7 +302,7 @@ class LARFDSSOM(nn.Module):
             content += str(i) + "\t" + "\t".join(map(str, relevance.numpy())) + "\n"
 
         result_text = result.to_string(header=False, index=False)
-        result_text = result_text.replace("\n ", "\n")
+        result_text = re.sub('\n +', '\n', result_text)
         result_text = re.sub(' +', '\t', result_text)
 
         content += result_text
