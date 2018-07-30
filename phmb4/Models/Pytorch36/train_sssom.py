@@ -116,7 +116,7 @@ if len(testPaths) > 0:
                 sssom.cuda()
                 cudnn.benchmark = True
 
-            sssom.fit(train_loader)
+            sssom.organization(train_loader)
 
             fileName = test.split("/")[-1].split(".")[0]
 

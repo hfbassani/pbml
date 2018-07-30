@@ -4,8 +4,8 @@ import torch as torch
 import numpy as np
 import torch.nn as nn
 import pandas as pd
-import itertools
 import re
+from itertools import cycle
 
 
 class LARFDSSOM(nn.Module):
@@ -253,41 +253,52 @@ class LARFDSSOM(nn.Module):
         fabs = torch.abs(torch.sub(x1, x2))
         return torch.sum(fabs, fabs.dim() - 1)
 
-    def finish_map(self, dataloader):
-        dataiter = itertools.cycle(dataloader)
-
-        self.age_wins_cycle(dataiter)
-
-        self.max_node_number = self.weights.size(0)
-
-        data = next(dataiter)
-        self.forward(data[0], data[1])
-
-        self.age_wins_cycle(dataiter)
-
-    def age_wins_cycle(self, dataiter):
-        while self.step != 1:
-            data = next(dataiter)
-            self.forward(data[0], data[1])
-
-    def fit(self, dataloader):
+    def organization(self, dataloader):
+        # count = 0
         for epoch in range(self.epochs):
-            for i, data in enumerate(dataloader):
-                self.forward(data[0], data[1])
+            for batch_idx, (inputs, targets) in enumerate(dataloader):
+                self.forward(inputs, targets)
 
-        self.finish_map(dataloader)
+                # if count == 3:
+                #     break
+                #
+                # count += 1
+
+        self.convergence(dataloader)
+
+    def convergence(self, dataloader):
+        for cycle in range(self.step, 2 * self.age_wins):
+            for batch_idx, (inputs, targets) in enumerate(dataloader):
+                if self.step == 1:
+                    self.max_node_number = self.weights.size(0)
+
+                self.forward(inputs, targets)
+
+        curr_step = self.step
+        total_steps = 2 * self.age_wins
+
+        for batch_idx, (inputs, targets) in enumerate(dataloader):
+            if self.step == 1:
+                self.max_node_number = self.weights.size(0)
+
+            if curr_step >= total_steps:
+                break
+
+            self.forward(inputs, targets)
+
+            curr_step += 1
 
     def cluster(self, dataloader, is_subspace, filter_noise):
         clustering = pd.DataFrame(columns=['sample_ind', 'cluster'])
-        for i, data in enumerate(dataloader, 0):
-            activations = self.activation(data[0].to(self.device))
+        for batch_idx, (inputs, targets) in enumerate(dataloader):
+            activations = self.activation(inputs.to(self.device))
             ind_max = torch.argmax(activations).item()
 
             if filter_noise and activations[ind_max] < self.a_t:
                 continue
 
             if not is_subspace:
-                clustering = clustering.append({'sample_ind': i, 'cluster': ind_max}, ignore_index=True)
+                clustering = clustering.append({'sample_ind': batch_idx, 'cluster': ind_max}, ignore_index=True)
             else:
                 x = 1
 
@@ -647,8 +658,8 @@ class SSSOM(LARFDSSOM):
 
     def cluster_classify(self, dataloader, is_subspace, filter_noise):
         clustering_classify = pd.DataFrame(columns=['sample_ind', 'cluster', 'class'])
-        for i, data in enumerate(dataloader, 0):
-            activations = self.activation(data[0].to(self.device))
+        for batch_idx, (inputs, targets) in enumerate(dataloader):
+            activations = self.activation(inputs.to(self.device))
             ind_max = torch.argmax(activations)
 
             if filter_noise and activations[ind_max] < self.a_t:
@@ -666,7 +677,7 @@ class SSSOM(LARFDSSOM):
                     if winners.size(0) > 0:
                         ind_max = winners[0]
 
-                clustering_classify = clustering_classify.append({'sample_ind': i,
+                clustering_classify = clustering_classify.append({'sample_ind': batch_idx,
                                                                   'cluster': ind_max.item(),
                                                                   'class': self.classes[ind_max].item()},
                                                                  ignore_index=True)
