@@ -267,13 +267,6 @@ class LARFDSSOM(nn.Module):
         self.convergence(dataloader)
 
     def convergence(self, dataloader):
-        for cycle in range(self.step, 2 * self.age_wins):
-            for batch_idx, (inputs, targets) in enumerate(dataloader):
-                if self.step == 1:
-                    self.max_node_number = self.weights.size(0)
-
-                self.forward(inputs, targets)
-
         curr_step = self.step
         total_steps = 2 * self.age_wins
 
