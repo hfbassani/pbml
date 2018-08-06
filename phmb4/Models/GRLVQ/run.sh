@@ -1,0 +1,1 @@
+tmux new-session -d "./grlvq -i ../../Parameters/inputPathsTrain -t ../../Parameters/inputPathsTest -r grlvq-pray/ -p ../../Parameters/GRLVQ_0"
