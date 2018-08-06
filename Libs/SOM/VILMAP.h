@@ -2,7 +2,7 @@
  * VILMAP.h
  *
  *  Created on: 2014
- *      Author: hans
+ *      Author: rcb7
  */
 
 #ifndef VILMAP_H_
@@ -41,6 +41,7 @@ public:
     int wins;
     TPNodeConnectionMap nodeMap;
     TNumber act;
+    TNumber nodeLife;
 
     inline int neighbors() {
         return nodeMap.size();
@@ -68,8 +69,16 @@ public:
     float a_t;
     int d_min; //dimensão inicial
     int d_max; //dimensão máxima
+    float gamma;
+
     int nodesLeft;
     int nodeID;
+    
+    TPNodeSet deadNodeSet;
+    
+    vector<TNode *> ranks;
+    float h_threshold;
+    float tau;
 
     inline float activation(TNode &node, const TVector &w) {
         int end = 0;
@@ -339,29 +348,6 @@ public:
         }
     }
 
-    /*
-    VILMAP& finishMap() {
-        resetWins();
-
-        TVector v;
-        for (int i=0; i<data.rows(); i++) {
-            data.getRow(i, v);
-            TNode *winner = getWinner(v);
-            if (activation(*winner, v)>= a_t) {
-                winner->wins++;
-                //step++;
-            }
-        }
-
-        step = data.rows();
-        //if (step==0) step = 1;
-
-        removeLoosers();
-        updateAllConnections();
-
-        maxNodeNumber = meshNodeSet.size();
-        trainning(age_wins);
-    }/**/
 
     VILMAP& resetWins() {
 
@@ -414,6 +400,28 @@ public:
         tempVector_a.fill(winner1->a.max());
         winner1->a.concat(tempVector_a);
     }
+    
+    inline void updateRank(const TVector &w) {
+        
+        ranks.clear();
+        
+        for (it = Mesh<TNode>::meshNodeSet.begin(); it != Mesh<TNode>::meshNodeSet.end(); it++) {
+            TNode *node = (*it);
+            node->act = activation(*node, w);
+            insertInRank(node);
+        }
+    }
+    
+    inline void insertInRank(TNode *node) {
+    
+        vector<TNode*>::iterator i;
+        for (i=ranks.begin(); i != ranks.end(); i++) {
+            TNode* r = (*i);
+            if ( node->act > r->act ) break;
+        }
+        
+        ranks.insert(i, node);
+    }
 
     VILMAP& updateMap(const TVector &w) {
 
@@ -421,14 +429,16 @@ public:
         TNode *winner1 = 0;
 
         //Passo 3 : encontra o nó vencedor
-        winner1 = getWinner(w); //winner
-        winner1->wins++;
+        updateRank(w);
+        
+        //encontra o nó vencedor
+        winner1 = ranks.at(0);
 
         if (winner1->w.size() == 1) {
             //eraseNode(*winner1)
             createFirstNode(w.size());
-            winner1 = getWinner(w); //winner
-            winner1->wins++;
+            updateRank(w);
+            winner1 = ranks.at(0);
         }
 
         //Teste de dimensão
@@ -448,14 +458,43 @@ public:
             //Cria um novo nodo no local do padrão observado
             TVector wNew(w);
             TNode *nodeNew = createNode(nodeID++, wNew);
-            nodeNew->wins = 0; //step/meshNodeSet.size();
-            nodeNew->generation = nodeNew->w.size();
+            nodeNew->nodeLife = 1.0;
+            
             //Conecta o nodo
             updateConnections(nodeNew);
 
 
         } else if (a >= a_t) { // caso contrário
-            // Atualiza o peso do vencedor
+            
+            
+            for (it = Mesh<TNode>::meshNodeSet.begin(); it != Mesh<TNode>::meshNodeSet.end(); it++) {
+                TNode *node = (*it);
+                node->act = activation(*node, w);
+
+                if (node->act >= a_t) {
+                    node->nodeLife -= lp;
+                    
+                    winner1->nodeLife = 1.0;
+
+                    if (node->nodeLife <= 0) {
+                        deadNodeSet.insert(node);
+                    }
+                }
+            }
+            
+            winner1->nodeLife = 1.0;
+            
+            if (deadNodeSet.size() > 0) {
+                TPNodeSet::iterator itMesh = deadNodeSet.begin();
+                while (itMesh != deadNodeSet.end()) {
+                    eraseNode((*itMesh));
+                    itMesh++;
+                }
+
+                deadNodeSet.clear();
+            }
+            
+           // Atualiza o peso do vencedor
             
             updateNode(*winner1, w, e_b, winner1->index_at);
 
@@ -471,21 +510,7 @@ public:
 
             }
         }
-        /*
-                //Passo 9:Se atingiu age_wins
-                if (step >= age_wins) {
-
-                    int size = meshNodeSet.size();
-                    //remove os perdedores
-                    removeLoosers();
-                    dbgOut(1) << size << "\t->\t" << meshNodeSet.size() << endl;
-                    //reseta o número de vitórias
-                    resetWins();
-                    //Passo 8.2:Adiciona conexões entre nodos semelhantes
-                    updateAllConnections();
-                    step = 0;
-                }
-         */
+        
         step++;
         return *this;
     }
