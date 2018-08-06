@@ -1,5 +1,4 @@
 import argparse
-from sklearn import svm
 from sklearn import neural_network
 from sklearn import metrics
 from sklearn import preprocessing
@@ -9,20 +8,6 @@ from scipy.io import arff
 import os
 from os import listdir
 from os.path import isfile, join
-import random
-
-def run_svm(train_X, train_Y, test_X, test_Y, c=1.0, kernel='rbf', degree=3):
-    clf = svm.SVC(C=c, kernel=kernel, degree=degree, gamma='auto',
-                  coef0=0.0, shrinking=True, probability=False,
-                  tol=1e-3, cache_size=200, class_weight=None,
-                  verbose=False, max_iter=-1, decision_function_shape=None,
-                  random_state=None)
-
-    clf.fit(train_X, train_Y)
-
-    accuracy = metrics.accuracy_score(clf.predict(test_X), test_Y)
-
-    return accuracy
 
 def run_mlp(train_X, train_Y, test_X, test_Y, neurons=100, hidden_layers=1, lr=0.001, momentum=0.9,
             mlp_epochs=200, activation='logistic', lr_decay='constant', solver='lbfgs'):
@@ -47,13 +32,6 @@ def run (folder, paramsFolder, output, supervision):
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
-    svm_acc = []
-
-    max_values_svm = []
-    index_set_svm = []
-    mean_value_svm = []
-    std_value_svm = []
-
     mlp_acc = []
 
     max_values_mlp = []
@@ -65,7 +43,6 @@ def run (folder, paramsFolder, output, supervision):
 
     for file in files:
         if file.endswith(".arff") and "sup_" in file:
-            svm_acc.append([])
             mlp_acc.append([])
 
             train_X, meta_trainX = arff.loadarff(open(join(folder, file), 'rb'))
@@ -104,29 +81,17 @@ def run (folder, paramsFolder, output, supervision):
             params = open(paramsFolder, 'r')
             params = np.array(params.readlines())
 
-            for paramsSet in range(0, len(params), 440):
-                # c = float(params[paramsSet])
-                # kernel = getKernel(int(params[paramsSet + 1]))
-                # degree = int(params[paramsSet + 2])
-                # svm_acc[len(svm_acc) - 1].append(run_svm(train_X, train_Y, test_X, test_Y, c, kernel, degree))
-
-                neurons = int(params[paramsSet + 3])
-                hidden_layers = int(params[paramsSet + 4])
-                lr = float(params[paramsSet + 5])
-                momentum = float(params[paramsSet + 6])
-                mlp_epochs = int(params[paramsSet + 7])
-                activation = getActivation(int(params[paramsSet + 8]))
-                lr_decay = getDecay(int(params[paramsSet + 9]))
-                solver = getSolver(int(params[paramsSet + 10]))
+            for paramsSet in range(0, len(params), 8):
+                neurons = int(params[paramsSet])
+                hidden_layers = int(params[paramsSet + 1])
+                lr = float(params[paramsSet + 2])
+                momentum = float(params[paramsSet + 3])
+                mlp_epochs = int(params[paramsSet + 4])
+                activation = getActivation(int(params[paramsSet + 5]))
+                lr_decay = getDecay(int(params[paramsSet + 6]))
+                solver = getSolver(int(params[paramsSet + 7]))
                 mlp_acc[len(mlp_acc) - 1].append(run_mlp(train_X, train_Y, test_X, test_Y, neurons, hidden_layers, lr,
                                        momentum, mlp_epochs, activation, lr_decay, solver))
-
-
-            # max_values_svm.append(np.nanmax(svm_acc[len(svm_acc) - 1]))
-            # index_set_svm.append(np.nanargmax(svm_acc[len(svm_acc) - 1]))
-
-            # mean_value_svm.append(np.nanmean(svm_acc[len(svm_acc) - 1]))
-            # std_value_svm.append(np.nanstd(svm_acc[len(svm_acc) - 1], ddof=1))
 
             max_values_mlp.append(np.nanmax(mlp_acc[len(mlp_acc) - 1]))
             index_set_mlp.append(np.nanargmax(mlp_acc[len(mlp_acc) - 1]))
@@ -136,13 +101,9 @@ def run (folder, paramsFolder, output, supervision):
 
             datasetNames.append(file[:-5])
 
-            outputText = "{0}\nMLP: {1}({2})[{3}]\n\n".format(file,
-                                                                        # np.mean(svm_acc[len(svm_acc) - 1]), np.std(svm_acc[len(svm_acc) - 1], ddof=1), np.argmax(svm_acc[len(svm_acc) - 1]),
-                                                                        np.mean(mlp_acc[len(mlp_acc) - 1]), np.std(mlp_acc[len(mlp_acc) - 1], ddof=1), np.argmax(mlp_acc[len(mlp_acc) - 1]))
+            outputText = "{0}\nMLP: {1}({2})[{3}]\n\n".format(file, np.mean(mlp_acc[len(mlp_acc) - 1]), np.std(mlp_acc[len(mlp_acc) - 1], ddof=1), np.argmax(mlp_acc[len(mlp_acc) - 1]))
             print outputText
 
-    # writeResults(output, supervision, "svm", svm_acc, max_values_svm, index_set_svm,
-    #              mean_value_svm, std_value_svm, datasetNames)
     writeResults(output, supervision, "mlp", mlp_acc, max_values_mlp, index_set_mlp, mean_value_mlp,
                  std_value_mlp, datasetNames)
 
@@ -168,16 +129,6 @@ def writeResults(outputPath, supervision, method, accs, max_values, index_set, m
         line += "\n"
 
     outputFile.write(line)
-
-def getKernel(kernel):
-    if kernel == 1:
-        return 'linear'
-    elif kernel == 2:
-        return 'poly'
-    elif kernel == 3:
-        return 'rbf'
-    else:
-        return 'sigmoid'
 
 def getActivation(activation):
     if activation == 1:

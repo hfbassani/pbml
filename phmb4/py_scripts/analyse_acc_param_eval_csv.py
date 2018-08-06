@@ -42,8 +42,6 @@ def analyse (folder, rows):
                 results = results.drop(results.columns[0], axis=1)
                 results = results.rename(columns=results.iloc[0])
                 results = results.drop([0])
-        else:
-            file
 
     index_sets = []
     line = " \t" + "\t".join(datasets) + "\n"

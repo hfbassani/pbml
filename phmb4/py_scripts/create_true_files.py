@@ -5,10 +5,6 @@ from scipy.io import arff
 from os import listdir
 from os.path import isfile, join
 
-def get_type(type):
-    if type == "numeric":
-        return "real"
-
 def create_true_file (path, fileName, data, labels):
     trueFile = open(join(path, fileName), 'w+')
 
