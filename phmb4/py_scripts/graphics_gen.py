@@ -1,21 +1,14 @@
 import matplotlib.pyplot as plt
+
 import numpy as np
 import pandas as pd
 import os
 import argparse
+from sklearn import linear_model
 
 image_path = "plots/"
 
 #---------------------- Synthetic Data Graphs ----------------------#
-
-def check_plot_save (path, save, plot):
-    if save:
-        plt.savefig(path)
-
-    if plot:
-        plt.show()
-    else:
-        plt.close()
 
 def plot_noise_graph(ce, save=False, plot=True):
     noise_values = np.linspace(10, 70, num=4)
@@ -152,14 +145,42 @@ def subplot_synthetic_data_graphs(fileName, save=False, plot=True):
 #-------------------------------------------------------------------#
 #---------------------- Common Methods -----------------------------#
 
+def check_plot_save (path, save, plot):
+    if save:
+        plt.savefig(path)
+
+    if plot:
+        plt.show()
+    else:
+        plt.close()
+
+def plot_fit_linear(to_plot, x, y):
+
+    # Create linear regression object
+    regr = linear_model.LinearRegression()
+
+    # Train the model using the training sets
+    regr.fit(x.reshape(-1, 1), y.reshape(-1, 1))
+
+    # Make predictions using the testing set
+    fit = regr.predict(x.reshape(-1, 1))
+
+    to_plot.plot(x, fit, color='r', clip_on=False, linewidth=6)
+
 def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, save=False, plot=True):
     fig, ax = plt.subplots()
     ax.yaxis.grid()
     ax.set_ylim([0, 1])
 
+    x = x.values.astype(float)
+    y = y.values.astype(float)
+
+    plt.rc('font', family='serif')
     plt.title(title, fontsize=fontSize)
     plt.plot(x, y, marker, color=color, clip_on=False)
     plt.yticks(np.linspace(0, 1, num=11))
+
+    plot_fit_linear(plt, x, y)
 
     check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
@@ -167,9 +188,12 @@ def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
     ax.yaxis.grid()
     ax.set_ylim([0, 1])
 
+    ax.rc('font', family='serif')
     ax.set_title(title, fontsize=fontSize)
     ax.plot(x, y, marker, color=color, clip_on=False)
     ax.set_yticks(np.linspace(0, 1, num=11))
+
+    plot_fit_linear(ax, x, y)
 
 def get_headers(fileName):
     headers = pd.read_csv(fileName, nrows=9, header=None)
@@ -212,6 +236,7 @@ def plot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
         for result in results.columns:
 #            if "Accuracy" in result:
             plot_x_y(params[param], results[result], "{0} - {1}".format(param, result), save=save, plot=plot)
+
 
 def subplot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
     params, results = get_params_and_results(fileName)

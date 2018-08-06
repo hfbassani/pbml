@@ -297,7 +297,7 @@ void runCompleteTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *
         }
         outputM.PATH = "output/metrics" + std::to_string(paramsNumber) + "/";
         outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
-        dbgOut(1) << std::to_string(experiment + 1) << "% do arquivo " << std::to_string(fileNumber) << endl;
+        dbgOut(1) << std::to_string(experiment) << "% do arquivo " << std::to_string(fileNumber) << endl;
         som->reset();
     }
     //}
@@ -433,7 +433,7 @@ void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clu
         dbgOut(1) << "f-" << fileNumber << " e-" << experiment;
         MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
         //Testa com todos os arquivos de entrada depois que arede já foi treinada
-        som->readSOM("networks1/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
+        som->readSOM("networks_top1_brent/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
 
         for (int i = 6; i <= 6; i++) { // For para tamanhos de entrada
 
@@ -715,6 +715,7 @@ MatMatrix<float> loadFalseData(int tam, int fileNumber) {
 MatMatrix<float> loadTrueData(int tam, int fileNumber) {
     MatMatrix<float> mat;
     std::ifstream inputFile("input/trueData_"+ std::to_string(tam) +"_arq_0");
+    //std::ifstream inputFile("input/c1/trueData_"+ std::to_string(tam) +"_arq_c1");
     if (!inputFile.is_open()) {
         dbgOut(0) << "Error openning inputFile. "  << endl;
     }
@@ -838,7 +839,7 @@ std::vector<float> loadParametersFile(int number) {
 }
 
 std::vector<float> loadParametersFile() {
-    string name1 = "input/27Mar_0";
+    string name1 = "input/05Apr_0";
     std::ifstream file(name1.c_str());
     std::string text;
     std::vector<float> params;
@@ -1011,7 +1012,7 @@ void runTimeSeriesMotifDiscovery(VILMAP *som, ClusteringMeshSOM clusteringSOM, S
         //som->saveSOM("networks/TimeSeries/som_arq_TE_" + std::to_string(i));
         dbgOut(1) << "som->size() = " << std::to_string(som->size()) << " D = " << std::to_string(i) << endl;
     }
-    som->saveSOM("networks/TimeSeries/som_timeSeries_0");
+    som->saveSOM("networks/TimeSeries/som_timeSeries_2");
 }
 
 vector<string> splitString(string str, char delimiter) {
