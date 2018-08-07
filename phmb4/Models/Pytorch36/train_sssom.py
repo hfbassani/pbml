@@ -26,8 +26,8 @@ def read_lines(file_path):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
-parser.add_argument('--batchSize', type=int, default=1, help='input batch size')
+parser.add_argument('--workers', type=int, help='number of data loading workers', default=0)
+parser.add_argument('--batch-size', type=int, default=1, help='input batch size')
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
 
@@ -79,6 +79,8 @@ parameters_count = 11
 
 if len(testPaths) > 0:
     for i, (train, test) in enumerate(zip(inputPaths, testPaths)):
+        print(train, test)
+
         train_data = ArffDataset(train)
 
         test_data = ArffDataset(test)
@@ -86,6 +88,7 @@ if len(testPaths) > 0:
                                  num_workers=opt.workers)
 
         for paramsSet in range(0, len(parameters), parameters_count):
+            # print (str(int(paramsSet / parameters_count)))
             sssom = SSSOM(use_cuda=use_cuda,
                           ngpu=ngpu,
                           dim=train_data.X.shape[1],
@@ -107,7 +110,7 @@ if len(testPaths) > 0:
             torch.manual_seed(manualSeed)
 
             train_loader = DataLoader(train_data,
-                                      batch_size=opt.batchSize,
+                                      batch_size=opt.batch_size,
                                       shuffle=not trainSorted,
                                       num_workers=opt.workers)
 

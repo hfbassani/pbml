@@ -188,7 +188,7 @@ class LARFDSSOM(nn.Module):
         distance = torch.abs(torch.sub(w, self.weights[index]))
         self.moving_avg[index] = torch.mul(lr * self.dsbeta, distance) + torch.mul(1 - lr * self.dsbeta, self.moving_avg[index])
 
-        if len(index.size()) == 0: # len(index.size()) == 0 means that it is a scalar tensor
+        if len(index.size()) == 0:  # len(index.size()) == 0 means that it is a scalar tensor
             maximum = torch.max(self.moving_avg[index])
             minimum = torch.min(self.moving_avg[index])
             avg = torch.mean(self.moving_avg[index])
@@ -197,9 +197,11 @@ class LARFDSSOM(nn.Module):
             minimum = torch.min(self.moving_avg[index], 1)[0].unsqueeze(1)
             avg = torch.mean(self.moving_avg[index], 1).unsqueeze(1)
 
-        one = torch.tensor(1, dtype=torch.float, device=self.device)
+        one_tensor = torch.tensor(1, dtype=torch.float, device=self.device)
 
-        self.relevances[index] = torch.div(one, one + torch.exp(torch.div(torch.sub(self.moving_avg[index], avg), torch.mul(self.eps_ds, torch.sub(maximum, minimum)))))
+        self.relevances[index] = torch.div(one_tensor,
+                                           one_tensor + torch.exp(torch.div(torch.sub(self.moving_avg[index], avg),
+                                                                            torch.mul(self.eps_ds, torch.sub(maximum, minimum)))))
         self.relevances[self.relevances != self.relevances] = 1.  # if (max - min) == 0 then set to 1
 
         self.weights[index] = torch.add(self.weights[index], torch.mul(lr, torch.sub(w, self.weights[index])))
@@ -397,11 +399,11 @@ class SSSOM(LARFDSSOM):
         activations_max, indices_max = torch.max(activations, dim=1)
 
         # separate samples according to the winner node
-        for grouped_w, grouped_y, grouped_indices in self.group_by_winner_node(indices_max, w, y):
-            local_activations = activations[indices_max == grouped_indices[0]]
-            local_max_activation = activations_max[indices_max == grouped_indices[0]]
-            same_classes = self.classes[grouped_indices] == grouped_y
-            win_no_class = self.classes[grouped_indices] == self.no_class
+        for grouped_w, grouped_y, node in self.group_by_winner_node(indices_max, w, y):
+            local_activations = activations[indices_max == node]
+            local_max_activation = activations_max[indices_max == node]
+            same_classes = self.classes[node] == grouped_y
+            win_no_class = self.classes[node] == self.no_class
             class_criterion = same_classes | win_no_class
 
             class_criterion_nodes = class_criterion.nonzero()
@@ -419,17 +421,15 @@ class SSSOM(LARFDSSOM):
 
                 if indices_geq_at is not None:  # duas amostras de rotulos diferentes ganharam pro mesmo nodo (que pode ter um rotulo, ou nao), o que fazer?
                     new_w, new_y = self.group_data_by_mean(grouped_w[indices_geq_at], grouped_y[indices_geq_at])
-                    new_ind = class_criterion_nodes[indices_geq_at]
 
                     if new_w.size(0) == 1:
-                        self.wins[new_ind] += 1
-                        self.classes[new_ind] = new_y
+                        self.wins[node] += 1
+                        self.classes[node] = new_y
                         self.update_all_connections()
-                        self.update_node(new_w, self.e_b, new_ind)
+                        self.update_node(new_w, self.e_b, node)
 
-                        self.update_neighbors(new_w, new_ind)
+                        self.update_neighbors(new_w, node)
                     else:
-                        node = grouped_indices[0]
                         instances = new_w.size(0) - 1
                         new_ind = self.clone_node(node, instances)
 
@@ -447,32 +447,6 @@ class SSSOM(LARFDSSOM):
                 self.handle_different_class(local_activations[different_class_nodes],
                                             grouped_w[different_class_nodes],
                                             grouped_y[different_class_nodes])
-        # same_classes = self.classes[indices_max] == y
-        # win_no_class = self.classes[indices_max] == self.no_class
-        # class_criterion = same_classes | win_no_class
-        #
-        # class_criterion_nodes = class_criterion.nonzero()
-        # if class_criterion_nodes.size(0) > 0:
-        #     class_criterion_nodes = class_criterion_nodes.squeeze(1)
-        #
-        #     geq_at = (activations_max[class_criterion_nodes] >= self.a_t).nonzero()
-        #     lt_at = (activations_max[class_criterion_nodes] < self.a_t).nonzero()
-        #     indices_geq_at = None if geq_at.size(0) == 0 else geq_at.squeeze(1)
-        #     indices_lt_at = None if lt_at.size(0) == 0 else lt_at.squeeze(1)
-        #
-        #     if indices_lt_at is not None and self.weights.size(0) + indices_lt_at.size(0) < self.max_node_number:
-        #         self.add_node(w[indices_lt_at])
-        #
-        #     if indices_geq_at is not None: # duas amostras de rotulos diferentes ganharam pro mesmo nodo (que pode ter um rotulo, ou noo), o que fazer?
-        #         new_w, new_ind = self.group_data_by_mean(w, indices_max[indices_geq_at])
-        #         self.wins[new_ind] += 1
-        #         self.update_node(new_w, self.e_b, new_ind)
-        #
-        #         self.update_neighbors(new_w, new_ind)
-        #
-        # different_class_nodes = (class_criterion == 0).nonzero()
-        # if different_class_nodes.size(0) > 0:
-        #     different_class_nodes = different_class_nodes.squeeze(1)
 
     def group_by_winner_node(self, winners, w, y):
         groups = None
@@ -485,9 +459,9 @@ class SSSOM(LARFDSSOM):
             y_target = y[node_occurrences]
 
             if groups is None:
-                groups = [(w_target, y_target, winners[node_occurrences])]
+                groups = [(w_target, y_target, node)]
             else:
-                groups.append((w_target, y_target, winners[node_occurrences]))
+                groups.append((w_target, y_target, node))
 
         return groups
 
@@ -520,7 +494,7 @@ class SSSOM(LARFDSSOM):
                 self.add_node(new_w, new_y)
 
             valid_new_winners = (new_winners != -1).nonzero()
-            if valid_new_winners.size(0) > 0 :
+            if valid_new_winners.size(0) > 0:
                 valid_new_winners = valid_new_winners.squeeze(1)
 
                 curr_winners = new_winners[valid_new_winners]
@@ -552,7 +526,7 @@ class SSSOM(LARFDSSOM):
         return winners, wrong_winners
 
     def get_next(self, curr, indexes, winners, wrong_winners, y):
-        if curr.size(0) > 0:
+        if curr.size(0) > 0 and indexes.size(0) > 0:
             wrong = torch.full((1,), curr[0], dtype=torch.int64, device=self.device)
 
             if wrong_winners is None:
@@ -567,7 +541,7 @@ class SSSOM(LARFDSSOM):
             curr_winner_size = curr_winner.size(0)
             if curr_winner_size == 0:
                 curr_winner = torch.full((1,), -1, dtype=torch.int64, device=self.device)
-            elif curr_winner_size > 1:
+            else:
                 curr_winner = torch.full((1,), curr_winner[0], dtype=torch.int64, device=self.device)
 
             if winners is None:
@@ -586,7 +560,6 @@ class SSSOM(LARFDSSOM):
                 winners = invalid
             else:
                 winners = torch.cat((winners, invalid))
-
 
         return winners, wrong_winners
 
@@ -638,16 +611,17 @@ class SSSOM(LARFDSSOM):
         return remaining_indexes
 
     def update_all_connections(self):
-        dists = self.relevance_distances(self.relevances, self.relevances)
-        dists_connections = dists < self.minwd
+        if self.relevances.size(0) > 1:
+            dists = self.relevance_distances(self.relevances, self.relevances)
+            dists_connections = dists < self.minwd
 
-        stacked_classes = torch.stack([self.classes] * self.classes.size(0))
-        stacked_classes_transposed = stacked_classes.t()
-        classes_connections = (stacked_classes == self.no_class) | (stacked_classes_transposed == self.no_class) | (stacked_classes == stacked_classes_transposed)
+            stacked_classes = torch.stack([self.classes] * self.classes.size(0))
+            stacked_classes_transposed = stacked_classes.t()
+            classes_connections = (stacked_classes == self.no_class) | (stacked_classes_transposed == self.no_class) | (stacked_classes == stacked_classes_transposed)
 
-        connections = dists_connections & classes_connections
+            connections = dists_connections & classes_connections
 
-        self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8, device=self.device)) * connections
+            self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8, device=self.device)) * connections
 
     def cluster_classify(self, dataloader, is_subspace, filter_noise):
         clustering_classify = pd.DataFrame(columns=['sample_ind', 'cluster', 'class'])
