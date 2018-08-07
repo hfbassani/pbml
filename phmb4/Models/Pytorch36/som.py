@@ -126,14 +126,34 @@ class LARFDSSOM(nn.Module):
             self.add_node(w[indices_lt_at])
 
         if indices_geq_at is not None:
-            new_w, new_ind = self.group_data_by_mean(w, indices_max[indices_geq_at])
-            self.wins[new_ind] += 1
-            self.update_node(new_w, self.e_b, new_ind)
+            for grouped_w, _, node in self.group_by_winner_node(indices_max[indices_geq_at], w[indices_geq_at]):
+                new_w, _ = self.group_data_by_mean(grouped_w)
 
-            self.update_neighbors(new_w, new_ind)
+                self.wins[node] += 1
+                self.update_all_connections()
+                self.update_node(new_w, self.e_b, node)
+
+                self.update_neighbors(new_w, node)
+
+    def group_by_winner_node(self, winners, w, y=None):
+        groups = None
+
+        unique_nodes = torch.from_numpy(np.unique(winners)).to(self.device)  # there is no GPU support for unique operation
+
+        for node in unique_nodes:
+            node_occurrences = (winners == node).nonzero().squeeze(1)
+            w_target = w[node_occurrences]
+            y_target = None if y is None else y[node_occurrences]
+
+            if groups is None:
+                groups = [(w_target, y_target, node)]
+            else:
+                groups.append((w_target, y_target, node))
+
+        return groups
 
     def update_neighbors(self, w, nodes):
-        if len(nodes.size()) == 0: # len(nodes.size()) == 0 means that it is a scalar tensor
+        if len(nodes.size()) == 0:  # len(nodes.size()) == 0 means that it is a scalar tensor
             self.update_node_neighbors(nodes, w)
 
         else:
@@ -216,8 +236,9 @@ class LARFDSSOM(nn.Module):
             self.moving_avg = self.moving_avg[remaining_indexes]
             self.relevances = self.relevances[remaining_indexes]
 
-            self.neighbors = []
-            self.wins = self.wins[remaining_indexes]
+            self.neighbors = self.update_all_connections()
+
+            self.wins = torch.zeros(remaining_indexes.size(0), device=self.device)
         else:
             remaining_indexes = None
 
@@ -448,23 +469,6 @@ class SSSOM(LARFDSSOM):
                                             grouped_w[different_class_nodes],
                                             grouped_y[different_class_nodes])
 
-    def group_by_winner_node(self, winners, w, y):
-        groups = None
-
-        unique_nodes = torch.from_numpy(np.unique(winners)).to(self.device)  # there is no GPU support for unique operation
-
-        for node in unique_nodes:
-            node_occurrences = (winners == node).nonzero().squeeze(1)
-            w_target = w[node_occurrences]
-            y_target = y[node_occurrences]
-
-            if groups is None:
-                groups = [(w_target, y_target, node)]
-            else:
-                groups.append((w_target, y_target, node))
-
-        return groups
-
     def clone_node(self, node, instances):
         indices = torch.range(0, instances - 1, device=self.device, dtype=torch.long) + self.weights.size(0)
 
@@ -611,17 +615,17 @@ class SSSOM(LARFDSSOM):
         return remaining_indexes
 
     def update_all_connections(self):
-        if self.relevances.size(0) > 1:
-            dists = self.relevance_distances(self.relevances, self.relevances)
-            dists_connections = dists < self.minwd
+        # if self.relevances.size(0) > 1:
+        dists = self.relevance_distances(self.relevances, self.relevances)
+        dists_connections = dists < self.minwd
 
-            stacked_classes = torch.stack([self.classes] * self.classes.size(0))
-            stacked_classes_transposed = stacked_classes.t()
-            classes_connections = (stacked_classes == self.no_class) | (stacked_classes_transposed == self.no_class) | (stacked_classes == stacked_classes_transposed)
+        stacked_classes = torch.stack([self.classes] * self.classes.size(0))
+        stacked_classes_transposed = stacked_classes.t()
+        classes_connections = (stacked_classes == self.no_class) | (stacked_classes_transposed == self.no_class) | (stacked_classes == stacked_classes_transposed)
 
-            connections = dists_connections & classes_connections
+        connections = dists_connections & classes_connections
 
-            self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8, device=self.device)) * connections
+        self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8, device=self.device)) * connections
 
     def cluster_classify(self, dataloader, is_subspace, filter_noise):
         clustering_classify = pd.DataFrame(columns=['sample_ind', 'cluster', 'class'])
