@@ -226,23 +226,19 @@ class LARFDSSOM(nn.Module):
 
         self.weights[index] = torch.add(self.weights[index], torch.mul(lr, torch.sub(w, self.weights[index])))
 
-    def remove_loosers(self):
-        remaining_indexes = (self.wins >= self.step * self.lp).nonzero()
+    def remove_loosers(self, remaining_indexes=None):
+        remaining_idxs = remaining_indexes if remaining_indexes is not None else (self.wins >= self.step * self.lp).nonzero()
 
-        if remaining_indexes.size(0) > 0:
-            remaining_indexes = remaining_indexes.squeeze(1)
+        if remaining_idxs.size(0) > 0:
+            remaining_idxs = remaining_idxs.squeeze(1)
 
-            self.weights = self.weights[remaining_indexes]
-            self.moving_avg = self.moving_avg[remaining_indexes]
-            self.relevances = self.relevances[remaining_indexes]
+            self.weights = self.weights[remaining_idxs]
+            self.moving_avg = self.moving_avg[remaining_idxs]
+            self.relevances = self.relevances[remaining_idxs]
 
-            self.neighbors = self.update_all_connections()
+            self.update_all_connections()
 
             self.wins = torch.zeros(remaining_indexes.size(0), device=self.device)
-        else:
-            remaining_indexes = None
-
-        return remaining_indexes
 
     def update_all_connections(self):
         dists_stacked = torch.stack([self.relevances] * self.relevances.size(0))
@@ -607,12 +603,12 @@ class SSSOM(LARFDSSOM):
             self.neighbors[node][node] = 0
 
     def remove_loosers(self):
-        remaining_indexes = super(SSSOM, self).remove_loosers()
+        remaining_idxs = (self.wins >= self.step * self.lp).nonzero()
 
-        if remaining_indexes is not None:
-            self.classes = self.classes[remaining_indexes]
+        if remaining_idxs.size(0) > 0:
+            self.classes = self.classes[remaining_idxs.squeeze(1)]
 
-        return remaining_indexes
+            super(SSSOM, self).remove_loosers(remaining_idxs)
 
     def update_all_connections(self):
         # if self.relevances.size(0) > 1:
