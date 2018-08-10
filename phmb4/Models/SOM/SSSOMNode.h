@@ -37,6 +37,7 @@ public:
     int cls;
     
     int wins;
+    TNumber node_act_area;
     TNumber act;
 
     SSSOMNode(int idIn, const TVector &v) : NodeW(idIn, v) {

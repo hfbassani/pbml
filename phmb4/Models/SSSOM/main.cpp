@@ -278,6 +278,8 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
             clusteringSOM.readFile(testPath, normalize);
             clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
         }
+        
+        clusteringSOM.outAccuracy(clusteringSOM.groups, clusteringSOM.groupLabels);
     }
 }
 

@@ -17,6 +17,8 @@
 #include "MatMatrix.h"
 #include "SOM.h"
 #include "SSSOMNode.h"
+#include <chrono>
+#include <random>
 
 #define qrt(x) ((x)*(x))
 
@@ -246,6 +248,11 @@ public:
         nodeID++;
         nodeNew->cls = cls;
         nodeNew->wins = 0;
+
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::default_random_engine generator (seed);
+        std::uniform_real_distribution<double> distribution (0.5,1.0);
+        nodeNew->node_act_area = distribution(generator);
 
         updateConnections(nodeNew);
         
