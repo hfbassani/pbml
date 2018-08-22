@@ -16,13 +16,13 @@ import numpy as np
 
 
 def read_lines(file_path):
-		if os.path.isfile(file_path):
-				data = open(file_path, 'r')
-				data = np.array(data.read().splitlines())
-		else:
-				data = []
+	if os.path.isfile(file_path):
+		data = open(file_path, 'r')
+		data = np.array(data.read().splitlines())
+	else:
+		data = []
 
-		return data
+	return data
 
 
 parser = argparse.ArgumentParser()
@@ -50,15 +50,15 @@ opt = parser.parse_args()
 print(opt)
 
 if torch.cuda.is_available() and not opt.cuda:
-		print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+	print("WARNING: You have a CUDA device, so you should probably run with --cuda")
 
 if not os.path.exists(os.path.dirname(opt.r)):
-		os.makedirs(os.path.dirname(opt.r))
+	os.makedirs(os.path.dirname(opt.r))
 
 use_cuda = torch.cuda.is_available() and opt.cuda
 
 if use_cuda:
-		torch.cuda.init()
+	torch.cuda.init()
 
 ngpu = int(opt.ngpu)
 inputPaths = read_lines(opt.i)
@@ -77,57 +77,73 @@ trainSorted = opt.S
 
 parameters_count = 11
 
-<<<<<<< Updated upstream
 if len(testPaths) > 0:
-    for i, (train, test) in enumerate(zip(inputPaths, testPaths)):
-        print(train, test)
+	for i, (train, test) in enumerate(zip(inputPaths, testPaths)):
+		print(train, test)
 
-        train_data = ArffDataset(train)
+		train_data = None
+		file_ext = train.split('.')[-1]
+		if(file_ext == 'txt'):
+			train_data = ArffDataset(load_path=train)
+		elif(file_ext == 'arff'):
+			train_data = ArffDataset(train)
 
-        test_data = ArffDataset(test)
-        test_loader = DataLoader(test_data,
-                                 num_workers=opt.workers)
+		file_ext = test.split('.')[-1]
+		if(file_ext == 'txt'):
+			test_data = ArffDataset(load_path=test)
+		elif(file_ext == 'arff'):
+			test_data = ArffDataset(test)
 
-        for paramsSet in range(0, len(parameters), parameters_count):
-            # print (str(int(paramsSet / parameters_count)))
-            sssom = SSSOM(use_cuda=use_cuda,
-                          ngpu=ngpu,
-                          dim=train_data.X.shape[1],
-                          max_node_number=train_data.X.shape[0],
-                          no_class=999,
-                          a_t=float(parameters[paramsSet]),
-                          lp=float(parameters[paramsSet + 1]),
-                          dsbeta=float(parameters[paramsSet + 2]),
-                          age_wins=int(parameters[paramsSet + 3]) * train_data.X.shape[0],
-                          e_b=float(parameters[paramsSet + 4]),
-                          e_n=float(parameters[paramsSet + 5]),
-                          eps_ds=float(parameters[paramsSet + 6]),
-                          minwd=float(parameters[paramsSet + 7]),
-                          epochs=int(parameters[paramsSet + 8]),
-                          e_push=float(parameters[paramsSet + 9]))
+		test_loader = DataLoader(test_data,
+								 num_workers=opt.workers)
 
-            manualSeed = int(parameters[paramsSet + 10])
-            random.seed(manualSeed)
-            torch.manual_seed(manualSeed)
+		for paramsSet in range(0, len(parameters), parameters_count):
+			# print (str(int(paramsSet / parameters_count)))
+			sssom = SSSOM(use_cuda=use_cuda,
+						  ngpu=ngpu,
+						  dim=train_data.X.shape[1],
+						  max_node_number=train_data.X.shape[0],
+						  no_class=999,
+						  a_t=float(parameters[paramsSet]),
+						  lp=float(parameters[paramsSet + 1]),
+						  dsbeta=float(parameters[paramsSet + 2]),
+						  age_wins=int(parameters[paramsSet + 3]) * train_data.X.shape[0],
+						  e_b=float(parameters[paramsSet + 4]),
+						  e_n=float(parameters[paramsSet + 5]),
+						  eps_ds=float(parameters[paramsSet + 6]),
+						  minwd=float(parameters[paramsSet + 7]),
+						  epochs=int(parameters[paramsSet + 8]),
+						  e_push=float(parameters[paramsSet + 9]))
 
-            train_loader = DataLoader(train_data,
-                                      batch_size=opt.batch_size,
-                                      shuffle=not trainSorted,
-                                      num_workers=opt.workers)
+			manualSeed = int(parameters[paramsSet + 10])
+			random.seed(manualSeed)
+			torch.manual_seed(manualSeed)
 
-            if use_cuda:
-                torch.cuda.manual_seed_all(manualSeed)
-                sssom.cuda()
-                cudnn.benchmark = True
+			train_loader = DataLoader(train_data,
+									  batch_size=opt.batch_size,
+									  shuffle=not trainSorted,
+									  num_workers=opt.workers)
 
-            sssom.organization(train_loader)
+			if use_cuda:
+				torch.cuda.manual_seed_all(manualSeed)
+				sssom.cuda()
+				cudnn.benchmark = True
 
-            fileName = test.split("/")[-1].split(".")[0]
+			sssom.organization(train_loader)
 
-            sssom.write_output(join(resultsFolder,
-                                    fileName + "_" + str(int(paramsSet / parameters_count)) + ".results"),
-                               sssom.cluster_classify(test_loader, opt.s, opt.f))
-=======
+			fileName = test.split("/")[-1].split(".")[0]
+
+			sssom.write_output(join(resultsFolder,
+									fileName + "_" + str(int(paramsSet / parameters_count)) + ".results"),
+							   sssom.cluster_classify(test_loader, opt.s, opt.f))
+
+
+
+
+
+
+
+'''
 #for i, (train, test) in enumerate(zip(inputPaths, testPaths)):
 train = './file_features.txt'
 
@@ -177,3 +193,4 @@ for paramsSet in range(0, len(parameters), parameters_count):
 														fileName + "_" + str(int(paramsSet / parameters_count)) + ".results"),
 											 sssom.cluster_classify(test_loader, opt.s, opt.f))
 >>>>>>> Stashed changes
+'''
