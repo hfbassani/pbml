@@ -312,33 +312,36 @@ class LARFDSSOM(nn.Module):
 							exit(0)
 						else:
 							raise e
-				try:
+
+				log.append(("####################################################################"))
+				log.append(("GPU Memory usage: ", get_gpu_memory_map()))
+				log.append(("Weights Size: ", self.weights.size()))
+				log.append(("Moving Average Size: ", self.moving_avg.size()))
+				log.append(("Relevances Size:", self.relevances.size()))
+				log.append(("Neighbors Size: ", self.neighbors.size()))
+				log.append(("Wins Size: ", self.wins.size()))
+				
+				if(CONSOLE_LOG):
+					print("####################################################################")
+					print("Weights Size: ", self.weights.size())
+					print("Moving Average Size: ", self.moving_avg.size())
+					print("Relevances Size:", self.relevances.size())
+					print("Neighbors Size: ", self.neighbors.size())
+					print("Wins Size: ", self.wins.size())
+					print("####################################################################")
+				
+
+
+				try:			
 					for obj in gc.get_objects():
 						if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
 							if(CONSOLE_LOG):
-								print("####################################################################")
 								print(type(obj), obj.size())
-								print("Weights Size: ", self.weights.size())
-								print("Moving Average Size: ", self.moving_avg.size())
-								print("Relevances Size:", self.relevances.size())
-								print("Neighbors Size: ", self.neighbors.size())
-								print("Wins Size: ", self.wins.size())
-								print("####################################################################")
-
-							log.append(("####################################################################"))
-							log.append(("GPU Memory usage: ", get_gpu_memory_map()))
 							log.append((type(obj), obj.size()))
-							log.append(("Weights Size: ", self.weights.size()))
-							log.append(("Moving Average Size: ", self.moving_avg.size()))
-							log.append(("Relevances Size:", self.relevances.size()))
-							log.append(("Neighbors Size: ", self.neighbors.size()))
-							log.append(("Wins Size: ", self.wins.size()))
-							log.append(("####################################################################"))
-							
 
 				except:
 					continue
-
+				log.append(("####################################################################"))
 		self.convergence(dataloader)
 
 	def convergence(self, dataloader):
