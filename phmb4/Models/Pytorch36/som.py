@@ -316,10 +316,25 @@ class LARFDSSOM(nn.Module):
 					for obj in gc.get_objects():
 						if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
 							if(CONSOLE_LOG):
+								print("####################################################################")
 								print(type(obj), obj.size())
+								print("Weights Size: ", self.weights.size())
+								print("Moving Average Size: ", self.moving_avg.size())
+								print("Relevances Size:", self.relevances.size())
+								print("Neighbors Size: ", self.neighbors.size())
+								print("Wins Size: ", self.wins.size())
+								print("####################################################################")
+
+							log.append(("####################################################################"))
 							log.append(("GPU Memory usage: ", get_gpu_memory_map()))
 							log.append((type(obj), obj.size()))
-
+							log.append(("Weights Size: ", self.weights.size()))
+							log.append(("Moving Average Size: ", self.moving_avg.size()))
+							log.append(("Relevances Size:", self.relevances.size()))
+							log.append(("Neighbors Size: ", self.neighbors.size()))
+							log.append(("Wins Size: ", self.wins.size()))
+							log.append(("####################################################################"))
+							
 
 				except:
 					continue
@@ -398,11 +413,33 @@ class SSSOM(LARFDSSOM):
 		y = y.to(self.device)
 
 		batch_size = x.size(0)
+
+
+		#print("####################################################################")
+		#print(x.size())
+		#print(y.size())
+		#print(batch_size)
+		# VARIAVEIS EM GPU ...
+		#print(self.a_t.size())
+		#print(self.lp.size())
+		#print(self.dsbeta.size())
+		#print(self.age_wins.size())
+		#print(self.e_b.size())
+		#print(self.e_n.size())
+		#print(self.eps_ds.size())
+		#print(self.minwd.size())
+		#print(self.epochs.size())
+		
+
+
+		#import time
+		#time.sleep(2)
+		
+
 		calculate_mean = True if batch_size > 1 else False
 
 		if self.weights is None:
 			self.initialize_map(x, y, calculate_mean)
-
 		elif batch_size > 1:
 			x_sup, y_sup = x[y != self.no_class], y[y != self.no_class]
 			if x_sup.size(0) > 0:
@@ -426,7 +463,12 @@ class SSSOM(LARFDSSOM):
 			self.step = 0
 
 		self.step += 1
-
+		#print("Weights Size: ", self.weights.size())
+		#print("Moving Average Size: ", self.moving_avg.size())
+		#print("Relevances Size:", self.relevances.size())
+		#print("Neighbors Size: ", self.neighbors.size())
+		#print("Wins Size: ", self.wins.size())
+		#print("####################################################################")
 	def update_map_sup(self, w, y):
 		batch_size = w.size(0)
 
