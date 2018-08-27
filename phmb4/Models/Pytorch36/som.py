@@ -7,6 +7,7 @@ import pandas as pd
 import re
 from itertools import cycle
 
+import gc
 
 class LARFDSSOM(nn.Module):
 
@@ -274,14 +275,29 @@ class LARFDSSOM(nn.Module):
 
     def organization(self, dataloader):
         # count = 0
+        log = []
         for epoch in range(self.epochs):
+            print("Epoch: ", epoch, " of ", self.epochs)
+            log.append(("Epoch: ", epoch, " of ", self.epochs))
             for batch_idx, (inputs, targets) in enumerate(dataloader):
-                self.forward(inputs, targets)
-
-                # if count == 3:
-                #     break
-                #
-                # count += 1
+                print("Batch Id: ", batch_idx, " of ", len(dataloader))
+                log.append(("Batch Id: ", batch_idx, " of ", len(dataloader)))
+                try:
+                    self.forward(inputs, targets)
+                except RuntimeError as e:
+                        if e.args[0].startswith('cuda runtime error (2) : out of memory'):
+                            print('Warning: out of memory')
+                            np.savetxt('log_memory_tensors.txt',log,  delimiter=",",fmt='%s')
+                            exit(0)
+                        else:
+                            raise e
+                try:
+                    for obj in gc.get_objects():
+                        if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
+                            print(type(obj), obj.size())
+                            log.append((type(obj), obj.size()))
+                except:
+                    continue
 
         self.convergence(dataloader)
 
