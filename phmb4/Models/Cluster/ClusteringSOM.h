@@ -1182,19 +1182,9 @@ public:
         return true;
     }
 
-    std::string outAccuracy(std::vector<int> &groups, std::map<int, int> &groupLabels) {
-
-        std::stringstream out;
-        out << std::setprecision(2) << std::fixed;
-
-        int meshSize = getMeshSize();
+    void outAccuracy(std::vector<int> &groups, std::map<int, int> &groupLabels) {
         int hits = 0;
         int noise = 0;
-
-        MatVector<int> nodeHits(meshSize);
-        MatVector<int> nodeClusterSize(meshSize);
-        nodeHits.fill(0);
-        nodeClusterSize.fill(0);
 
         for (int k = 0; k < groups.size(); k++) {
             MatVector<float> sample;
@@ -1204,34 +1194,14 @@ public:
                 continue;
             }
 
-            std::vector<int> result = getWinnerResult(sample);
-            int winner = result[0];            
+            std::vector<int> result = getWinnerResult(sample);          
             int cls = result[1];
             if (groups[k] == cls) {
                 hits++;
-                nodeHits[winner]++;
             }
-
-            nodeClusterSize[winner]++;
         }
         
-//        for (int i = 0; i < meshSize; i++) {
-//
-//            dbgOut(0) << getNodeId(i) << ":\t" << nodeHits[i] << "/" << nodeClusterSize[i] << endl;
-//            
-//            float sizeDiv = 0;
-//            
-//            if (nodeClusterSize[i] > 0) {
-//                sizeDiv = nodeHits[i] / (float) nodeClusterSize[i];
-//            }
-//            dbgOut(0) << "Acc: " << sizeDiv;
-//            dbgOut(0) << endl << endl;
-//        }
-
         dbgOut(0) << "Classification acuracy:\t" << hits / (float) trainingData->rows() << endl;
-        dbgOut(0) << "Total noise:\t" << noise / (float) trainingData->rows() << endl;
-
-        return out.str();
     }
     
     std::string outConfusionMatrix(std::vector<int> &groups, std::map<int, int> &groupLabels) {

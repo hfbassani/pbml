@@ -21,6 +21,10 @@ def save_params_file(results, starting_param_name, fileName):
     first_column.insert(0, 'min')
     full_data.insert(0, '', first_column)
 
+
+    if fileName.endswith("/"):
+        fileName = fileName[:-1]
+
     full_data.to_csv(join(fileName, "parameters-" + fileName + ".csv"), sep=',', index=False)
 
 def read_header(files, folder, headerRows):
