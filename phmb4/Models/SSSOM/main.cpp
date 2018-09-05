@@ -213,7 +213,7 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7]; 
         som.epochs = params[i + 8];
-        som.push_rate = params[i + 9] * som.e_b;
+        som.push_rate = som.e_n; //params[i + 9] * som.e_b;
 //        som.tau = params[i + 10] * som.e_b;
         
         string index = std::to_string((i/numberOfParameters));

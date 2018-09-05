@@ -40,13 +40,42 @@ public:
     TNumber node_act_area;
     TNumber act;
 
+    TVector m_oldM;
+    TVector m_newM;
+    TVector m_oldS;
+    TVector m_newS;
+    TVector variance;
+    int count;
+    
     SSSOMNode(int idIn, const TVector &v) : NodeW(idIn, v) {
         ds.size(v.size());
         ds.fill(1);
 
         a.size(v.size());
         a.fill(0);
-    };    
+                        
+        TVector oldM(v);
+        m_oldM = oldM;
+        TVector newM(v);
+        m_newM = newM;
+        
+        m_oldS.size(v.size());
+        m_oldS.fill(0);
+        
+        m_newS.size(v.size());
+        m_newS.fill(0);
+        
+        count = 1;
+    };   
+    
+    bool represents(const TVector &v) {
+        for (int i = 0 ; i < v.size() ; ++i) {
+            if (v[i] * ds[i] > m_newM[i] + variance[i])
+                return false;
+        }
+        
+        return true;
+    }
     
     void write(std::ofstream &file) {
         for (int i=0; i<w.size(); i++) {
