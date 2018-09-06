@@ -14,7 +14,8 @@ def analyse(folder, rows, rows_add, plot, save, extension, extra_results, crop):
 
     datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
 
-    plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results, crop)
+    if save or plot:
+        plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results, rows_add, crop)
 
     outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
     outputFile.write(line)
@@ -126,7 +127,7 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
         fig, ax = plt.subplots()
         ax.yaxis.grid()
         ax.set_ylim([0, 1])
-        ax.set_xticklabels(percentage_labels)
+        ax.set_xticklabels(percentage_labels[:plot_means.shape[1]])
 
         title = datasets[i].split("_")[1].capitalize()
 
