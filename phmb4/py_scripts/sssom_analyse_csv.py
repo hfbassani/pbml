@@ -6,7 +6,8 @@ from os.path import isfile, join
 import itertools
 import utils
 
-def analyse (folder, rows, plot, save, extension, extra_results, crop):
+
+def analyse(folder, rows, rows_add, plot, save, extension, extra_results, crop):
 
     if folder.endswith("/"):
         folder = folder[:-1]
@@ -18,11 +19,8 @@ def analyse (folder, rows, plot, save, extension, extra_results, crop):
     outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
     outputFile.write(line)
 
-def summarize(folder, rows):
-    headerRows = rows
-    if rows == None:
-        headerRows = 9
 
+def summarize(folder, rows):
     files = [f for f in listdir(folder) if isfile(join(folder, f)) and not f.startswith('.') and f.endswith(".csv")
              and not f.startswith('analysis-') and not f.startswith('parameters-')]
 
@@ -33,7 +31,7 @@ def summarize(folder, rows):
 
     method = files[0].split("-l")[0]
 
-    datasets, folds, headers = utils.read_header(files, folder, headerRows)
+    datasets, folds, headers = utils.read_header(files, folder, rows)
 
     plot_means = []
     plot_stds = []
@@ -114,7 +112,7 @@ def summarize(folder, rows):
     return datasets, method, line, np.array(plot_means), np.array(plot_stds)
 
 
-def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results, crop):
+def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results, rows_add, crop):
     percentage_values = np.linspace(1, 100, num=7)
     percentage_labels = ['1%', '5%', '10%', '25%', '50%', '75%', '100%']
 
@@ -138,22 +136,24 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
         plt.xticks(percentage_values)
 
         for extra in extra_results:
-            datasets_extra, method_extra, line_extra, plot_means_extra, plot_stds_extra = summarize(extra, 4)
+            datasets_extra, method_extra, line_extra, plot_means_extra, plot_stds_extra = summarize(extra, rows_add)
 
-            plt.errorbar(percentage_values, plot_means_extra[:, i], plot_stds_extra[:, i], label=method_extra,
+            ind = (datasets_extra == datasets[i]).nonzero()[0][0]
+            plt.errorbar(percentage_values, plot_means_extra[:, ind], plot_stds_extra[:, ind], label=method_extra,
                          linestyle=linestyles.next(), marker=markers.next(), clip_on=False, markeredgewidth=2, capsize=5)
 
-        plt.errorbar(percentage_values, plot_means[i], plot_stds[i], label='SS-SOM',
-                     linestyle='-', marker='o', clip_on=False, markeredgewidth=2, capsize=5)
+        plt.errorbar(percentage_values, plot_means[i], plot_stds[i], label=folder,
+                     clip_on=False, markeredgewidth=2, capsize=5,
+                     linestyle='-', marker='o')
 
         plt.legend(loc='best')
 
         if save:
             for extension in extensions:
-                plotPath = join(folder,"{0}-wcci.{1}".format(title, extension))
+                plotPath = join(folder, "{0}-wcci.{1}".format(title, extension))
 
                 if crop:
-                    plt.savefig(plotPath, bbox_inches='tight', pad_inches = 0)
+                    plt.savefig(plotPath, bbox_inches='tight', pad_inches=0)
                 else:
                     plt.savefig(plotPath)
 
@@ -162,9 +162,11 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
         else:
             plt.close()
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Directory Path', required=True)
-parser.add_argument('-r', help='Number of Heade Rows', required=False, type=int)
+parser.add_argument('-r', help='Number of Headee Rows', required=False, type=int, default=9)
+parser.add_argument('-R', help='Number of Headee Rows of the additinal .csvs', required=False, type=int, default=4)
 parser.add_argument('-p', help='Plot Graphs', action='store_true', required=False)
 parser.add_argument('-s', help='Save Graphs', action='store_true', required=False)
 parser.add_argument('-e', help='Extension', nargs='+', required=False, type=str, default=[])
@@ -181,10 +183,11 @@ if args.c and (not args.s or not args.e):
 
 folder = args.i
 rows = args.r
+rows_add = args.R
 plot_flag = args.p
 save_flag = args.s
 extensions = args.e
 extra_results = sorted(args.a)
 crop = args.c
 
-analyse(folder, rows, plot_flag, save_flag, extensions, extra_results, crop)
+analyse(folder, rows, rows_add, plot_flag, save_flag, extensions, extra_results, crop)
