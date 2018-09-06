@@ -40,10 +40,8 @@ public:
     TNumber node_act_area;
     TNumber act;
 
-    TVector m_oldM;
-    TVector m_newM;
-    TVector m_oldS;
-    TVector m_newS;
+    TVector in_mean;
+    TVector in_temp_var;
     TVector variance;
     int count;
     
@@ -54,23 +52,19 @@ public:
         a.size(v.size());
         a.fill(0);
                         
-        TVector oldM(v);
-        m_oldM = oldM;
         TVector newM(v);
-        m_newM = newM;
+        in_mean = newM;
         
-        m_oldS.size(v.size());
-        m_oldS.fill(0);
-        
-        m_newS.size(v.size());
-        m_newS.fill(0);
+        in_temp_var.size(v.size());
+        in_temp_var.fill(0);
         
         count = 1;
     };   
     
     bool represents(const TVector &v) {
         for (int i = 0 ; i < v.size() ; ++i) {
-            if (v[i] * ds[i] > m_newM[i] + variance[i])
+            float var = (variance[i] / ds[i]);
+            if (v[i] >= w[i] + var  || v[i] <= w[i] - var)
                 return false;
         }
         

@@ -84,17 +84,23 @@ public:
         //update averages
         for (uint i = 0; i < node.a.size(); i++) {
             //update neuron weights
+//            float distance_old = fabs(w[i] - node.a[i]);
             float distance = fabs(w[i] - node.w[i]);
-            node.a[i] = e*dsbeta* distance + (1 - e*dsbeta) * node.a[i];
+            node.a[i] = e*dsbeta* distance + (1 - e*dsbeta) * node.a[i]; //(1 - e*dsbeta)* node.a[i] + e*dsbeta* (distance_old / node.count); //e*dsbeta* distance + (1 - e*dsbeta) * node.a[i];
             
-            float dist_m = fabs(w[i] - node.m_oldM[i]);
-            node.m_newM[i] = node.m_oldM[i] + dist_m / node.count;
-            node.m_newS[i] = node.m_oldS[i] + dist_m * fabs(w[i] - node.m_newM[i]);
+//            float dist_m = fabs(w[i] - node.m_oldM[i]);
+//            node.m_newM[i] = node.m_oldM[i] + dist_m / node.count;
+//            node.m_newS[i] = node.m_newS[i] + distance_old * fabs(w[i] - node.a[i]);
+//            
+//            node.variance[i] = node.m_newS[i] / (node.count - 1);
             
-            node.m_oldM[i] = node.m_newM[i];
-            node.m_oldS[i] = node.m_newS[i];
-            
-            node.variance[i] = node.m_newS[i] / (node.count - 1);
+            if (e == e_b) {
+                float dist_m = fabs(w[i] - node.in_mean[i]); 
+                node.in_mean[i] = node.in_mean[i] + dist_m / node.count; 
+                node.in_temp_var[i] = node.in_temp_var[i] + dist_m * fabs(w[i] - node.in_mean[i]); 
+
+                node.variance[i] = node.in_temp_var[i] / (node.count - 1);
+            }
         }
 
         float max = node.a.max();
