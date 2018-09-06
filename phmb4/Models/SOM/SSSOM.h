@@ -79,7 +79,8 @@ public:
     }
 
     inline void updateNode(TNode &node, const TVector &w, TNumber e) {
-        node.count += 1;
+        if (e == e_b)
+            node.count += 1;
         
         //update averages
         for (uint i = 0; i < node.a.size(); i++) {
