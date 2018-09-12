@@ -140,7 +140,7 @@ public:
             a_t.setRange(0.70, 0.999) = 0.70;
             lp.setRange(0.01, 0.10) = 0.01;
             dsbeta.setRange(0.001, 0.5) = 0.001;
-            age_wins.setRange(1, 100) = 1;
+            age_wins.setRange(1, 20) = 1;
             e_b.setRange(0.0001, 0.01) = 0.0001;
             e_n.setRange(0.002, 1.0) = 0.002;
             epsilon_ds.setRange(0.01, 0.1) = 0.01;
@@ -156,7 +156,7 @@ public:
             minwd.setRange(0, 0.5) = 0;
         }
         
-        epochs.setRange(1, 100) = 1;
+        epochs.setRange(1, 20) = 1;
         gamma.setRange(0.14, 4.0) = 0.14;
         h_threshold.setRange(0.001, 0.8) = 0.001;
         tau.setRange(0.00001, 0.00004) = 0.00001;
