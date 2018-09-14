@@ -64,7 +64,7 @@ public:
     bool represents(const TVector &v) {
         for (int i = 0 ; i < v.size() ; ++i) {
             float var = (variance[i] / ds[i]);
-            if (v[i] >= w[i] + var || v[i] <= w[i] - var)
+            if (v[i] <= w[i] - var || v[i] >= w[i] + var)
                 return false;
         }
         

@@ -52,11 +52,12 @@ public:
         
         float sum = node.ds.sum();
         
-        float f_distance = (distance) / (sum + 0.0000001);
+//        float f_distance = (distance) / (sum + 0.0000001);
         
-        return 1 - f_distance;
+//        return 1 - f_distance;
         
-//        return (sum / (sum + (distance) + 0.0000001));
+//        return sqrt(distance);
+        return (sum / (sum + (distance) + 0.0000001));
 
         //float r = node.ds.sum();
 //        float e = (1/(qrt(node.ds.norm()) + 0.0000001));
@@ -86,19 +87,14 @@ public:
         for (uint i = 0; i < node.a.size(); i++) {
             //update neuron weights
 //            float distance_old = fabs(w[i] - node.a[i]);
-            float distance = fabs(w[i] - node.w[i]);
-            node.a[i] = e*dsbeta* distance + (1 - e*dsbeta) * node.a[i]; //(1 - e*dsbeta)* node.a[i] + e*dsbeta* (distance_old / node.count); //e*dsbeta* distance + (1 - e*dsbeta) * node.a[i];
+            float dist_before = (w[i] - node.w[i]);
+            node.a[i] = e*dsbeta* fabs(dist_before) + (1 - e*dsbeta) * node.a[i]; 
+//            node.variance[i] = node.a[i];
             
-//            float dist_m = fabs(w[i] - node.m_oldM[i]);
-//            node.m_newM[i] = node.m_oldM[i] + dist_m / node.count;
-//            node.m_newS[i] = node.m_newS[i] + distance_old * fabs(w[i] - node.a[i]);
-//            
-//            node.variance[i] = node.m_newS[i] / (node.count - 1);
-            
+            node.w[i] = node.w[i] + e * dist_before; 
+                        
             if (e == e_b) {
-                float dist_m = fabs(w[i] - node.in_mean[i]); 
-                node.in_mean[i] = node.in_mean[i] + dist_m / node.count; 
-                node.in_temp_var[i] = node.in_temp_var[i] + dist_m * fabs(w[i] - node.in_mean[i]); 
+                node.in_temp_var[i] = node.in_temp_var[i] + (dist_before) * (w[i] - node.w[i]); 
 
                 node.variance[i] = node.in_temp_var[i] / (node.count - 1);
             }
@@ -120,7 +116,7 @@ public:
         
         //Passo 6.1: Atualiza o peso do vencedor
         //Atualiza o nó vencedor
-        node.w = node.w + e * (w - node.w);      
+//        node.w = node.w + e * (w - node.w);      
     }
 
     SSSOM& updateConnections(TNode *node) {
@@ -274,8 +270,8 @@ public:
         std::uniform_real_distribution<double> distribution (0, 1.0); 
 //        nodeNew->node_act_area = distribution(generator); 
 //        updateNodeRadius(*nodeNew, 1.0);      
-        
-        nodeNew->variance.size(w.size());
+//        float average = wNew.mean();
+        nodeNew->variance.size(wNew.size());
         nodeNew->variance.fill(distribution(generator));
         
         updateConnections(nodeNew);
