@@ -15,13 +15,13 @@ import subprocess
 
 # fxn taken from https://discuss.pytorch.org/t/memory-leaks-in-trans-conv/12492
 def get_gpu_memory_map():   
-    result = subprocess.check_output(
-        [
-            'nvidia-smi', '--query-gpu=memory.used',
-            '--format=csv,nounits,noheader'
-        ])
-    
-    return float(result)
+	result = subprocess.check_output(
+		[
+			'nvidia-smi', '--query-gpu=memory.used',
+			'--format=csv,nounits,noheader'
+		])
+	
+	return float(result)
 
 class LARFDSSOM(nn.Module):
 
@@ -73,7 +73,7 @@ class LARFDSSOM(nn.Module):
 			self.step = 0
 
 		self.step += 1
-
+	
 	def initialize_map(self, w, y=None, calculate_mean=False):
 
 		batch_size = w.size(0)
@@ -90,6 +90,7 @@ class LARFDSSOM(nn.Module):
 
 		self.neighbors = torch.zeros(batch_size, batch_size, dtype=torch.uint8, device=self.device)
 		self.wins = torch.zeros(batch_size, device=self.device)
+
 
 	def group_data_by_mean(self, w, y=None):
 		new_w = None
@@ -218,7 +219,7 @@ class LARFDSSOM(nn.Module):
 		dists_connections[node_index] = 0
 
 		self.neighbors[node_index] = dists_connections
-
+	
 	def update_node(self, w, lr, index):
 		distance = torch.abs(torch.sub(w, self.weights[index]))
 		self.moving_avg[index] = torch.mul(lr * self.dsbeta, distance) + torch.mul(1 - lr * self.dsbeta, self.moving_avg[index])
@@ -240,7 +241,7 @@ class LARFDSSOM(nn.Module):
 		self.relevances[self.relevances != self.relevances] = 1.  # if (max - min) == 0 then set to 1
 
 		self.weights[index] = torch.add(self.weights[index], torch.mul(lr, torch.sub(w, self.weights[index])))
-
+	#@profile
 	def remove_loosers(self, remaining_indexes=None):
 		remaining_idxs = remaining_indexes if remaining_indexes is not None else (self.wins >= self.step * self.lp).nonzero()
 
@@ -254,7 +255,7 @@ class LARFDSSOM(nn.Module):
 			self.update_all_connections()
 
 			self.wins = torch.zeros(remaining_indexes.size(0), device=self.device)
-
+	#@profile
 	def update_all_connections(self):
 		dists_stacked = torch.stack([self.relevances] * self.relevances.size(0))
 		dists_stacked_transposed = dists_stacked.t()
@@ -263,59 +264,111 @@ class LARFDSSOM(nn.Module):
 
 		self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8, device=self.device)) * dists_connections
 
+	#@profile
 	def weighted_distance(self, w):
-		if w.size(0) > 1:
-			w = torch.stack([w] * self.weights.size(0))
-			w = w.t()
+		#test = w
+		#if w.size(0) > 1:
+		#	w = torch.stack([w] * self.weights.size(0))
+		#	w = w.t()
 
-		sub = torch.sub(w, self.weights)
-		qrt = torch.pow(sub, 2)
-		weighting = torch.mul(self.relevances, qrt)
-		summation = torch.sum(weighting, weighting.dim() - 1)
+		#sub = torch.sub(w, self.weights)
+		#qrt = torch.pow(sub, 2)
+		#weighting = torch.mul(self.relevances, qrt)
+		#summation = torch.sum(weighting, weighting.dim() - 1)
+		
+		weight2 = torch.mul(self.relevances, self.squared_dist(w,self.weights))
+		#weight3 = self.pairwise_distances(w,self.weights)#torch.mul(self.relevances, self.pairwise_distances(w,self.weights))
 
-		return summation
+		#print(self.relevances.size())
+		#debug = torch.sum(self.relevances, self.relevances.dim() - 1)
+		#print(weight2.size(),weight3.size(), debug.size())
+		#weightF = torch.mul(debug, weight3)
+		#summ2 = 
+		#
+		#print(weight2.size(),self.relevances.size(), self.squared_dist(w,self.weights).size(), torch.sum(weight2, weight2.dim() - 1).size())
+		#
+		#print(weight2.size(),weight3.size(), test.size())
+		#print(test, weightF)
+
+		#if(not test.equal(weightF)):
+		#	
+		#
+		#	exit(0)
+		#input()
+
+
+
+		#if(not summ2.equal(summation)):
+		#	exit(0)
+		#else:
+		#	print(summ2.size(),summ2)
+		#	print(summation.size(),summation)
+
+
+		return torch.sum(weight2, weight2.dim() - 1)
 		# return torch.sqrt(summation)
-	@profile
-	def relevance_distances(self, x1, x2):
-		if x1.dim() == 1:
-			x1 = x1.unsqueeze(0)
-		xk=x1
-		if x1.size(0) > 1:
-			#print(x1.size())
-			xk = torch.stack([xk] * x2.size(0))
-			xk = xk.t()
-			#print(x1.size())
-			#input()
-
-		fabs = torch.abs(torch.sub(xk, x2))
-
-
-		print("X1:", x1.size())
-		print("X2:", x2.size())
+	#@profile
+	def squared_dist(self, x1,x2):
 		n = x1.size(0)
 		d = x1.size(1)
 		m = x2.size(0)
-		
+
 		x = x1.unsqueeze(1).expand(n, m, d)
 		y = x2.unsqueeze(0).expand(n, m, d)
 
-		dist = torch.pow(x - y, 2).sum(2)
+		return torch.pow(x - y, 2)
 
-		print(dist.size())
-		print(torch.sum(fabs, fabs.dim() - 1).size())
-		print(fabs.size())
+	def dist_calculation(self, x1, x2):
+		n = x1.size(0)
+		d = x1.size(1)
+		m = x2.size(0)
 
-		print(dist)
-		print(torch.sum(fabs, fabs.dim() - 1))
-		if(not (dist.equal(torch.sum(fabs, fabs.dim() - 1)))):
+		x = x1.unsqueeze(1).expand(n, m, d)
+		y = x2.unsqueeze(0).expand(n, m, d)
+
+		return torch.pow(x - y, 2).sum(2)
+
+
+	## paiwwise_dise
+	#@profile
+	def pairwise_distances(self,x, y=None):
+	    '''
+	    Input: x is a Nxd matrix
+	           y is an optional Mxd matirx
+	    Output: dist is a NxM matrix where dist[i,j] is the square norm between x[i,:] and y[j,:]
+	            if y is not given then use 'y=x'.
+	    i.e. dist[i,j] = ||x[i,:]-y[j,:]||^2
+	    '''
+	    x_norm = (x**2).sum(1).view(-1, 1)
+	    if y is not None:
+	        y_t = torch.transpose(y, 0, 1)
+	        y_norm = (y**2).sum(1).view(1, -1)
+	    else:
+	        y_t = torch.transpose(x, 0, 1)
+	        y_norm = x_norm.view(1, -1)
+	    
+	    dist = x_norm + y_norm - 2.0 * torch.mm(x, y_t)
+	    # Ensure diagonal is zero if x=y
+	    # if y is None:
+	    #     dist = dist - torch.diag(dist.diag)
+	    dist[dist != dist] = 0 # replace nan values with 0
+	    return dist
+
+
+
+	#@profile
+	def relevance_distances(self, x1, x2):
+		if x1.dim() == 1:
+			x1 = x1.unsqueeze(0)
+		if(not (self.pairwise_distances(x1,x2).equal(self.dist_calculation(x1, x2)))):
+			#print("ALOWWWWWWWWWWWWWWw")
 			exit(0)
-		input()
-
-		return torch.sum(fabs, fabs.dim() - 1)
+		#input()
+		return self.pairwise_distances(x1,x2)#self.dist_calculation(x1, x2)
 
 	def organization(self, dataloader):
 		# count = 0
-		CONSOLE_LOG = False
+		CONSOLE_LOG = True#False
 
 		log = []
 		for epoch in range(self.epochs):

@@ -136,7 +136,6 @@ if len(testPaths) > 0:
 			sssom.write_output(join(resultsFolder,
 									fileName + "_" + str(int(paramsSet / parameters_count)) + ".results"),
 							   sssom.cluster_classify(test_loader, opt.s, opt.f))
-			exit(0)
 
 
 
