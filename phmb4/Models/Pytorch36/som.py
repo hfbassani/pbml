@@ -266,46 +266,15 @@ class LARFDSSOM(nn.Module):
 
 	#@profile
 	def weighted_distance(self, w):
-		#test = w
-		#if w.size(0) > 1:
-		#	w = torch.stack([w] * self.weights.size(0))
-		#	w = w.t()
 
-		#sub = torch.sub(w, self.weights)
-		#qrt = torch.pow(sub, 2)
-		#weighting = torch.mul(self.relevances, qrt)
-		#summation = torch.sum(weighting, weighting.dim() - 1)
-		
-		weight2 = torch.mul(self.relevances, self.squared_dist(w,self.weights))
-		#weight3 = self.pairwise_distances(w,self.weights)#torch.mul(self.relevances, self.pairwise_distances(w,self.weights))
+		#weight2 = torch.mul(self.relevances, self.squared_dist(w,self.weights))
+		#weight2 = torch.sum(weight2, weight2.dim() - 1)
 
-		#print(self.relevances.size())
-		#debug = torch.sum(self.relevances, self.relevances.dim() - 1)
-		#print(weight2.size(),weight3.size(), debug.size())
-		#weightF = torch.mul(debug, weight3)
-		#summ2 = 
-		#
-		#print(weight2.size(),self.relevances.size(), self.squared_dist(w,self.weights).size(), torch.sum(weight2, weight2.dim() - 1).size())
-		#
-		#print(weight2.size(),weight3.size(), test.size())
-		#print(test, weightF)
-
-		#if(not test.equal(weightF)):
-		#	
-		#
-		#	exit(0)
-		#input()
+		weight3 = self.pairwise_distances_relevances(w,self.weights,self.relevances)
 
 
-
-		#if(not summ2.equal(summation)):
-		#	exit(0)
-		#else:
-		#	print(summ2.size(),summ2)
-		#	print(summation.size(),summation)
-
-
-		return torch.sum(weight2, weight2.dim() - 1)
+		#exit(0) 
+		return weight3
 		# return torch.sqrt(summation)
 	#@profile
 	def squared_dist(self, x1,x2):
@@ -329,30 +298,61 @@ class LARFDSSOM(nn.Module):
 		return torch.pow(x - y, 2).sum(2)
 
 
+	def pairwise_distances_relevances(self, x, y, relevances):
+		'''
+		Input: x is a Nxd matrix
+			   y is an optional Mxd matirx
+		Output: dist is a NxM matrix where dist[i,j] is the square norm between x[i,:] and y[j,:]
+				if y is not given then use 'y=x'.
+		i.e. dist[i,j] = ||x[i,:]-y[j,:]||^2
+		'''
+		x_norm = (x**2).sum(1).view(-1, 1)
+
+		if y is not None:
+			y_t = torch.transpose(y, 0, 1)
+			y_norm = (y**2).sum(1).view(1, -1)
+		else:
+			y_t = torch.transpose(x, 0, 1)
+			y_norm = x_norm.view(1, -1)
+
+		relevances_new = (relevances).sum(1).view(1, -1)
+
+		
+		dist = x_norm + y_norm - 2.0 * torch.mm(x, y_t)
+		
+
+		## relevances.size()[-1] normalize per number of relevances
+		dist_weight = dist*(relevances_new/relevances.size()[-1]) 
+
+		dist_weight[dist_weight != dist_weight] = 0 # replace nan values with 0
+		return dist_weight
+
+
+
 	## paiwwise_dise
 	#@profile
 	def pairwise_distances(self,x, y=None):
-	    '''
-	    Input: x is a Nxd matrix
-	           y is an optional Mxd matirx
-	    Output: dist is a NxM matrix where dist[i,j] is the square norm between x[i,:] and y[j,:]
-	            if y is not given then use 'y=x'.
-	    i.e. dist[i,j] = ||x[i,:]-y[j,:]||^2
-	    '''
-	    x_norm = (x**2).sum(1).view(-1, 1)
-	    if y is not None:
-	        y_t = torch.transpose(y, 0, 1)
-	        y_norm = (y**2).sum(1).view(1, -1)
-	    else:
-	        y_t = torch.transpose(x, 0, 1)
-	        y_norm = x_norm.view(1, -1)
-	    
-	    dist = x_norm + y_norm - 2.0 * torch.mm(x, y_t)
-	    # Ensure diagonal is zero if x=y
-	    # if y is None:
-	    #     dist = dist - torch.diag(dist.diag)
-	    dist[dist != dist] = 0 # replace nan values with 0
-	    return dist
+		'''
+		Input: x is a Nxd matrix
+			   y is an optional Mxd matirx
+		Output: dist is a NxM matrix where dist[i,j] is the square norm between x[i,:] and y[j,:]
+				if y is not given then use 'y=x'.
+		i.e. dist[i,j] = ||x[i,:]-y[j,:]||^2
+		'''
+		x_norm = (x**2).sum(1).view(-1, 1)
+		if y is not None:
+			y_t = torch.transpose(y, 0, 1)
+			y_norm = (y**2).sum(1).view(1, -1)
+		else:
+			y_t = torch.transpose(x, 0, 1)
+			y_norm = x_norm.view(1, -1)
+		
+		dist = x_norm + y_norm - 2.0 * torch.mm(x, y_t)
+		# Ensure diagonal is zero if x=y
+		# if y is None:
+		#     dist = dist - torch.diag(dist.diag)
+		dist[dist != dist] = 0 # replace nan values with 0
+		return dist
 
 
 
@@ -361,7 +361,7 @@ class LARFDSSOM(nn.Module):
 		if x1.dim() == 1:
 			x1 = x1.unsqueeze(0)
 		if(not (self.pairwise_distances(x1,x2).equal(self.dist_calculation(x1, x2)))):
-			#print("ALOWWWWWWWWWWWWWWw")
+			print("ALOWWWWWWWWWWWWWWw")
 			exit(0)
 		#input()
 		return self.pairwise_distances(x1,x2)#self.dist_calculation(x1, x2)
