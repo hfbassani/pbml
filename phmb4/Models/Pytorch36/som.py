@@ -249,28 +249,34 @@ class LARFDSSOM(nn.Module):
         self.neighbors = (1 - torch.eye(self.weights.size(0), dtype=torch.uint8, device=self.device)) * dists_connections
 
     def weighted_distance(self, w):
-        if w.size(0) > 1:
-            w = torch.stack([w] * self.weights.size(0))
-            w = w.t()
+        dists = self.pairwise_distances(w, self.weights)
 
-        sub = torch.sub(w, self.weights)
-        qrt = torch.pow(sub, 2)
-        weighting = torch.mul(self.relevances, qrt)
-        summation = torch.sum(weighting, weighting.dim() - 1)
+        relevances_new = self.relevances.sum(1).view(1, -1)
 
-        return summation
-        # return torch.sqrt(summation)
+        dist_weight = dists * (relevances_new / self.relevances.size()[-1])
+
+        dist_weight[dist_weight != dist_weight] = 0
+
+        return dist_weight
 
     def relevance_distances(self, x1, x2):
         if x1.dim() == 1:
             x1 = x1.unsqueeze(0)
 
-        if x1.size(0) > 1:
-            x1 = torch.stack([x1] * x2.size(0))
-            x1 = x1.t()
+        return self.pairwise_distances(x1, x2)
 
-        fabs = torch.abs(torch.sub(x1, x2))
-        return torch.sum(fabs, fabs.dim() - 1)
+    def pairwise_distances(self, x1, x2=None):
+
+        x1_norm = (x1 ** 2).sum(1).view(-1, 1)
+
+        x2_t = torch.transpose(x2, 0, 1)
+        x2_norm = (x2 ** 2).sum(1).view(1, -1)
+
+        dist = x1_norm + x2_norm - 2.0 * torch.mm(x1, x2_t)
+
+        dist[dist != dist] = 0  # replace nan values with 0
+
+        return dist
 
     def organization(self, dataloader):
         # count = 0
@@ -392,7 +398,7 @@ class SSSOM(LARFDSSOM):
         if batch_size > 1:
             self.batch_update_map_sup(w, y)
         else:
-            activations = self.activation(w)
+            activations = self.activation(w)[0]
             ind_max = torch.argmax(activations)
             ind_max = torch.full((1,), ind_max, dtype=torch.int64, device=self.device)
 
