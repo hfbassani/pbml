@@ -81,6 +81,9 @@ if len(testPaths) > 0:
     for i, (train, test) in enumerate(zip(inputPaths, testPaths)):
         print(train, test)
 
+        train = "../../../Datasets/Realdata_3Times3FoldsExp_TrainS01/train_breast_x1_k1.arff"
+        test = "../../../Datasets/Realdata_3Times3FoldsExp_Test/test_breast_x1_k1.arff"
+
         train_data = ArffDataset(train)
 
         test_data = ArffDataset(test)
@@ -126,3 +129,5 @@ if len(testPaths) > 0:
             sssom.write_output(join(resultsFolder,
                                     fileName + "_" + str(int(paramsSet / parameters_count)) + ".results"),
                                sssom.cluster_classify(test_loader, opt.s, opt.f))
+
+        break
