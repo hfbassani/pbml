@@ -37,13 +37,8 @@ public:
     int cls;
     
     int wins;
-    TNumber node_act_area;
     TNumber act;
-
-    TVector in_mean;
-    TVector in_temp_var;
-    TVector variance;
-    int count;
+    bool region;
     
     SSSOMNode(int idIn, const TVector &v) : NodeW(idIn, v) {
         ds.size(v.size());
@@ -51,19 +46,11 @@ public:
 
         a.size(v.size());
         a.fill(0);
-                        
-        TVector newM(v);
-        in_mean = newM;
-        
-        in_temp_var.size(v.size());
-        in_temp_var.fill(0);
-        
-        count = 1;
     };   
     
     bool represents(const TVector &v) {
         for (int i = 0 ; i < v.size() ; ++i) {
-            float var = (variance[i] / ds[i]);
+            float var = (a[i] / ds[i]);
             if (v[i] <= w[i] - var || v[i] >= w[i] + var)
                 return false;
         }

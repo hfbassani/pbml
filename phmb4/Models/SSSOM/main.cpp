@@ -167,7 +167,6 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7];
         som.epochs = params[i + 8];
-        som.push_rate = params[i + 9] * som.e_b;
                 
         string index = std::to_string((i/numberOfParameters));
         
@@ -196,6 +195,13 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         SSSOM som(1);
         SOM<SSSOMNode> *sssom = (SOM<SSSOMNode>*) &som;
+        
+        som.unsup_win = 0;
+        som.unsup_create = 0;
+        som.sup_win = 0;
+        som.sup_create = 0;
+        som.sup_handle_new_win = 0;
+        som.sup_handle_create = 0;
 
         ClusteringMeshSSSOM clusteringSOM(sssom);
         clusteringSOM.readFile(filePath, normalize);
@@ -213,12 +219,11 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         som.epsilon_ds = params[i + 6];
         som.minwd = params[i + 7]; 
         som.epochs = params[i + 8];
-        som.push_rate = som.e_n; //params[i + 9] * som.e_b;
-//        som.tau = params[i + 10] * som.e_b;
+        som.e_var = params[i + 9] * som.e_b;
+        srand(params[i + 10]);
         
         string index = std::to_string((i/numberOfParameters));
                   
-        srand(params[i + 10]);
 
         som.noCls = 999;
         som.maxNodeNumber = clusteringSOM.getNumSamples();
