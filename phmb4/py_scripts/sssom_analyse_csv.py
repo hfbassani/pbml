@@ -7,7 +7,7 @@ import itertools
 import utils
 
 
-def analyse(folder, rows, rows_add, plot, save, extension, extra_results, crop):
+def analyse(folder, rows, rows_add, plot, save, extension, extra_results, crop, sup):
 
     if folder.endswith("/"):
         folder = folder[:-1]
@@ -15,7 +15,7 @@ def analyse(folder, rows, rows_add, plot, save, extension, extra_results, crop):
     datasets, method, line, plot_means, plot_stds = summarize(folder, rows)
 
     if save or plot:
-        plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results, rows_add, crop)
+        plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results, rows_add, crop, sup)
 
     outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
     outputFile.write(line)
@@ -26,7 +26,7 @@ def summarize(folder, rows):
              and not f.startswith('analysis-') and not f.startswith('parameters-')]
 
     if len(files) > 1:
-        files = sorted(files, key=lambda x: int(x[:-4].split("-l")[-1]))
+        files = sorted(files, key=lambda x: int(x.split(".")[0].split("-l")[-1]))
     else:
         files = sorted(files)
 
@@ -113,21 +113,25 @@ def summarize(folder, rows):
     return datasets, method, line, np.array(plot_means), np.array(plot_stds)
 
 
-def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results, rows_add, crop):
-    percentage_values = np.linspace(1, 100, num=7)
-    percentage_labels = ['1%', '5%', '10%', '25%', '50%', '75%', '100%']
+def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_results, rows_add, crop, sup):
+    percentage_values = np.linspace(1, 100, num=len(sup))
+    percentage_labels = sup
 
     plot_means = np.transpose(means)
     plot_stds = np.transpose(stds)
+
+    percentage_values = percentage_values[:plot_means.shape[1]]
+    percentage_labels = percentage_labels[:plot_means.shape[1]]
 
     markers = itertools.cycle(('x', 'D', '*'))
     linestyles = itertools.cycle(('-.', '--', ':'))
 
     for i in xrange(len(datasets)):
+
         fig, ax = plt.subplots()
         ax.yaxis.grid()
         ax.set_ylim([0, 1])
-        ax.set_xticklabels(percentage_labels[:plot_means.shape[1]])
+        ax.set_xticklabels(percentage_labels)
 
         title = datasets[i].split("_")[1].capitalize()
 
@@ -141,7 +145,8 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
 
             ind = (datasets_extra == datasets[i]).nonzero()[0][0]
             plt.errorbar(percentage_values, plot_means_extra[:, ind], plot_stds_extra[:, ind], label=method_extra,
-                         linestyle=linestyles.next(), marker=markers.next(), clip_on=False, markeredgewidth=2, capsize=5)
+                         linestyle=linestyles.next(), marker=markers.next(),
+                         clip_on=False, markeredgewidth=2, capsize=5)
 
         plt.errorbar(percentage_values, plot_means[i], plot_stds[i], label=folder,
                      clip_on=False, markeredgewidth=2, capsize=5,
@@ -151,12 +156,12 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
 
         if save:
             for extension in extensions:
-                plotPath = join(folder, "{0}-wcci.{1}".format(title, extension))
+                plot_path = join(folder, "{0}-wcci.{1}".format(title, extension))
 
                 if crop:
-                    plt.savefig(plotPath, bbox_inches='tight', pad_inches=0)
+                    plt.savefig(plot_path, bbox_inches='tight', pad_inches=0)
                 else:
-                    plt.savefig(plotPath)
+                    plt.savefig(plot_path)
 
         if plot:
             plt.show()
@@ -173,6 +178,8 @@ parser.add_argument('-s', help='Save Graphs', action='store_true', required=Fals
 parser.add_argument('-e', help='Extension', nargs='+', required=False, type=str, default=[])
 parser.add_argument('-a', help='Additional .csv files to plot', nargs='+', required=False, type=str, default=[])
 parser.add_argument('-c', help='Crop PDF', action='store_true', required=False)
+parser.add_argument('--sup', help='Percentages of Supervision', nargs='+', required=False, type=str,
+                    default=['1%', '5%', '10%', '25%', '50%', '75%', '100%'])
 
 args = parser.parse_args()
 
@@ -190,5 +197,6 @@ save_flag = args.s
 extensions = args.e
 extra_results = sorted(args.a)
 crop = args.c
+sup = args.sup
 
-analyse(folder, rows, rows_add, plot_flag, save_flag, extensions, extra_results, crop)
+analyse(folder, rows, rows_add, plot_flag, save_flag, extensions, extra_results, crop, sup)
