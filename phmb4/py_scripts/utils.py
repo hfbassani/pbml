@@ -3,8 +3,11 @@ import numpy as np
 from os.path import join
 import os
 import sys
+import re
+from scipy.io import arff
 
-def save_params_file(results, starting_param_name, fileName):
+
+def save_params_file(results, starting_param_name, filename):
     parameters = results.rename(columns=results.iloc[0])
     parameters = parameters.drop([0])
     parameters = parameters.astype(np.float64)
@@ -21,16 +24,19 @@ def save_params_file(results, starting_param_name, fileName):
     first_column.insert(0, 'min')
     full_data.insert(0, '', first_column)
 
-    full_data.to_csv(join(fileName, "parameters-" + fileName + ".csv"), sep=',', index=False)
+    if filename.endswith("/"):
+        filename = filename[:-1]
 
-def read_header(files, folder, headerRows):
+    full_data.to_csv(join(filename, "parameters-" + filename + ".csv"), sep=',', index=False)
+
+def read_header(files, folder, header_rows):
     datasets = []
     folds = []
     headers = []
 
     for file in files:
         if ".csv" in file:
-            header = pd.read_csv(join(folder, file), nrows=headerRows, header=None)
+            header = pd.read_csv(join(folder, file), nrows=header_rows, header=None)
             header = header.transpose()
             header = header.rename(columns=header.iloc[0])
             header = header.drop([0])
@@ -40,7 +46,7 @@ def read_header(files, folder, headerRows):
             headers.append(header)
 
             if len(datasets) <= 0:
-                results = pd.read_csv(join(folder, file), skiprows=headerRows + 1, header=None)
+                results = pd.read_csv(join(folder, file), skiprows=header_rows + 1, header=None)
 
                 datasets = results.iloc[0]
                 if 'a_t' in datasets.values:
@@ -52,21 +58,38 @@ def read_header(files, folder, headerRows):
                 else:
                     datasets = datasets[1:]
 
-                folds = list(map(lambda x:x[len(x) - 5:],datasets))
-                datasets = np.unique(map(lambda x: x.split("_x")[0], datasets))
+                pattern = re.compile("(_x\d_k\d)")
+                folds = map(lambda x: x if pattern.search(x) is None else x[pattern.search(x).start(0) - 1:],
+                            datasets)
+                datasets = np.unique(map(lambda x: x if pattern.search(x) is None else x[:pattern.search(x).start(0)],
+                                         datasets))
 
     return datasets, folds, headers
 
-def createFolders (path):
+
+def get_data_targets(path, file, target_idx=None):
+
+    if file.endswith(".arff"):
+        data, _ = arff.loadarff(open(join(path, file), 'rb'))
+        targets = data['class'] if target_idx is None else data[target_idx]
+    else:
+        data = pd.read_csv(join(path, file), header=None)
+        targets = data.iloc[:, -1].values.astype('int16') if target_idx is None else data.ix[:, target_idx].values.astype('int16')
+
+    return targets
+
+def create_folders(path):
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
 
-def check_directory(filePath):
-    if os.path.isdir(filePath):
-        if not filePath.endswith("/"):
-            return filePath + "/"
+
+def check_directory(file_path):
+    if os.path.isdir(file_path):
+        if not file_path.endswith("/"):
+            return file_path + "/"
     else:
         sys.exit("Invalid directory")
+
 
 def get_type(type):
     if type == "numeric":
