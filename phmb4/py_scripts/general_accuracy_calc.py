@@ -7,6 +7,7 @@ from os import listdir
 from os.path import isfile, join
 import utils
 
+
 def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=None):
 
     accs = []
@@ -106,7 +107,7 @@ output = args.o
 params = args.p
 paramNames = args.n
 
-utils.createFolders(output)
+utils.create_folders(output)
 eval(resultsPath=results, truePath=true, r=repeat, outputPath=output, paramFile=params, paramNamesFile=paramNames)
 
 

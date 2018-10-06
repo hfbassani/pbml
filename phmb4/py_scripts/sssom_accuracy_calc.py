@@ -1,14 +1,13 @@
 import argparse
 import pandas as pd
 import numpy as np
-from scipy.io import arff
 from sklearn import metrics
 from os import listdir
 from os.path import isfile, join
 import utils
 
-def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=None):
 
+def eval(results_paths, true_path, r, output_path, param_file=None, param_names_file=None):
     accs = []
     max_values = []
     max_value_num_nodes = []
@@ -19,83 +18,82 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
     index_set = []
     mean_value = []
     std_value = []
-    datasetNames = []
-
+    datasets_names = []
 
     num_nodes = []
-    noisySamples = []
-    noLabelSamples = []
-    incorrectSamples = []
-    correctSamples = []
+    noisy_samples = []
+    unlabeled_samples = []
+    incorrect_samples = []
+    correct_samples = []
 
-    files = [f for f in listdir(truePath) if isfile(join(truePath, f))]
+    files = [f for f in listdir(true_path) if isfile(join(true_path, f)) and not f.endswith(".true")]
     files = sorted(files)
 
     for file in files:
-        if file.endswith(".arff"):
-            data, _ = arff.loadarff(open(join(truePath, file), 'rb'))
-            data = data['class']
-            accs.append([])
-            num_nodes.append([])
-            noisySamples.append([])
-            noLabelSamples.append([])
-            incorrectSamples.append([])
-            correctSamples.append([])
+        data = utils.get_data_targets(true_path, file)
 
-            for i in range(r):
-                results = open(join(resultsPath, "{0}_{1}.results".format(file[:-5], i)), 'rb')
-                results = results.readlines()
-                print join(resultsPath, "{0}_{1}.results".format(file[:-5], i))
-                nodes = (int)(results[0].split("\t")[0])
-                num_nodes[len(num_nodes) - 1].append(nodes)
+        accs.append([])
+        num_nodes.append([])
+        noisy_samples.append([])
+        unlabeled_samples.append([])
+        incorrect_samples.append([])
+        correct_samples.append([])
 
-                if nodes + 1 < len(results):
-                    results = pd.read_csv(join(resultsPath, "{0}_{1}.results".format(file[:-5], i)),
-                                          sep="\t", skiprows=nodes + 1, header=None)
+        for i in range(r):
+            results = open(join(results_paths, "{0}_{1}.results".format(file.split(".")[0], i)), 'rb')
+            results = results.readlines()
+            print join(results_paths, "{0}_{1}.results".format(file.split(".")[0], i))
+            nodes = (int)(results[0].split("\t")[0])
+            num_nodes[len(num_nodes) - 1].append(nodes)
 
-                    noisySamples[len(noisySamples) - 1].append(len(data) - len(results[len(results.columns) - 1]))
+            if nodes + 1 < len(results):
+                results = pd.read_csv(join(results_paths, "{0}_{1}.results".format(file.split(".")[0], i)),
+                                      sep="\t", skiprows=nodes + 1, header=None)
 
-                    # PAY ATTENTION
-                    noLabelSamples[len(noLabelSamples) - 1].append(len(results.ix[results[len(results.columns) - 1] == 999]))
+                noisy_samples[len(noisy_samples) - 1].append(len(data) - len(results[len(results.columns) - 1]))
 
-                    # results = results.ix[results[len(results.columns) - 1] != 999]
+                # PAY ATTENTION
+                unlabeled_samples[len(unlabeled_samples) - 1].append(
+                    len(results.ix[results[len(results.columns) - 1] == 999]))
 
-                    indexes = np.array(results.iloc[:,0])
-                    predict = np.array(results.iloc[:,2])
-                    true = map(int, data[indexes])
+                # results = results.ix[results[len(results.columns) - 1] != 999]
 
-                    corrects = metrics.accuracy_score(predict, true, normalize=False)
-                    correctSamples[len(correctSamples) - 1].append(corrects)
-                    accuracy = float(corrects) / len(data)
-                    accs[len(accs) - 1].append(accuracy)
+                indexes = np.array(results.iloc[:, 0])
+                predict = np.array(results.iloc[:, 2])
+                true = map(int, data[indexes])
 
-                    results_inc = results.ix[results[len(results.columns) - 1] != 999]
-                    predict_inc = np.array(results_inc.iloc[:,2])
-                    incorrects = len(predict_inc) - metrics.accuracy_score(predict, true, normalize=False)
+                corrects = metrics.accuracy_score(predict, true, normalize=False)
+                correct_samples[len(correct_samples) - 1].append(corrects)
+                accuracy = float(corrects) / len(data)
+                accs[len(accs) - 1].append(accuracy)
 
-                    incorrectSamples[len(incorrectSamples) - 1].append(incorrects)
-                else:
-                    noisySamples[len(noisySamples) - 1].append(len(data))
-                    noLabelSamples[len(noLabelSamples) - 1].append(0)
-                    accs[len(accs) - 1].append(0)
-                    incorrectSamples[len(incorrectSamples) - 1].append(0)
-                    correctSamples[len(correctSamples) - 1].append(0)
+                results_inc = results.ix[results[len(results.columns) - 1] != 999]
+                predict_inc = np.array(results_inc.iloc[:, 2])
+                incorrects = len(predict_inc) - metrics.accuracy_score(predict, true, normalize=False)
 
-            max_value_index = np.nanargmax(accs[len(accs) - 1])
-            max_values.append(np.nanmax(accs[len(accs) - 1]))
-            index_set.append(np.nanargmax(accs[len(accs) - 1]))
+                incorrect_samples[len(incorrect_samples) - 1].append(incorrects)
+            else:
+                noisy_samples[len(noisy_samples) - 1].append(len(data))
+                unlabeled_samples[len(unlabeled_samples) - 1].append(0)
+                accs[len(accs) - 1].append(0)
+                incorrect_samples[len(incorrect_samples) - 1].append(0)
+                correct_samples[len(correct_samples) - 1].append(0)
 
-            max_value_num_nodes.append(num_nodes[len(num_nodes) - 1][max_value_index])
-            max_value_num_noisy.append(noisySamples[len(noisySamples) - 1][max_value_index])
-            max_value_num_unlabeled_samples.append(noLabelSamples[len(noLabelSamples) - 1][max_value_index])
-            max_value_num_correct_samples.append(correctSamples[len(correctSamples) - 1][max_value_index])
-            max_value_num_incorrect_samples.append(incorrectSamples[len(incorrectSamples) - 1][max_value_index])
+        max_value_index = np.nanargmax(accs[len(accs) - 1])
+        max_values.append(np.nanmax(accs[len(accs) - 1]))
+        index_set.append(np.nanargmax(accs[len(accs) - 1]))
 
-            mean_value.append(np.nanmean(accs[len(accs) - 1]))
-            std_value.append(np.nanstd(accs[len(accs) - 1], ddof=1))
-            datasetNames.append(file[:-5])
+        max_value_num_nodes.append(num_nodes[len(num_nodes) - 1][max_value_index])
+        max_value_num_noisy.append(noisy_samples[len(noisy_samples) - 1][max_value_index])
+        max_value_num_unlabeled_samples.append(unlabeled_samples[len(unlabeled_samples) - 1][max_value_index])
+        max_value_num_correct_samples.append(correct_samples[len(correct_samples) - 1][max_value_index])
+        max_value_num_incorrect_samples.append(incorrect_samples[len(incorrect_samples) - 1][max_value_index])
 
-    outputFile = open(outputPath + '.csv', 'w+')
+        mean_value.append(np.nanmean(accs[len(accs) - 1]))
+        std_value.append(np.nanstd(accs[len(accs) - 1], ddof=1))
+        datasets_names.append(file.split(".")[0])
+
+    outputFile = open(output_path + '.csv', 'w+')
 
     line = "max_value," + ",".join(map(str, max_values)) + "\n"
     line += "index_set," + ",".join(map(str, index_set)) + "\n"
@@ -107,35 +105,36 @@ def eval (resultsPath, truePath, r, outputPath, paramFile=None, paramNamesFile=N
     line += "mean_value," + ",".join(map(str, mean_value)) + "\n"
     line += "std_value," + ",".join(map(str, std_value)) + "\n\n"
 
-    if paramFile != None and paramNamesFile != None:
-        params = open(paramFile, 'r')
+    if param_file != None and param_names_file != None:
+        params = open(param_file, 'r')
         params = params.readlines()
         params = map(float, params)
 
-        names = open(paramNamesFile, 'r')
+        names = open(param_names_file, 'r')
         names = names.readlines()
-        names = list(map(lambda x:x.strip(),names))
+        names = list(map(lambda x: x.strip(), names))
 
-        line += "experiment," + ",".join(datasetNames) + "," + ",".join(names) + "\n"
+        line += "experiment," + ",".join(datasets_names) + "," + ",".join(names) + "\n"
 
         for i in range(len(accs[0])):
             line += str(i)
-            for j in range(len(datasetNames)):
+            for j in range(len(datasets_names)):
                 line += "," + str(accs[j][i])
 
             for k in range(len(names)):
                 line += "," + str(params[i * len(names) + k])
             line += "\n"
     else:
-        line += "experiment," + ",".join(datasetNames) + "\n"
+        line += "experiment," + ",".join(datasets_names) + "\n"
 
         for i in range(len(accs[0])):
             line += str(i)
-            for j in range(len(datasetNames)):
+            for j in range(len(datasets_names)):
                 line += "," + str(accs[j][i])
             line += "\n"
 
     outputFile.write(line)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', help='True Directory', required=True)
@@ -153,7 +152,5 @@ output = args.o
 params = args.p
 paramNames = args.n
 
-utils.createFolders(output)
-eval(resultsPath=results, truePath=true, r=repeat, outputPath=output, paramFile=params, paramNamesFile=paramNames)
-
-
+utils.create_folders(output)
+eval(results_paths=results, true_path=true, r=repeat, output_path=output, param_file=params, param_names_file=paramNames)

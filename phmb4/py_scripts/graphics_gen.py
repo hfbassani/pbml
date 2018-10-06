@@ -6,9 +6,12 @@ import os
 import argparse
 from sklearn import linear_model
 
+import utils
+
 image_path = "plots/"
 
 #---------------------- Synthetic Data Graphs ----------------------#
+
 
 def plot_noise_graph(ce, save=False, plot=True):
     noise_values = np.linspace(10, 70, num=4)
@@ -26,6 +29,7 @@ def plot_noise_graph(ce, save=False, plot=True):
 
     check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
+
 def subplot_noise_graph(ce, ax):
     noise_values = np.linspace(10, 70, num=4)
     noise_labels = ['10%', '30%', '50%', '70%']
@@ -38,6 +42,7 @@ def subplot_noise_graph(ce, ax):
     ax.plot(noise_values, ce, '-^', color='k', clip_on=False)
     ax.set_yticks(np.linspace(0, 1, num=11))
     ax.set_xticks(noise_values)
+
 
 def plot_samples_graph(ce, save=False, plot=True):
     samples_size = np.linspace(1500, 5500, num=5)
@@ -54,6 +59,7 @@ def plot_samples_graph(ce, save=False, plot=True):
 
     check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
+
 def subplot_samples_graph(ce, ax):
     samples_size = np.linspace(1500, 5500, num=5)
 
@@ -65,6 +71,7 @@ def subplot_samples_graph(ce, ax):
     ax.plot(samples_size, ce, '-^', color='k', clip_on=False)
     ax.set_yticks(np.linspace(0, 1, num=11))
     ax.set_xticks(samples_size)
+
 
 def plot_dimensions_graph(ce, save=False, plot=True):
     x = [5, 10, 15, 20, 25, 50, 75]
@@ -81,6 +88,7 @@ def plot_dimensions_graph(ce, save=False, plot=True):
 
     check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
+
 def subplot_dimensions_graph(ce, ax):
     x = [5, 10, 15, 20, 25, 50, 75]
 
@@ -92,6 +100,7 @@ def subplot_dimensions_graph(ce, ax):
     ax.plot(x, ce, "-^", color='k', clip_on=False)
     ax.set_xticks(np.linspace(5, 75, num=8))
     ax.set_yticks(np.linspace(0, 1, num=11))
+
 
 def plot_irrelevant_dims_graph(ce, save=False, plot=True):
     irrelevant_dims_size = np.linspace(0, 5, num=6)
@@ -108,6 +117,7 @@ def plot_irrelevant_dims_graph(ce, save=False, plot=True):
 
     check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
+
 def subplot_irrelevant_dims_graph(ce, ax):
     irrelevant_dims_size = np.linspace(0, 5, num=6)
 
@@ -120,6 +130,7 @@ def subplot_irrelevant_dims_graph(ce, ax):
     ax.set_xticks(irrelevant_dims_size)
     ax.set_yticks(np.linspace(0, 1, num=11))
 
+
 def plot_synthetic_data_graphs(fileName, save=False, plot=True):
     results = get_headers(fileName)
 
@@ -127,6 +138,7 @@ def plot_synthetic_data_graphs(fileName, save=False, plot=True):
     plot_noise_graph(results["max_value"][7:11], save=save, plot=plot)
     plot_samples_graph(results["max_value"][11:16], save=save, plot=plot)
     plot_irrelevant_dims_graph(results["max_value"][16:], save=save, plot=plot)
+
 
 def subplot_synthetic_data_graphs(fileName, save=False, plot=True):
     results = get_headers(fileName)
@@ -142,8 +154,9 @@ def subplot_synthetic_data_graphs(fileName, save=False, plot=True):
 
     check_plot_save(path="{0}best_values.png".format(image_path), save=save, plot=plot)
 
-#-------------------------------------------------------------------#
-#---------------------- Common Methods -----------------------------#
+# ------------------------------------------------------------------- #
+# ---------------------- Common Methods ----------------------------- #
+
 
 def check_plot_save (path, save, plot):
     if save:
@@ -153,6 +166,7 @@ def check_plot_save (path, save, plot):
         plt.show()
     else:
         plt.close()
+
 
 def plot_fit_linear(to_plot, x, y):
 
@@ -166,6 +180,7 @@ def plot_fit_linear(to_plot, x, y):
     fit = regr.predict(x.reshape(-1, 1))
 
     to_plot.plot(x, fit, color='r', clip_on=False, linewidth=6)
+
 
 def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, save=False, plot=True):
     fig, ax = plt.subplots()
@@ -184,6 +199,7 @@ def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, save=False, plot=T
 
     check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
+
 def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
     ax.yaxis.grid()
     ax.set_ylim([0, 1])
@@ -195,6 +211,7 @@ def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
 
     plot_fit_linear(ax, x, y)
 
+
 def get_headers(fileName):
     headers = pd.read_csv(fileName, nrows=9, header=None)
     headers = headers.transpose()
@@ -204,6 +221,7 @@ def get_headers(fileName):
     headers = headers.astype(np.float64)
 
     return headers
+
 
 def get_params_and_results(fileName):
     results = pd.read_csv(fileName, skiprows=10, header=None)
@@ -222,20 +240,33 @@ def get_params_and_results(fileName):
 
     return params, results
 
-#-------------------------------------------------------------------#
-#---------------------- Parameters Graphs --------------------------#
+# ------------------------------------------------------------------- #
+# ---------------------- Parameters Graphs -------------------------- #
 
-def plot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
 
+def plot_params_results(fileName, header_rows=9, paramsToPlot=None, save=False, plot=True):
+
+    datasets, folds, headers = utils.read_header([fileName], "", header_rows)
     params, results = get_params_and_results(fileName)
 
-    if paramsToPlot == None:
+    if paramsToPlot is None:
         paramsToPlot = params.columns
 
     for param in paramsToPlot:
-        for result in results.columns:
-#            if "Accuracy" in result:
-            plot_x_y(params[param], results[result], "{0} - {1}".format(param, result), save=save, plot=plot)
+        # for result in results.columns:
+        #     #            if "Accuracy" in result:
+        #     plot_x_y(params[param], results[result], "{0} - {1}".format(param, result), save=save, plot=plot)
+        for dataset in datasets:
+            matching = [result for result in results.columns if dataset in result]
+            x = []
+            y = []
+            for result in results[matching].columns:
+                x.append(params[param])
+                y.append(results[result])
+
+            x = pd.concat(x, ignore_index=True)
+            y = pd.concat(y, ignore_index=True)
+            plot_x_y(x, y, "{0} - {1}".format(param, dataset), save=save, plot=plot)
 
 
 def subplot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
@@ -280,6 +311,7 @@ def subplot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
         fig.tight_layout()
 
         check_plot_save(path="{0}{1}.png".format(image_path, result), save=save, plot=plot)
+
 
 def plot_gammas_vs_hthresholds(filename, save=False, plot=True):
     headers = get_headers(fileName)
@@ -326,7 +358,9 @@ def plot_gammas_vs_hthresholds(filename, save=False, plot=True):
 
             check_plot_save(path="{0}gammas_x_hthresh{1}.png".format(image_path, i), save=save, plot=plot)
 
-#-------------------------------------------------------------------#
+# ------------------------------------------------------------------- #
+
+
 if not os.path.isdir(image_path): os.mkdir(image_path)
 
 parser = argparse.ArgumentParser()
@@ -343,7 +377,7 @@ args = parser.parse_args()
 
 fileName = args.i
 header_rows = args.r
-paramsToPlot = args.p # ["a_t", "lp", "dsbeta", "age_wins", "e_b", "e_n", "epsilon_ds", "minwd","epochs", "push_rate", "supervision_rate"]
+paramsToPlot = args.p
 
 synthetic_plot = args.s
 plot = args.plot
@@ -360,7 +394,7 @@ if synthetic_plot:
 
 else:
     if plot:
-        plot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, save=save, plot=show)
+        plot_params_results(fileName=fileName, header_rows=header_rows, paramsToPlot=paramsToPlot, save=save, plot=show)
     elif subplot:
         subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, save=save, plot=show)
 
