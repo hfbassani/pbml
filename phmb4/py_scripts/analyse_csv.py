@@ -156,7 +156,7 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
 
         if save:
             for extension in extensions:
-                plot_path = join(folder, "{0}-wcci.{1}".format(title, extension))
+                plot_path = join(folder, "{0}-{1}.{2}".format(title, folder, extension))
 
                 if crop:
                     plt.savefig(plot_path, bbox_inches='tight', pad_inches=0)
@@ -171,8 +171,8 @@ def plot_graph(means, stds, datasets, plot, save, extensions, folder, extra_resu
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Directory Path', required=True)
-parser.add_argument('-r', help='Number of Headee Rows', required=False, type=int, default=9)
-parser.add_argument('-R', help='Number of Headee Rows of the additinal .csvs', required=False, type=int, default=4)
+parser.add_argument('-r', help='Number of Header Rows', required=False, type=int, default=9)
+parser.add_argument('-R', help='Number of Header Rows of the additinal .csvs', required=False, type=int, default=4)
 parser.add_argument('-p', help='Plot Graphs', action='store_true', required=False)
 parser.add_argument('-s', help='Save Graphs', action='store_true', required=False)
 parser.add_argument('-e', help='Extension', nargs='+', required=False, type=str, default=[])

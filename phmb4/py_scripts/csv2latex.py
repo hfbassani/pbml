@@ -4,6 +4,7 @@ from os import listdir
 from os.path import isfile, join
 import utils
 
+
 def csv2latex_mean_std (folder, rows):
 
     if folder.endswith("/"):
@@ -15,6 +16,7 @@ def csv2latex_mean_std (folder, rows):
 
     outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
     outputFile.write(line)
+
 
 def summarize(folder, rows):
     headerRows = rows
@@ -111,6 +113,7 @@ def summarize(folder, rows):
 
     return datasets, method, line, plot_means, plot_stds
 
+
 def latex_table(means, stds, datasets):
     table = "\\begin{table*}[ht] \n"
     table += "\small \n"
@@ -139,6 +142,7 @@ def latex_table(means, stds, datasets):
     table += "\end{tabular} \n"
     table += "\end{table*}"
     print table
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Directory Path', required=True)

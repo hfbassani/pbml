@@ -7,7 +7,7 @@ from os.path import isfile, join
 import utils
 
 
-def eval(results_paths, true_path, r, output_path, param_file=None, param_names_file=None):
+def eval(results_paths, true_path, repeat, output_path, rows, param_file=None, param_names_file=None):
     accs = []
     max_values = []
     max_value_num_nodes = []
@@ -33,28 +33,34 @@ def eval(results_paths, true_path, r, output_path, param_file=None, param_names_
         data = utils.get_data_targets(true_path, file)
 
         accs.append([])
-        num_nodes.append([])
-        noisy_samples.append([])
-        unlabeled_samples.append([])
+
+        if rows > 4:
+            num_nodes.append([])
+            noisy_samples.append([])
+            unlabeled_samples.append([])
+
         incorrect_samples.append([])
         correct_samples.append([])
 
-        for i in range(r):
+        for i in range(repeat):
             results = open(join(results_paths, "{0}_{1}.results".format(file.split(".")[0], i)), 'rb')
             results = results.readlines()
             print join(results_paths, "{0}_{1}.results".format(file.split(".")[0], i))
             nodes = (int)(results[0].split("\t")[0])
-            num_nodes[len(num_nodes) - 1].append(nodes)
+
+            if rows > 4:
+                num_nodes[len(num_nodes) - 1].append(nodes)
 
             if nodes + 1 < len(results):
                 results = pd.read_csv(join(results_paths, "{0}_{1}.results".format(file.split(".")[0], i)),
                                       sep="\t", skiprows=nodes + 1, header=None)
 
-                noisy_samples[len(noisy_samples) - 1].append(len(data) - len(results[len(results.columns) - 1]))
+                if rows > 4:
+                    noisy_samples[len(noisy_samples) - 1].append(len(data) - len(results[len(results.columns) - 1]))
 
-                # PAY ATTENTION
-                unlabeled_samples[len(unlabeled_samples) - 1].append(
-                    len(results.ix[results[len(results.columns) - 1] == 999]))
+                    # PAY ATTENTION
+                    unlabeled_samples[len(unlabeled_samples) - 1].append(
+                        len(results.ix[results[len(results.columns) - 1] == 999]))
 
                 # results = results.ix[results[len(results.columns) - 1] != 999]
 
@@ -73,8 +79,11 @@ def eval(results_paths, true_path, r, output_path, param_file=None, param_names_
 
                 incorrect_samples[len(incorrect_samples) - 1].append(incorrects)
             else:
-                noisy_samples[len(noisy_samples) - 1].append(len(data))
-                unlabeled_samples[len(unlabeled_samples) - 1].append(0)
+
+                if rows > 4:
+                    noisy_samples[len(noisy_samples) - 1].append(len(data))
+                    unlabeled_samples[len(unlabeled_samples) - 1].append(0)
+
                 accs[len(accs) - 1].append(0)
                 incorrect_samples[len(incorrect_samples) - 1].append(0)
                 correct_samples[len(correct_samples) - 1].append(0)
@@ -83,9 +92,11 @@ def eval(results_paths, true_path, r, output_path, param_file=None, param_names_
         max_values.append(np.nanmax(accs[len(accs) - 1]))
         index_set.append(np.nanargmax(accs[len(accs) - 1]))
 
-        max_value_num_nodes.append(num_nodes[len(num_nodes) - 1][max_value_index])
-        max_value_num_noisy.append(noisy_samples[len(noisy_samples) - 1][max_value_index])
-        max_value_num_unlabeled_samples.append(unlabeled_samples[len(unlabeled_samples) - 1][max_value_index])
+        if rows > 4:
+            max_value_num_nodes.append(num_nodes[len(num_nodes) - 1][max_value_index])
+            max_value_num_noisy.append(noisy_samples[len(noisy_samples) - 1][max_value_index])
+            max_value_num_unlabeled_samples.append(unlabeled_samples[len(unlabeled_samples) - 1][max_value_index])
+
         max_value_num_correct_samples.append(correct_samples[len(correct_samples) - 1][max_value_index])
         max_value_num_incorrect_samples.append(incorrect_samples[len(incorrect_samples) - 1][max_value_index])
 
@@ -93,19 +104,22 @@ def eval(results_paths, true_path, r, output_path, param_file=None, param_names_
         std_value.append(np.nanstd(accs[len(accs) - 1], ddof=1))
         datasets_names.append(file.split(".")[0])
 
-    outputFile = open(output_path + '.csv', 'w+')
+    output_file = open(output_path + '.csv', 'w+')
 
     line = "max_value," + ",".join(map(str, max_values)) + "\n"
-    line += "index_set," + ",".join(map(str, index_set)) + "\n"
-    line += "num_nodes," + ",".join(map(str, max_value_num_nodes)) + "\n"
-    line += "num_noisy_samples," + ",".join(map(str, max_value_num_noisy)) + "\n"
-    line += "num_unlabeled_samples," + ",".join(map(str, max_value_num_unlabeled_samples)) + "\n"
-    line += "num_correct_samples," + ",".join(map(str, max_value_num_correct_samples)) + "\n"
-    line += "num_incorrect_samples," + ",".join(map(str, max_value_num_incorrect_samples)) + "\n"
+
+    if rows > 4:
+        line += "index_set," + ",".join(map(str, index_set)) + "\n"
+        line += "num_nodes," + ",".join(map(str, max_value_num_nodes)) + "\n"
+        line += "num_noisy_samples," + ",".join(map(str, max_value_num_noisy)) + "\n"
+        line += "num_unlabeled_samples," + ",".join(map(str, max_value_num_unlabeled_samples)) + "\n"
+        line += "num_correct_samples," + ",".join(map(str, max_value_num_correct_samples)) + "\n"
+        line += "num_incorrect_samples," + ",".join(map(str, max_value_num_incorrect_samples)) + "\n"
+
     line += "mean_value," + ",".join(map(str, mean_value)) + "\n"
     line += "std_value," + ",".join(map(str, std_value)) + "\n\n"
 
-    if param_file != None and param_names_file != None:
+    if param_file is not None and param_names_file is not None:
         params = open(param_file, 'r')
         params = params.readlines()
         params = map(float, params)
@@ -133,13 +147,14 @@ def eval(results_paths, true_path, r, output_path, param_file=None, param_names_
                 line += "," + str(accs[j][i])
             line += "\n"
 
-    outputFile.write(line)
+    output_file.write(line)
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', help='True Directory', required=True)
 parser.add_argument('-i', help='Results Directory', required=True)
 parser.add_argument('-r', help='Repeat', required=True, type=int)
+parser.add_argument('-R', help='Number of Header Rows', required=False, type=int, default=9)
 parser.add_argument('-n', help='Parameter Names', required=False)
 parser.add_argument('-p', help='Parameters', required=False)
 parser.add_argument('-o', help='Output', required=True)
@@ -151,6 +166,7 @@ repeat = args.r
 output = args.o
 params = args.p
 paramNames = args.n
+rows = args.R
 
 utils.create_folders(output)
-eval(results_paths=results, true_path=true, r=repeat, output_path=output, param_file=params, param_names_file=paramNames)
+eval(results_paths=results, true_path=true, repeat=repeat, output_path=output, rows=rows, param_file=params, param_names_file=paramNames)
