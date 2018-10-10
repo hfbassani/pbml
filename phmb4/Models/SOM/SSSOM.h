@@ -349,9 +349,7 @@ public:
             TNode *winner1 = 0;
             winner1 = getFirstWinner(w); // encontra o nó vencedor
   
-            if (winner1->cls == cls || winner1->cls == noCls) { // winner1 representativo e da mesma classe da amostra 
-                    
-                //bool belongsToWinner = winner1->represents(w);
+            if (winner1->cls == cls || winner1->cls == noCls) { // winner1 representativo e da mesma classe da amostra
                 if (!winner1->region && (meshNodeSet.size() < maxNodeNumber)) {
                     // cria um novo nodo na posição da amostra
                     updateRelevances(*winner1, w, e_var);
@@ -396,7 +394,7 @@ public:
     void handleDifferentClass(TNode *winner1, const TVector& w, int cls) {
         TNode *newWinner = winner1;
         while((newWinner = getNextWinner(newWinner, w)) != NULL) { // saiu do raio da ativação -> não há um novo vencedor
-            if (newWinner->cls == noCls || newWinner->cls == cls) { // novo vencedor valido encontrado
+            if (newWinner->cls == cls) { // novo vencedor valido encontrado
                 break;
             }
         }
@@ -404,7 +402,7 @@ public:
         if (newWinner != NULL) { // novo winner de acordo com o raio de a_t
             
             // empurrar o primeiro winner que tem classe diferente da amostra
-            updateNode(*winner1, w, -e_n);
+//            updateNode(*winner1, w, -e_n);
             
             newWinner->wins++;
             
@@ -423,22 +421,22 @@ public:
             
             // cria um novo nodo na posição da amostra
 //            updateNode(*winner1, w, -e_n);
-            updateRelevances(*winner1, w, e_var);
-            createNodeMap(w, cls);
+//            updateRelevances(*winner1, w, e_var);
+//            createNodeMap(w, cls);
             
             sup_handle_create++;
-//            TVector wNew(winner1->w);
-//            TNode *nodeNew = createNodeMap(wNew, cls);
-//            
-//            TVector aNew(winner1->a);
-//            nodeNew->a = aNew;
-//            
-//            TVector dsNew(winner1->ds);
-//            nodeNew->ds = dsNew;   
-//            
-//            updateNode(*nodeNew, w, e_b);
-//
-//            updateNode(*winner1, w, -e_n);
+            TVector wNew(winner1->w);
+            TNode *nodeNew = createNodeMap(wNew, cls);
+            
+            TVector aNew(winner1->a);
+            nodeNew->a = aNew;
+            
+            TVector dsNew(winner1->ds);
+            nodeNew->ds = dsNew;   
+            
+            updateNode(*nodeNew, w, e_b);
+
+            updateNode(*winner1, w, -e_n);
             
         } else if (newWinner == NULL) {
             updateRelevances(*winner1, w, e_var);
@@ -487,7 +485,7 @@ public:
             }
         }
         
-        if (!winner->region || winner->act == 0)
+        if (winner->act == 0)
             return NULL;
 
         return winner;
