@@ -1067,6 +1067,7 @@ public:
         result.push_back(getNodeIndex(*winner));
         result.push_back(winner->cls);
         result.push_back(winner->getId());
+        result.push_back((int)winner->region);
         
         return result;
     }
@@ -1154,8 +1155,6 @@ public:
         for (int i = 0; i < trainingData->rows(); i++) {
             MatVector<float> sample;
             trainingData->getRow(i, sample);
-            if (filterNoise && isNoise(sample))
-                continue;
 
             std::vector<int> winners;
             std::vector<int> result;
@@ -1164,6 +1163,9 @@ public:
             } else {
                 result = getWinnerResult(sample);
                 winners.push_back(result[0]);
+                                
+//                if (filterNoise && !result[3])
+//                    continue;
             }
 
             for (int j = 0; j < winners.size(); j++) {

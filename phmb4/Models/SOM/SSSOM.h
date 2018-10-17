@@ -38,7 +38,6 @@ public:
     TNumber epsilon_ds; //Taxa de aprendizagem
     float age_wins;       //period to remove nodes
     float lp;           //remove percentage threshold
-    float a_t;
 
     int nodeID;
     
@@ -301,7 +300,7 @@ public:
         } else {
             TNode *winner1 = 0;
 
-            winner1 = getWinner(w); //winner
+            winner1 = getFirstWinner(w); //winner
             
             //Se a ativação obtida pelo primeiro vencedor for menor que o limiar
             //e o limite de nodos não tiver sido atingido    
@@ -509,32 +508,9 @@ public:
         return winner;
     }
     
-    inline TNode* getWinner(const TVector &w) {
-        TNode *winner = 0;
-        
-        winner = (*Mesh<TNode>::meshNodeSet.begin());
-        winner->act = activation(winner, w);
-
-        TNumber act = winner->act;
-        
-        TPNodeSet::iterator it;
-        it = Mesh<TNode>::meshNodeSet.begin();
-        it++;
-        for (; it != Mesh<TNode>::meshNodeSet.end(); it++) {
-            (*it)->act = activation((*it), w);
-            if ((*it)->act > act) {
-                act = (*it)->act;
-                winner = (*it);
-            }
-        }
-
-        return winner;
-    }
-    
     bool isNoise(const TVector &w) {
-        TNode *winner = getWinner(w);
-        double a = activation(winner, w);
-        return (a<a_t);
+        TNode *winner = getFirstWinner(w);
+        return winner->region;
     }
 
     void reset(int dimw) {
