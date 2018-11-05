@@ -51,7 +51,7 @@ public:
     int sup_handle_create;
     int sup_handle_else;
     
-    inline float activation( TNode *node, const TVector &w) {
+    inline float activation(TNode *node, const TVector &w) {
         float distance = 0;
         node->region = true;
 
@@ -393,7 +393,7 @@ public:
     void handleDifferentClass(TNode *winner1, const TVector& w, int cls) {
         TNode *newWinner = winner1;
         while((newWinner = getNextWinner(newWinner, w)) != NULL) { // saiu do raio da ativação -> não há um novo vencedor
-            if (newWinner->cls == cls) { // novo vencedor valido encontrado
+            if (newWinner->cls == cls || newWinner->cls == noCls) { // novo vencedor valido encontrado
                 break;
             }
         }
@@ -405,13 +405,17 @@ public:
             
             newWinner->wins++;
             
-            // puxar o novo vencedor
-            updateNode(*newWinner, w, e_b);
-            
-            TPNodeConnectionMap::iterator it;
-            for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
-                TNode* node = it->first;
-                updateNode(*node, w, e_n);
+            if (newWinner->region) {
+                // puxar o novo vencedor
+                updateNode(*newWinner, w, e_b);
+
+                TPNodeConnectionMap::iterator it;
+                for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
+                    TNode* node = it->first;
+                    updateNode(*node, w, e_n);
+                }
+            } else {
+                updateRelevances(*newWinner, w, e_var);
             }
             
             sup_handle_new_win++;
@@ -534,6 +538,7 @@ public:
     }
 
     SSSOM(int dimw) {
+//        reset(dimw);
     };
 
     ~SSSOM() {
