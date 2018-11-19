@@ -1067,7 +1067,6 @@ public:
         result.push_back(getNodeIndex(*winner));
         result.push_back(winner->cls);
         result.push_back(winner->getId());
-        result.push_back((int)winner->region);
         
         return result;
     }
@@ -1191,13 +1190,16 @@ public:
         for (int k = 0; k < groups.size(); k++) {
             MatVector<float> sample;
             trainingData->getRow(k, sample);
-            if (filterNoise && isNoise(sample)) {
-                noise++;
-                continue;
-            }
 
-            std::vector<int> result = getWinnerResult(sample);          
+            std::vector<int> result = getWinnerResult(sample); 
+            
+//            if (filterNoise && !result[3]) {
+//                noise++;
+//                continue;
+//            }
+            
             int cls = result[1];
+            
             if (groups[k] == cls) {
                 hits++;
             }

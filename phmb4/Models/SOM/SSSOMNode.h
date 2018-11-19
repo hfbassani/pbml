@@ -33,10 +33,12 @@ public:
     TPNodeConnectionMap nodeMap;
 
     TVector a;
+    TVector a_corrected;
     TVector ds;
     int cls;
     
     int wins;
+    float count;
     TNumber act;
     bool region;
     
@@ -46,17 +48,12 @@ public:
 
         a.size(v.size());
         a.fill(0);
-    };   
-    
-    bool represents(const TVector &v) {
-        for (int i = 0 ; i < v.size() ; ++i) {
-            float var = (a[i] / ds[i]);
-            if (v[i] <= w[i] - var || v[i] >= w[i] + var)
-                return false;
-        }
         
-        return true;
-    }
+        a_corrected.size(v.size());
+        a_corrected.fill(0);
+        
+        count = 0;
+    };   
     
     void write(std::ofstream &file) {
         for (int i=0; i<w.size(); i++) {

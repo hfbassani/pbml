@@ -59,7 +59,7 @@ public:
             float diff = qrt((w[i] - node->w[i]));
             distance += node->ds[i] * diff;
             
-            float var = node->a[i] / node->ds[i];
+            float var = node->a_corrected[i] / node->ds[i];
             if (w[i] <= node->w[i] - var || w[i] >= node->w[i] + var)
                 node->region = false;
             //node->region += (diff / (qrt(var) + 0.0000001));
@@ -95,22 +95,25 @@ public:
     }
     
     void updateRelevances(TNode &node, const TVector &w, TNumber e){
+        node.count += 1;
+        
         //update averages
         for (uint i = 0; i < node.a.size(); i++) {
             //update neuron weights
             float distance = fabs(w[i] - node.w[i]);
-            node.a[i] = e*dsbeta* distance + (1 - e*dsbeta) * node.a[i]; 
+            node.a[i] = dsbeta * node.a[i] + (1 - dsbeta) * distance;
+            node.a_corrected[i] = node.a[i] / (1 - pow(dsbeta, node.count));
         }
 
-        float max = node.a.max();
-        float min = node.a.min();
-        float average = node.a.mean();
+        float max = node.a_corrected.max();
+        float min = node.a_corrected.min();
+        float average = node.a_corrected.mean();
         
         //update neuron ds weights
-        for (uint i = 0; i < node.a.size(); i++) {
+        for (uint i = 0; i < node.a_corrected.size(); i++) {
             if ((max - min) != 0) {
                 //node.ds[i] = 1 - (node.a[i] - min) / (max - min);
-                node.ds[i] = 1/(1+exp((node.a[i]-average)/((max - min)*epsilon_ds)));
+                node.ds[i] = 1/(1+exp((node.a_corrected[i]-average)/((max - min)*epsilon_ds)));
             }
             else
                 node.ds[i] = 1;
