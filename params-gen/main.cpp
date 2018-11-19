@@ -24,6 +24,7 @@ void createSVMParameters(MyParameters * params, string fileName, int qtdParamete
 void createGLVQParameters(MyParameters * params, string fileName, int qtdParameters);
 void createLabelSpreadingParameters(MyParameters * params, string fileName, int qtdParameters);
 void createLabelPropagationParameters(MyParameters * params, string fileName, int qtdParameters);
+void createWIPParameters(MyParameters * params, string fileName, int qtdParameters);
 
 std::vector<float> loadParametersFile(int number);
 
@@ -33,9 +34,10 @@ int main(int argc, char** argv) {
     int qtd_files = 1;
     int qtd_parameter = 0;
     
-    bool originalVersion = false;
+    bool larfdssom = false;
     bool simulatedData = false;
-    bool hybridVersion = false;
+    bool sssom = false;
+    bool wip = false;
 
     bool SVM = false;
     bool MLP = false;
@@ -44,7 +46,7 @@ int main(int argc, char** argv) {
     bool SPR = false;
     
     int c;
-    while ((c = getopt(argc, argv, "f:n:r:sohMSGPL")) != -1) {
+    while ((c = getopt(argc, argv, "f:n:r:sLSWMVGPR")) != -1) {
         switch (c) {
             case 'f':
                 filename.assign(optarg);
@@ -58,15 +60,18 @@ int main(int argc, char** argv) {
             case 's':
                 simulatedData = true;
                 break;
-            case 'o':
-                originalVersion = true;
+            case 'L':
+                larfdssom = true;
                 break;
-            case 'h':
-                hybridVersion = true;
+            case 'S':
+                sssom = true;
+                break;
+            case 'W':
+                wip = true;
                 break;
             case 'M':
                 MLP = true;
-            case 'S':
+            case 'V':
                 SVM = true;
             case 'G':
                 GRLVQ = true;
@@ -74,7 +79,7 @@ int main(int argc, char** argv) {
             case 'P':
                 PROP = true;
                 break;
-            case 'L':
+            case 'R':
                 SPR = true;
                 break;
         }
@@ -83,7 +88,6 @@ int main(int argc, char** argv) {
     cout << "filename: "  << filename << "\n";
     cout << "number of files: " << qtd_files << "\n";
     cout << "number of sets: " << qtd_parameter << "\n";
-        
 
     if (filename == "" || qtd_parameter == 0) {
         cout << "option -f [filename] [-n number of files]-r [number of sets] is required" << endl;
@@ -95,9 +99,9 @@ int main(int argc, char** argv) {
     MyParameters params(!simulatedData); //Teste de Parâmetros
     
     for (int i = 0 ; i < qtd_files ; ++i) {
-        if (originalVersion) {
+        if (larfdssom) {
             createLARFDSSOMParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);   
-        } else if(hybridVersion){
+        } else if(sssom){
             createSSSOMParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
         } else if(MLP){
             createMLPParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
@@ -109,6 +113,8 @@ int main(int argc, char** argv) {
             createLabelPropagationParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
         } else if(SPR){
             createLabelSpreadingParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
+        } else if(wip) {
+            createWIPParameters(&params, filename + "_" + std::to_string(i), qtd_parameter);
         } else {
             createParametersFileExperiments(&params, filename + "_" + std::to_string(i), qtd_parameter);
         }
@@ -173,6 +179,28 @@ void createSSSOMParameters(MyParameters * params, string fileName, int qtdParame
         file << params->minwd << "\n";
         file << round(params->epochs) << "\n";
         file << params->pushRate << "\n";
+        file << round(params->seed) << "\n";
+    }
+    
+    file.close();
+}
+
+void createWIPParameters(MyParameters * params, string fileName, int qtdParameters) {
+    std::ofstream file;
+    file.open(fileName.c_str());
+    
+    cout << "createParametersFileWIP" << endl;
+    
+    for (params->initLHS(qtdParameters) ; !params->finished(); params->setNextValues()) {
+        file << params->lp << "\n";
+        file << params->dsbeta << "\n";
+        file << round(params->age_wins) << "\n";
+        file << params->e_b << "\n";
+        file << params->e_n << "\n";
+        file << params->epsilon_ds << "\n";
+        file << params->minwd << "\n";
+        file << round(params->epochs) << "\n";
+        file << params->e_var << "\n";
         file << round(params->seed) << "\n";
     }
     
