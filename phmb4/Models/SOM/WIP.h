@@ -17,7 +17,6 @@
 #include "MatMatrix.h"
 #include "SOM.h"
 #include "SSSOMNode.h"
-#include "WIP.h"
 #include <chrono>
 #include <random>
 
@@ -26,7 +25,7 @@
 using namespace std;
 
 
-class SSSOM : public SOM<SSSOMNode> {
+class WIP : public SOM<WIPNode> {
 public:
     uint maxNodeNumber;
     int epochs;
@@ -130,7 +129,7 @@ public:
         node.w = node.w + e * (w - node.w);      
     }
 
-    SSSOM& updateConnections(TNode *node) {
+    WIP& updateConnections(TNode *node) {
         
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
             
@@ -159,7 +158,7 @@ public:
         
     }
     
-    SSSOM& updateAllConnections() {
+    WIP& updateAllConnections() {
 
         //Conecta todos os nodos semelhantes
         TPNodeSet::iterator itMesh1 = meshNodeSet.begin();
@@ -185,7 +184,7 @@ public:
         return *this;
     }
 
-    SSSOM& removeLoosers() {
+    WIP& removeLoosers() {
 
 //        enumerateNodes();
 
@@ -207,7 +206,7 @@ public:
         return *this;
     }
     
-    SSSOM& trainningStep(int row,  std::vector<int> groups, std::map<int, int> &groupLabels) {
+    WIP& trainningStep(int row,  std::vector<int> groups, std::map<int, int> &groupLabels) {
         TVector v(data.cols());
         for (uint l = 0; l < data.cols(); l++)
                 v[l] = data[row][l];
@@ -234,7 +233,7 @@ public:
         }
     }
     
-    SSSOM& finishMapFixed(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
+    WIP& finishMapFixed(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
 
         dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
@@ -256,7 +255,7 @@ public:
         return *this;
     }
 
-    SSSOM& resetWins() {
+    WIP& resetWins() {
 
         //Remove os perdedores
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
@@ -294,7 +293,7 @@ public:
         }
     }
     
-    SSSOM& updateMap(const TVector &w) {
+    WIP& updateMap(const TVector &w) {
 
         using namespace std;
         
@@ -342,7 +341,7 @@ public:
         return *this;
     }
     
-    SSSOM& updateMapSup(const TVector& w, int cls) {
+    WIP& updateMapSup(const TVector& w, int cls) {
         using namespace std;
         
         if (meshNodeSet.empty()) { // mapa vazio, primeira amostra
@@ -503,8 +502,8 @@ public:
         
         if (winner->cls == noCls) {
             TNode *newWinner = winner;
-            while((newWinner = getNextWinner(newWinner, w)) != NULL) {
-                if (newWinner->cls != noCls) {
+            while((newWinner = getNextWinner(newWinner, w)) != NULL) { // saiu do raio da ativação -> não há um novo vencedor
+                if (newWinner->cls != noCls) { // novo vencedor valido encontrado
                     break;
                 }
             }
@@ -522,7 +521,7 @@ public:
         return result;
     }
     
-    int getNodeIndex(SSSOMNode &node) {
+    int getNodeIndex(WIPNode &node) {
         SOM<WIPNode>::TPNodeSet::iterator it = meshNodeSet.begin();
         int i = 0;
         for (; it != meshNodeSet.end(); it++, i++) {
@@ -539,7 +538,7 @@ public:
     }
 
     void reset(int dimw) {
-        SSSOM::dimw = dimw;
+        WIP::dimw = dimw;
         step = 0;
 
         counter_i = 0;
@@ -548,21 +547,17 @@ public:
         nodeID = 0;
 
         destroyMesh();
-//        TVector v(dimw);
-//        v.random();
-//        TVector wNew(v);
-//        createNodeMap(wNew, noCls);
     }
 
     void reset(void) {
         reset(dimw);
     }
 
-    SSSOM(int dimw) {
-//        reset(dimw);
+    WIP(int dimw) {
+        
     };
 
-    ~SSSOM() {
+    ~WIP() {
     }
 };
 

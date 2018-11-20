@@ -11,25 +11,25 @@
  * Created on February 10, 2018, 1:53 PM
  */
 
-#ifndef SSSOMNODE_H
-#define	SSSOMNODE_H
+#ifndef WIPNODE_H
+#define	WIPNODE_H
 
 #include "Mesh.h"
 #include "NodeW.h"
 #include "DebugOut.h"
 #include <map>
+class WIPNode;
 
-class SSSOMNode;
-
-class SSSOMNodeConnection : public Connection<SSSOMNode> {
+class WIPNodeConnection : public Connection<WIPNode> {
 public:
-    SSSOMNodeConnection(TNode *node0, TNode *node1) : Connection<SSSOMNode>(node0, node1) {}
+    WIPNodeConnection(TNode *node0, TNode *node1) : Connection<WIPNode>(node0, node1) {}
 };
 
-class SSSOMNode : public NodeW {
+class WIPNode : public NodeW {
 public:
-    typedef SSSOMNodeConnection TConnection;
-    typedef std::map<SSSOMNode*, TConnection*> TPNodeConnectionMap; //Para mapeamento local dos n�s e conex�es ligadas a this
+    typedef WIPNodeConnection TConnection;
+    typedef std::map<WIPNode*, TConnection*> TPNodeConnectionMap; //Para mapeamento local dos n�s e conex�es ligadas a this
+    
     TPNodeConnectionMap nodeMap;
 
     TVector a;
@@ -39,12 +39,21 @@ public:
     int wins;
     TNumber act;
     
-    SSSOMNode(int idIn, const TVector &v) : NodeW(idIn, v) {
+    TVector a_corrected;
+    float count;
+    bool region;
+    
+    WIPNode(int idIn, const TVector &v) : NodeW(idIn, v) {   
         ds.size(v.size());
         ds.fill(1);
 
         a.size(v.size());
         a.fill(0);
+        
+        a_corrected.size(v.size());
+        a_corrected.fill(0);
+        
+        count = 0;
     };   
     
     void write(std::ofstream &file) {
@@ -123,7 +132,7 @@ public:
     }
 };
 
-#endif	/* SSSOMNODE_H */
+#endif	/* WIPNODE_H */
 
 
 
