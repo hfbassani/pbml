@@ -189,6 +189,10 @@ public:
         return false;
     }
     
+    virtual bool isNoise(float activation) {
+        return false;
+    }
+    
     virtual TNode *getFirstWinner(const TVector &w){
         return getWinner(w);
     }
