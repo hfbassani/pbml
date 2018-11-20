@@ -85,11 +85,15 @@ def create_folders(path):
 
 
 def check_directory(file_path):
+    checked_file_path = file_path
+
     if os.path.isdir(file_path):
         if not file_path.endswith("/"):
-            return file_path + "/"
+            checked_file_path += file_path + "/"
     else:
         sys.exit("Invalid directory")
+
+    return checked_file_path
 
 
 def get_type(type):

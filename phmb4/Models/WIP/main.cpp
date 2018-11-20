@@ -185,7 +185,7 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
 void runTrainTestExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, 
         bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved) { 
     
-    int numberOfParameters = 11;
+    int numberOfParameters = 10;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         WIP som(1);
@@ -214,7 +214,7 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         som.minwd = params[i + 6]; 
         som.epochs = params[i + 7];
         som.e_var = params[i + 8] * som.e_b;
-        srand(params[i + 10]);
+        srand(params[i + 9]);
         
         string index = std::to_string((i/numberOfParameters));
                   
@@ -234,7 +234,6 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         clusteringSOM.cleanUpTrainingData();
         clusteringSOM.readFile(testPath, normalize);
         clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
-        
     }
 }
 
