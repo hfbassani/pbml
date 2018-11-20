@@ -119,8 +119,6 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
         som.finishMapFixed(sorted, clusteringSOM.groups, clusteringSOM.groupLabels);
 
         clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
-
-//        clusteringSOM.outConfusionMatrix(clusteringSOM.groups, clusteringSOM.groupLabels);
     }
 }
 

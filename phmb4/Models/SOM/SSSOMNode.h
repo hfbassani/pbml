@@ -36,15 +36,16 @@ public:
     TVector ds;
     int cls;
     
-    std::map<int, int> classesMapping;
-
+    int wins;
+    TNumber act;
+    
     SSSOMNode(int idIn, const TVector &v) : NodeW(idIn, v) {
         ds.size(v.size());
         ds.fill(1);
 
         a.size(v.size());
         a.fill(0);
-    };    
+    };   
     
     void write(std::ofstream &file) {
         for (int i=0; i<w.size(); i++) {
