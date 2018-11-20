@@ -56,6 +56,9 @@ def read_header(files, folder, header_rows):
                 elif 'nnodes' in datasets.values:
                     datasets = datasets[1: datasets[datasets == "nnodes"].index[0]]
                     save_params_file(results, "nnodes", folder)
+                elif 'lp' in datasets.values:
+                    datasets = datasets[1: datasets[datasets == "lp"].index[0]]
+                    save_params_file(results, "lp", folder)
                 else:
                     datasets = datasets[1:]
 
@@ -78,6 +81,7 @@ def get_data_targets(path, file, target_idx=None):
         targets = data.iloc[:, -1].values.astype('int16') if target_idx is None else data.ix[:, target_idx].values.astype('int16')
 
     return targets
+
 
 def create_folders(path):
     if not os.path.exists(os.path.dirname(path)):
