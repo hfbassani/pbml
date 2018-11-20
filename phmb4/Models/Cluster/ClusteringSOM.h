@@ -20,6 +20,7 @@
 #include "SOM.h"
 #include "DSNode.h"
 #include "SSSOMNode.h"
+#include "WIPNode.h"
 #include "ClusteringMetrics.h"
 
 
@@ -1075,17 +1076,6 @@ public:
         SSSOMNode *winner = som->getWinner(sample);
         return getNodeIndex(*winner);
     }
-    
-    std::vector<int> getWinnerResult(const MatVector<float> &sample) {
-        SSSOMNode *winner = som->getWinnerResult(sample);
-        std::vector<int> result;
-        result.push_back(getNodeIndex(*winner));
-        result.push_back(winner->cls);
-        result.push_back(winner->getId());
-        result.push_back(winner->act);
-        
-        return result;
-    }
 
     void getWinners(const MatVector<float> &sample, std::vector<int> &winners) {
         SSSOMNode *winner = som->getFirstWinner(sample);
@@ -1169,11 +1159,12 @@ public:
 
             std::vector<int> winners;
             std::vector<int> result;
-            result = getWinnerResult(sample);
-            winners.push_back(result[0]);
             
+            result = som->getWinnerResult(sample);
+            winners.push_back(result[0]);
             float act = result[3];
-            if (filterNoise && som->isNoise(act)) {
+            
+            if(filterNoise && som->isNoise(act)) {
                 continue;
             }
 
@@ -1193,6 +1184,31 @@ public:
         return true;
     }
 
+    void outAccuracy(std::vector<int> &groups, std::map<int, int> &groupLabels) {
+        int hits = 0;
+        int noise = 0;
+
+        for (int k = 0; k < groups.size(); k++) {
+            MatVector<float> sample;
+            trainingData->getRow(k, sample);
+
+            std::vector<int> result = som->getWinnerResult(sample); 
+            float act = result[3];
+            
+            if(filterNoise && som->isNoise(act)) {
+                continue;
+            }
+            
+            int cls = result[1];
+            
+            if (groups[k] == cls) {
+                hits++;
+            }
+        }
+        
+        dbgOut(0) << "Classification acuracy:\t" << hits / (float) trainingData->rows() << endl;
+    }
+    
     std::string outConfusionMatrix(std::vector<int> &groups, std::map<int, int> &groupLabels) {
 
         std::stringstream out;
@@ -1208,13 +1224,16 @@ public:
             trainingData->getRow(k, sample);
 
             std::vector<int> winners;
-            std::vector<int> idss;
             std::vector<int> result;
             
-            result = getWinnerResult(sample);
+            result = som->getWinnerResult(sample);
             winners.push_back(result[0]);
-            idss.push_back(result[2]);
-
+            float act = result[3];
+            
+            if(filterNoise && som->isNoise(act)) {
+                continue;
+            }
+            
             for (int w = 0; w < winners.size(); w++) {
                 confusionMatrix[winners[w]][groups[k]]++;
             }
@@ -1273,7 +1292,329 @@ public:
             MatVector<float> sample;
             trainingData->getRow(k, sample);
 
-            std::vector<int> result = getWinnerResult(sample);
+            std::vector<int> result = som->getWinnerResult(sample);
+            int winner = result[0];
+//            MatVector<float> weights;
+//            getWeights(winner, weights);
+            
+//            dbgOut(1) << groups[k] << endl;
+            
+            int cls = result[1];
+            if (fabs(groups[k] - cls) < 0.5) {
+                hits++;
+                nodeHits[winner]++;
+            }
+
+            nodeClusterSize[winner]++;
+        }
+        
+        for (int i = 0; i < meshSize; i++) {
+
+            MatVector<float> weights;
+            getWeights(i, weights);
+
+            dbgOut(0) << getNodeId(i) << ": ";
+//            out << "\t" << weights[weights.size() - 1];
+            dbgOut(0) << "\t" << nodeHits[i] << "/" << nodeClusterSize[i];
+            
+            float sizeDiv = 0;
+            
+            if (nodeClusterSize[i] > 0) {
+                sizeDiv = nodeHits[i] / (float) nodeClusterSize[i];
+            }
+            dbgOut(0) << "\t" << sizeDiv;
+            dbgOut(0) << endl;
+        }
+
+        dbgOut(0) << "Classification acuracy:\t" << hits / (float) trainingData->rows() << endl;
+        dbgOut(0) << "Total noise:\t" << noise / (float) trainingData->rows() << endl;
+
+        return out.str();
+    }
+};
+
+class ClusteringMeshWIP : public ClusteringSOM<SOM<WIPNode>> {
+public:
+
+    ClusteringMeshWIP(SOM<WIPNode> *som) : ClusteringSOM<SOM<WIPNode> >(som) {
+    };
+
+    int getMeshSize() {
+        return som->meshNodeSet.size();
+    }
+
+    std::vector<int> getNodeClasses() {
+        std::vector<int> nodeClasses;
+        SOM<WIPNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            nodeClasses.push_back((*it)->cls);
+        }
+        
+        return nodeClasses;
+    }
+    
+    std::vector<int> getNodeIds() {
+        std::vector<int> nodeIds;
+        SOM<WIPNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            nodeIds.push_back((*it)->getId());
+        }
+        
+        return nodeIds;
+    }
+    
+    void train(MatMatrix<float> &trainingData, int epochs) {
+        som->data = trainingData;
+
+        if (!sorted) {
+            som->trainning(epochs, groups, groupLabels);
+        } else {
+            som->orderedTrainning(epochs, groups, groupLabels);
+        }
+    }
+
+    void getRelevances(int node_i, MatVector<float> &relevances) {
+        SOM<WIPNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            if (i == node_i) {
+                relevances = (*it)->ds;
+                return;
+            }
+        }
+        return;
+    }
+
+    void getWeights(int node_i, MatVector<float> &weights) {
+        SOM<WIPNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            if (i == node_i) {
+                weights = (*it)->w;
+                return;
+            }
+        }
+        return;
+    }
+
+    int getWinner(const MatVector<float> &sample) {
+        WIPNode *winner = som->getFirstWinner(sample);
+        return getNodeIndex(*winner);
+    }
+
+    void getWinners(const MatVector<float> &sample, std::vector<int> &winners) {
+        WIPNode *winner = som->getFirstWinner(sample);
+        winners.push_back(getNodeIndex(*winner));
+
+        winner = som->getNextWinner(winner);
+        while (winner != NULL) {
+            winners.push_back(getNodeIndex(*winner));
+            winner = som->getNextWinner(winner);
+        }
+    }
+
+    virtual bool isNoise(const MatVector<float> &sample) {
+        return som->isNoise(sample);
+    }
+
+    int getNodeIndex(WIPNode &node) {
+        SOM<WIPNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            if ((*it) == &node) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    int getNodeId(int node_i) {
+        SOM<WIPNode>::TPNodeSet::iterator it = som->meshNodeSet.begin();
+        int i = 0;
+        for (; it != som->meshNodeSet.end(); it++, i++) {
+            if (i == node_i) {
+                return (*it)->getId();
+            }
+        }
+        return -1;
+    }
+    
+    bool readFile(const std::string &filename, bool normalize) {
+
+        if (trainingData == NULL && !allocated) {
+            trainingData = new MatMatrix<float>();
+            allocated = true;
+        }
+
+        if (ArffData::readArffClass(filename, *trainingData, groupLabels, groups)) {
+            if (normalize) {
+                ArffData::rescaleCols01(*trainingData);
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    bool writeClusterResults(const std::string &filename) {
+        std::ofstream file;
+        file.open(filename.c_str());
+
+        if (!file.is_open()) {
+            dbgOut(0) << "Error openning output file" << endl;
+            return false;
+        }
+
+        int meshSize = getMeshSize();
+        int inputSize = getInputSize();
+
+        file << meshSize << "\t" << inputSize << endl;
+
+        for (int i = 0; i < meshSize; i++) {
+            MatVector<float> relevances;
+            getRelevances(i, relevances);
+
+            file << i << "\t";
+            for (int j = 0; j < inputSize; j++) {
+                file << relevances[j];
+                if (j != inputSize - 1)
+                    file << "\t";
+            }
+            file << endl;
+        }
+
+        for (int i = 0; i < trainingData->rows(); i++) {
+            MatVector<float> sample;
+            trainingData->getRow(i, sample);
+
+            std::vector<int> winners;
+            std::vector<int> result;
+            result = som->getWinnerResult(sample);
+            winners.push_back(result[0]);        
+
+            for (int j = 0; j < winners.size(); j++) {
+                file << i << "\t";
+                file << winners[j];
+                
+                if (result.size() > 0) {
+                    file<< "\t" << result[1];
+                }
+                
+                file << endl;
+            }
+        }
+
+        file.close();
+        return true;
+    }
+
+    void outAccuracy(std::vector<int> &groups, std::map<int, int> &groupLabels) {
+        int hits = 0;
+        int noise = 0;
+
+        for (int k = 0; k < groups.size(); k++) {
+            MatVector<float> sample;
+            trainingData->getRow(k, sample);
+
+            std::vector<int> result = som->getWinnerResult(sample); 
+            
+            int cls = result[1];
+            
+            if (groups[k] == cls) {
+                hits++;
+            }
+        }
+        
+        dbgOut(0) << "Classification acuracy:\t" << hits / (float) trainingData->rows() << endl;
+    }
+    
+    std::string outConfusionMatrix(std::vector<int> &groups, std::map<int, int> &groupLabels) {
+
+        std::stringstream out;
+        out << std::setprecision(2) << std::fixed;
+
+        int meshSize = getMeshSize();
+        MatMatrix<int> confusionMatrix(getMeshSize(), groupLabels.size());
+        confusionMatrix.fill(0);
+        int noise = 0;
+
+        for (int k = 0; k < trainingData->rows(); k++) {
+            MatVector<float> sample;
+            trainingData->getRow(k, sample);
+            if (isNoise(sample) && filterNoise) {
+                noise++;
+                continue;
+            }
+
+            std::vector<int> winners;
+            std::vector<int> result;
+            result = som->getWinnerResult(sample);
+            winners.push_back(result[0]);
+            
+            for (int w = 0; w < winners.size(); w++) {
+                confusionMatrix[winners[w]][groups[k]]++;
+            }
+        }
+
+        /** print confusion matrix **/
+        MatVector<int> rowSums(confusionMatrix.rows());
+        MatVector<int> colSums(confusionMatrix.cols());
+        
+        std::vector<int> cluClasses = getNodeClasses();
+        std::vector<int> cluIds = getNodeIds();
+        
+        rowSums.fill(0);
+        colSums.fill(0);
+        dbgOut(0) << "cluster\\class\t|";
+        for (int c = 0; c < confusionMatrix.cols(); c++)
+            dbgOut(0) << "\tcla" << groupLabels[c];
+        dbgOut(0) << "\t| Sum" << endl;
+        for (int r = 0; r < confusionMatrix.rows(); r++) {
+            dbgOut(0) << "Node " << cluIds[r] << " (" << cluClasses[r] <<")\t|";
+            for (int c = 0; c < confusionMatrix.cols(); c++) {
+                dbgOut(0) << "\t" << confusionMatrix[r][c];
+                rowSums[r] += confusionMatrix[r][c];
+                colSums[c] += confusionMatrix[r][c];
+            }
+            dbgOut(0) << "\t| " << rowSums[r] << endl;
+        }
+        dbgOut(0) << "Sums\t\t|";
+        for (int c = 0; c < confusionMatrix.cols(); c++)
+            dbgOut(0) << "\t" << colSums[c];
+        dbgOut(0) << "\t| " << colSums.sum() << endl << endl;
+        /***/
+
+        dbgOut(0) << "Random index: " << ClusteringMetrics::RANDI(confusionMatrix) << endl;
+        dbgOut(0) << "Adjusted random index: " << ClusteringMetrics::ARI(confusionMatrix) << endl << endl;
+        out << "Total noise:\t" << noise << "(" << noise / (float) trainingData->rows() << ")" << endl;
+
+        return out.str();
+    }
+
+    std::string outClassInfo(std::vector<int> &groups, std::map<int, int> &groupLabels) {
+
+        std::stringstream out;
+        out << std::setprecision(2) << std::fixed;
+
+        int meshSize = getMeshSize();
+        int hits = 0;
+        int noise = 0;
+
+        MatVector<int> nodeHits(meshSize);
+        MatVector<int> nodeClusterSize(meshSize);
+        nodeHits.fill(0);
+        nodeClusterSize.fill(0);
+
+        for (int k = 0; k < groups.size(); k++) {
+            MatVector<float> sample;
+            trainingData->getRow(k, sample);
+            if (filterNoise && isNoise(sample)) {
+                noise++;
+                continue;
+            }
+
+            std::vector<int> result = som->getWinnerResult(sample);
             int winner = result[0];
             
 //            MatVector<float> weights;
