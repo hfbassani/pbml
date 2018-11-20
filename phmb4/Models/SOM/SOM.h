@@ -16,6 +16,7 @@
 #include "MatVector.h"
 #include "DSNode.h"
 #include "SSSOMNode.h"
+#include "WIPNode.h"
 
 
 template<class T> class SOM :public Mesh<T>{
@@ -36,11 +37,12 @@ public:
     int dimw;//dimensão do vetor de pessos
         
     int noCls;
-        
-    virtual inline SSSOMNode* getWinnerResult(const TVector &w) {
-        return (SSSOMNode *) getWinner(w);
+            
+    virtual inline std::vector<int> getWinnerResult(const TVector &w) { 
+        std::vector<int> vec;
+        return vec; 
     }
-    
+        
     virtual inline TNode* getWinner(const TVector &w) {
         TNode *winner = 0;
         TNumber temp = 0;
