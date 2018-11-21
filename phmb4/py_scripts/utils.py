@@ -71,6 +71,37 @@ def read_header(files, folder, header_rows):
     return datasets, folds, headers
 
 
+def get_params_and_results(file_name):
+    results = pd.read_csv(file_name, skiprows=10, header=None)
+
+    first_param_idx = results.iloc[0]
+
+    if 'a_t' in first_param_idx.values:
+        first_param_idx = first_param_idx[first_param_idx == "a_t"].index[0]
+    elif 'nnodes' in first_param_idx.values:
+        first_param_idx = first_param_idx[first_param_idx == "nnodes"].index[0]
+    elif 'lp' in first_param_idx.values:
+        first_param_idx = first_param_idx[first_param_idx == "lp"].index[0]
+    else:
+        first_param_idx = None
+
+    if first_param_idx is not None:
+        params = results.drop(results.columns[range(first_param_idx)], axis=1)
+        params = params.rename(columns=params.iloc[0])
+        params = params.drop([0])
+        params = params.astype(np.float64)
+
+        results = results.drop(results.columns[range(first_param_idx, len(results.columns))], axis=1)
+        results = results.drop(results.columns[0], axis=1)
+        results = results.rename(columns=results.iloc[0])
+        results = results.drop([0])
+    else:
+        params = None
+        results = None
+
+    return params, results
+
+
 def get_data_targets(path, file, target_idx=None):
 
     if file.endswith(".arff"):

@@ -131,8 +131,8 @@ def subplot_irrelevant_dims_graph(ce, ax):
     ax.set_yticks(np.linspace(0, 1, num=11))
 
 
-def plot_synthetic_data_graphs(fileName, save=False, plot=True):
-    results = get_headers(fileName)
+def plot_synthetic_data_graphs(file_name, save=False, plot=True):
+    results = get_headers(file_name)
 
     plot_dimensions_graph(results["max_value"][:7], save=save, plot=plot)
     plot_noise_graph(results["max_value"][7:11], save=save, plot=plot)
@@ -140,8 +140,8 @@ def plot_synthetic_data_graphs(fileName, save=False, plot=True):
     plot_irrelevant_dims_graph(results["max_value"][16:], save=save, plot=plot)
 
 
-def subplot_synthetic_data_graphs(fileName, save=False, plot=True):
-    results = get_headers(fileName)
+def subplot_synthetic_data_graphs(file_name, save=False, plot=True):
+    results = get_headers(file_name)
 
     fig, axs = plt.subplots(nrows=2, ncols=2)
 
@@ -182,7 +182,7 @@ def plot_fit_linear(to_plot, x, y):
     to_plot.plot(x, fit, color='r', clip_on=False, linewidth=6)
 
 
-def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, save=False, plot=True):
+def plot_x_y(x, y, title, marker="o", color='b', font_size=12, save=False, plot=True):
     fig, ax = plt.subplots()
     ax.yaxis.grid()
     ax.set_ylim([0, 1])
@@ -191,7 +191,7 @@ def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, save=False, plot=T
     y = y.values.astype(float)
 
     plt.rc('font', family='serif')
-    plt.title(title, fontsize=fontSize)
+    plt.title(title, fontsize=font_size)
     plt.plot(x, y, marker, color=color, clip_on=False)
     plt.yticks(np.linspace(0, 1, num=11))
 
@@ -200,20 +200,20 @@ def plot_x_y(x, y, title, marker="o", color='b', fontSize=12, save=False, plot=T
     check_plot_save(path="{0}{1}.png".format(image_path, title), save=save, plot=plot)
 
 
-def subplot_x_y(ax, x, y, title, marker="o", color='b', fontSize=12):
+def subplot_x_y(ax, x, y, title, marker="o", color='b', font_size=12):
     ax.yaxis.grid()
     ax.set_ylim([0, 1])
 
     ax.rc('font', family='serif')
-    ax.set_title(title, fontsize=fontSize)
+    ax.set_title(title, fontsize=font_size)
     ax.plot(x, y, marker, color=color, clip_on=False)
     ax.set_yticks(np.linspace(0, 1, num=11))
 
     plot_fit_linear(ax, x, y)
 
 
-def get_headers(fileName):
-    headers = pd.read_csv(fileName, nrows=9, header=None)
+def get_headers(file_name):
+    headers = pd.read_csv(file_name, nrows=9, header=None)
     headers = headers.transpose()
     headers = headers.rename(columns=headers.iloc[0])
     headers = headers.drop([0])
@@ -222,40 +222,22 @@ def get_headers(fileName):
 
     return headers
 
-
-def get_params_and_results(fileName):
-    results = pd.read_csv(fileName, skiprows=10, header=None)
-
-    firstParamIndex = results.iloc[0]
-    firstParamIndex = firstParamIndex[firstParamIndex == "a_t"].index[0]
-    params = results.drop(results.columns[range(firstParamIndex)], axis=1)
-    params = params.rename(columns=params.iloc[0])
-    params = params.drop([0])
-    params = params.astype(np.float64)
-
-    results = results.drop(results.columns[range(firstParamIndex, len(results.columns))], axis=1)
-    results = results.drop(results.columns[0], axis=1)
-    results = results.rename(columns=results.iloc[0])
-    results = results.drop([0])
-
-    return params, results
-
 # ------------------------------------------------------------------- #
 # ---------------------- Parameters Graphs -------------------------- #
 
 
-def plot_params_results(fileName, header_rows=9, paramsToPlot=None, save=False, plot=True):
+def plot_params_results(file_name, header_rows=9, params_to_plot=None, save=False, plot=True):
 
-    datasets, folds, headers = utils.read_header([fileName], "", header_rows)
-    params, results = get_params_and_results(fileName)
+    datasets, folds, headers = utils.read_header([file_name], "", header_rows)
+    params, results = utils.get_params_and_results(file_name)
 
-    if paramsToPlot is None:
-        paramsToPlot = params.columns
+    if params_to_plot is None:
+        params_to_plot = params.columns
 
-    for param in paramsToPlot:
-        # for result in results.columns:
-        #     #            if "Accuracy" in result:
-        #     plot_x_y(params[param], results[result], "{0} - {1}".format(param, result), save=save, plot=plot)
+    for param in params_to_plot:
+        if "seed" in param:
+            continue
+
         for dataset in datasets:
             matching = [result for result in results.columns if dataset in result]
             x = []
@@ -269,18 +251,18 @@ def plot_params_results(fileName, header_rows=9, paramsToPlot=None, save=False, 
             plot_x_y(x, y, "{0} - {1}".format(param, dataset), save=save, plot=plot)
 
 
-def subplot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
-    params, results = get_params_and_results(fileName)
+def subplot_params_results(file_name, params_to_plot=None, save=False, plot=True):
+    params, results = utils.get_params_and_results(file_name)
 
-    if paramsToPlot == None:
-        paramsToPlot = params.columns
+    if params_to_plot == None:
+        params_to_plot = params.columns
 
-    if len(paramsToPlot) == 1:
-        plot_params_results(fileName, paramsToPlot, save=save, plot=plot)
+    if len(params_to_plot) == 1:
+        plot_params_results(file_name, params_to_plot, save=save, plot=plot)
 
     ncols = 2
-    nrows = int(np.ceil(len(paramsToPlot) / 2.0))
-    rest = len(paramsToPlot) % 2 == 1
+    nrows = int(np.ceil(len(params_to_plot) / 2.0))
+    rest = len(params_to_plot) % 2 == 1
 
     for result in results.columns:
         row = 0
@@ -289,7 +271,7 @@ def subplot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
         fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(7,7))
         fig.suptitle(result, fontsize=14, y=0.99)
 
-        for param in paramsToPlot:
+        for param in params_to_plot:
             if row == nrows:
                 break
 
@@ -313,9 +295,9 @@ def subplot_params_results(fileName, paramsToPlot=None, save=False, plot=True):
         check_plot_save(path="{0}{1}.png".format(image_path, result), save=save, plot=plot)
 
 
-def plot_gammas_vs_hthresholds(filename, save=False, plot=True):
-    headers = get_headers(fileName)
-    params, _ = get_params_and_results(fileName)
+def plot_gammas_vs_hthresholds(file_name, save=False, plot=True):
+    headers = get_headers(file_name)
+    params, _ = utils.get_params_and_results(file_name)
 
     indexes = list(headers["index_set"])
     indexes = map(int, indexes)
@@ -388,13 +370,13 @@ show = args.show
 
 if synthetic_plot:
     if plot:
-        plot_synthetic_data_graphs(fileName=fileName, save=save, plot=show)
+        plot_synthetic_data_graphs(file_name=fileName, save=save, plot=show)
     elif subplot:
-        subplot_synthetic_data_graphs(fileName=fileName, save=save, plot=show)
+        subplot_synthetic_data_graphs(file_name=fileName, save=save, plot=show)
 
 else:
     if plot:
-        plot_params_results(fileName=fileName, header_rows=header_rows, paramsToPlot=paramsToPlot, save=save, plot=show)
+        plot_params_results(file_name=fileName, header_rows=header_rows, params_to_plot=paramsToPlot, save=save, plot=show)
     elif subplot:
-        subplot_params_results(fileName=fileName, paramsToPlot=paramsToPlot, save=save, plot=show)
+        subplot_params_results(file_name=fileName, params_to_plot=paramsToPlot, save=save, plot=show)
 
