@@ -59,7 +59,7 @@ public:
             float diff = qrt((w[i] - node->w[i]));
             distance += node->ds[i] * diff;
             
-            float var = node->a_corrected[i] / node->ds[i];
+            float var = (1 * node->a_corrected[i]) / node->ds[i];
             if (w[i] <= node->w[i] - var || w[i] >= node->w[i] + var)
                 node->region = false;
             //node->region += (diff / (qrt(var) + 0.0000001));
@@ -74,14 +74,6 @@ public:
 //        return sqrt(distance);
         return (sum / (sum + (distance) + 0.0000001));
 
-        //float r = node.ds.sum();
-//        float e = (1/(qrt(node.ds.norm()) + 0.0000001));
-//        float r = distance;
-//        return (1 / (1 + e*r));
-        
-        //return exp(-qrt(e*r));
-        //return (1 / (1 + qrt(e*r)));
-        //return (1 / sqrt(1 + qrt(e*r)));
     }
     
     inline float wdist(const TNode &node1, const TNode &node2) {
@@ -436,6 +428,10 @@ public:
             
             TVector aNew(winner1->a);
             nodeNew->a = aNew;
+            
+            
+            TVector aCorrNew(winner1->a_corrected);
+            nodeNew->a_corrected = aCorrNew;
             
             TVector dsNew(winner1->ds);
             nodeNew->ds = dsNew;   
