@@ -4,6 +4,7 @@ import torchvision
 import torchvision.transforms as transforms
 from config.hyperparameters import Hyperparameters
 from model.mnist_cnn import MnistConvNet
+import os
 
 # Device configuration
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -12,10 +13,10 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 param = Hyperparameters().getParam()
 
 # Import Model
-model = MnistConvNet().to(device)
-train_loader = MnistConvNet().getTrainLoader()
-test_loader  = MnistConvNet().getTestLoader()
-
+model = MnistConvNet()
+model = model.to(device)
+train_loader = model.getTrainLoader()
+test_loader  = model.getTestLoader()
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -57,4 +58,6 @@ with torch.no_grad():
     print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))
 
 # Save the model checkpoint
-torch.save(model.state_dict(), 'model.ckpt')
+if not os.path.exists(param["model_path"]):
+    os.makedirs(param["model_path"])
+torch.save(model.state_dict(), param["model_path"] + param["dataset_name"] + '.ckpt')
