@@ -21,7 +21,8 @@
 void runExperiments (std::vector<float> params, string filePath, string outputPath,
         bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved);
 void runTrainTestExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, 
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved, bool removeNodes);
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved, 
+        bool removeNodes, int numNodes);
 void evaluate (string filePath, string somPath, bool subspaceClustering, bool filterNoise, bool sorted, bool normalize);
 
 std::vector<float> loadParametersFile(string path);
@@ -54,8 +55,10 @@ int main(int argc, char** argv) {
     
     bool removeNodes = true;
     
+    int numNodes = 120;
+    
     int c;
-    while ((c = getopt(argc, argv, "i:t:r:p:m:sfScednkz")) != -1) {
+    while ((c = getopt(argc, argv, "i:t:r:p:m:N:sfScednkz")) != -1) {
 
         switch (c) {
             case 'i':
@@ -72,6 +75,9 @@ int main(int argc, char** argv) {
                 break;
             case 'm':
                 mapPath.assign(optarg);
+                break;
+            case 'N':
+                numNodes = atoi(optarg);
                 break;
             case 's':
                 isSubspaceClustering = false;
@@ -118,8 +124,8 @@ int main(int argc, char** argv) {
         if(!runTrainTest) {
             runExperiments(params, inputFiles[i], resultPath, isSubspaceClustering, isFilterNoise, isSorted, normalize, keepMapSaved);
         } else {
-            runTrainTestExperiments(params, inputFiles[i], testFiles[i], resultPath, 
-                    isSubspaceClustering, isFilterNoise, isSorted, normalize, keepMapSaved, removeNodes);
+            runTrainTestExperiments(params, inputFiles[i], testFiles[i], resultPath, isSubspaceClustering, 
+                    isFilterNoise, isSorted, normalize, keepMapSaved, removeNodes, numNodes);
         }
     }
 }
@@ -188,7 +194,8 @@ void runExperiments (std::vector<float> params, string filePath, string outputPa
 }
 
 void runTrainTestExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, 
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved, bool removeNodes) { 
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved, 
+        bool removeNodes, int numNodes) { 
     
     int numberOfParameters = 10;
     
@@ -228,7 +235,7 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         string index = std::to_string((i/numberOfParameters));
                   
         som.noCls = 999;
-        som.maxNodeNumber = 100;
+        som.maxNodeNumber = numNodes;
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         
