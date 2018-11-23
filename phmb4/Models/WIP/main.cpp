@@ -222,7 +222,7 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         } else {
             som.lp = 0.0;            
         }
-        som.dsbeta = 1 - params[i + 1];
+        som.dsbeta = params[i + 1];
         som.age_wins = params[i + 2];
         som.e_b = params[i + 3];
         som.e_n = params[i + 4] * som.e_b;
