@@ -266,7 +266,7 @@ public:
         TNode *nodeNew = createNode(nodeID, wNew);
         nodeID++;
         nodeNew->cls = cls;
-        nodeNew->wins = age_wins * lp;
+        nodeNew->wins = step * lp;
         
         updateConnections(nodeNew);
         
