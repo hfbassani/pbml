@@ -141,7 +141,7 @@ public:
         if (real) {
             a_t.setRange(0.70, 0.999) = 0.70;
             lp.setRange(0.001, 0.005) = 0.001;
-            dsbeta.setRange(0.001, 0.5) = 0.001;
+            dsbeta.setRange(0.90, 0.95) = 0.90;
             age_wins.setRange(1, 100) = 1;
             e_b.setRange(0.001, 0.2) = 0.001;
             e_n.setRange(0.002, 1.0) = 0.002;
