@@ -10,7 +10,7 @@ import utils
 
 image_path = "plots/"
 
-#---------------------- Synthetic Data Graphs ----------------------#
+# ---------------------- Synthetic Data Graphs ---------------------- #
 
 
 def plot_noise_graph(ce, save=False, plot=True):
@@ -254,7 +254,7 @@ def plot_params_results(file_name, header_rows=9, params_to_plot=None, save=Fals
 def subplot_params_results(file_name, params_to_plot=None, save=False, plot=True):
     params, results = utils.get_params_and_results(file_name)
 
-    if params_to_plot == None:
+    if params_to_plot is None:
         params_to_plot = params.columns
 
     if len(params_to_plot) == 1:

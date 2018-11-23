@@ -59,7 +59,7 @@ public:
             float diff = qrt((w[i] - node->w[i]));
             distance += node->ds[i] * diff;
             
-            float var = (1 * node->a_corrected[i]) / node->ds[i];
+            float var = (2 * node->a_corrected[i]) / node->ds[i];
             if (w[i] <= node->w[i] - var || w[i] >= node->w[i] + var)
                 node->region = false;
             //node->region += (diff / (qrt(var) + 0.0000001));
@@ -253,6 +253,7 @@ public:
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
         while (itMesh != meshNodeSet.end()) {
              (*itMesh)->wins = 0;
+             (*itMesh)->count = 0;
              itMesh++;
         }
 
@@ -265,7 +266,7 @@ public:
         TNode *nodeNew = createNode(nodeID, wNew);
         nodeID++;
         nodeNew->cls = cls;
-        nodeNew->wins = 0;
+        nodeNew->wins = age_wins * lp;
         
         updateConnections(nodeNew);
         
