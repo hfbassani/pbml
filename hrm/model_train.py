@@ -2,68 +2,29 @@ import torch
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
-
+from config.hyperparameters import Hyperparameters
+from model.mnist_cnn import MnistConvNet
+import os
 
 # Device configuration
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-# Hyper parameters
-num_epochs = 5
-num_classes = 10
-batch_size = 100
-learning_rate = 0.001
+## Import Hyperparameters
+param = Hyperparameters().getParam()
 
-# MNIST dataset
-train_dataset = torchvision.datasets.MNIST(root='../data/',
-                                           train=True, 
-                                           transform=transforms.ToTensor(),
-                                           download=True)
-
-test_dataset = torchvision.datasets.MNIST(root='../data/',
-                                          train=False, 
-                                          transform=transforms.ToTensor())
-
-# Data loader
-train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
-                                           batch_size=batch_size, 
-                                           shuffle=True)
-
-test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
-                                          batch_size=batch_size, 
-                                          shuffle=False)
-
-# Convolutional neural network (two convolutional layers)
-class ConvNet(nn.Module):
-    def __init__(self, num_classes=10):
-        super(ConvNet, self).__init__()
-        self.layer1 = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2))
-        self.layer2 = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2))
-        self.fc = nn.Linear(7*7*32, num_classes)
-        
-    def forward(self, x):
-        out = self.layer1(x)
-        out = self.layer2(out)
-        out = out.reshape(out.size(0), -1)
-        out = self.fc(out)
-        return out
-
-model = ConvNet(num_classes).to(device)
+# Import Model
+model = MnistConvNet()
+model = model.to(device)
+train_loader = model.getTrainLoader()
+test_loader  = model.getTestLoader()
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=param["learning_rate"])
 
 # Train the model
 total_step = len(train_loader)
-for epoch in range(num_epochs):
+for epoch in range(param["num_epochs"]):
     for i, (images, labels) in enumerate(train_loader):
         images = images.to(device)
         labels = labels.to(device)
@@ -79,7 +40,7 @@ for epoch in range(num_epochs):
         
         if (i+1) % 100 == 0:
             print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}' 
-                   .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+                   .format(epoch+1, param["num_epochs"], i+1, total_step, loss.item()))
 
 # Test the model
 model.eval()  # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
@@ -97,4 +58,6 @@ with torch.no_grad():
     print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))
 
 # Save the model checkpoint
-torch.save(model.state_dict(), 'model.ckpt')
+if not os.path.exists(param["model_path"]):
+    os.makedirs(param["model_path"])
+torch.save(model.state_dict(), param["model_path"] + param["dataset_name"] + '.ckpt')
