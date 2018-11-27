@@ -4,6 +4,7 @@ import torchvision
 import torchvision.transforms as transforms
 from config.hyperparameters import Hyperparameters
 
+
 # Convolutional neural network (two convolutional layers)
 class MnistConvNet(nn.Module):
     def __init__(self):
@@ -45,6 +46,18 @@ class MnistConvNet(nn.Module):
                                             shuffle=False)
 
 
+        # MNIST Data Train Loader Extractor
+        self.train_loader_extractor = torch.utils.data.DataLoader(dataset=self.train_dataset,
+                                            batch_size=1, 
+                                            shuffle=True)
+
+        # MNIST Data Test Loader Extractor
+        self.test_loader_extractor = torch.utils.data.DataLoader(dataset=self.test_dataset,
+                                            batch_size=1, 
+                                            shuffle=False)
+
+
+
     def forward(self, x):
         out = self.layer1(x)
         out = self.layer2(out)
@@ -58,3 +71,13 @@ class MnistConvNet(nn.Module):
     
     def getTestLoader(self):
         return self.test_loader
+
+
+    def getTrainLoaderExtractor(self):
+        return self.train_loader_extractor
+    
+    def getTestLoaderExtractor(self):
+        return self.test_loader_extractor
+
+
+    
