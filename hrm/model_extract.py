@@ -11,7 +11,7 @@ from model.mnist_cnn import MnistConvNet
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # Import Hyperparameters
-param = Hyperparameters().getParam()
+param = Hyperparameters()
 
 # Import Model
 model = MnistConvNet()
@@ -23,12 +23,12 @@ test_loader  = model.getTestLoaderExtractor()
 total_step = len(train_loader)
 
 # Save the model checkpoint
-if not os.path.exists(param["model_path"] + '/' + param["dataset_name"] + '/'+ param["dataset_name"] + '.ckpt'):
+if not os.path.exists(param.model_path + '/' + param.dataset_name + '/'+ param.dataset_name + '.ckpt'):
     print("Model .ckpt doesnt exist!")
     exit(0)
 
 # Open trained Model
-pretrained_dict = torch.load(param["model_path"] + '/' + param["dataset_name"] + '/'+ param["dataset_name"] + '.ckpt')
+pretrained_dict = torch.load(param.model_path + '/' + param.dataset_name + '/'+ param.dataset_name + '.ckpt')
 model_dict = model.state_dict()
 
 # Modification to the dictionary will go here?
@@ -41,7 +41,7 @@ model.fc = new_classifier
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=param["learning_rate"])
+optimizer = torch.optim.Adam(model.parameters(), lr=param.learning_rate)
 
 print("Extract Train features")
 # Extract Train features
@@ -60,7 +60,7 @@ with torch.no_grad():
         	v.append(int(label[0]))
         	extract_features.append(v)
 
-np.savetxt(param["model_path"] + '/' + param["dataset_name"] + '/'+ param["dataset_name"] + '_train_features.txt', extract_features,  delimiter=",",fmt='%s')
+np.savetxt(param.model_path + '/' + param.dataset_name + '/'+ param.dataset_name + '_train_features.txt', extract_features,  delimiter=",",fmt='%s')
 
 print("Extract Test features")
 # Extract Test features
@@ -79,4 +79,4 @@ with torch.no_grad():
             v.append(int(label[0]))
             extract_features.append(v)
 
-np.savetxt(param["model_path"] + '/' + param["dataset_name"] + '/'+ param["dataset_name"] + '_test_features.txt', extract_features,  delimiter=",",fmt='%s')
+np.savetxt(param.model_path + '/' + param.dataset_name + '/'+ param.dataset_name + '_test_features.txt', extract_features,  delimiter=",",fmt='%s')
