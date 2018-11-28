@@ -218,7 +218,7 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         clusteringSOM.setFilterNoise(isFilterNoise);   
            
         if (removeNodes) {
-            som.lp = params[i];
+            som.lp = params[i];//pow(10, params[i]);
         } else {
             som.lp = 0.0;            
         }
