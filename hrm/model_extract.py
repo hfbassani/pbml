@@ -6,15 +6,38 @@ import os
 import numpy as np
 from config.hyperparameters import Hyperparameters
 from model.mnist_cnn import MnistConvNet
+from model.fashion_mnist_cnn import FashionConvNet
+from model.svhn_cnn import SvhnConvNet
+from model.cifar10_cnn import Cifar10ConvNet
+from model.cifar100_cnn import Cifar100ConvNet
 
+import argparse
+ 
+# construct the argument parse and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-d", "--dataset_name", required=True,help="Dataset Name")
+args = vars(ap.parse_args())
+ 
 # Device configuration
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-# Import Hyperparameters
-param = Hyperparameters()
+## Import Hyperparameters
+param = Hyperparameters(dataset_name=args["dataset_name"])
 
 # Import Model
-model = MnistConvNet()
+model = None
+
+if(args["dataset_name"] == 'mnist'):
+    model = MnistConvNet()
+elif(args["dataset_name"] == 'fashion_mnist'):
+    model = FashionConvNet()
+elif(args["dataset_name"] == 'svhn'):
+    model = SvhnConvNet()
+elif(args["dataset_name"] == 'cifar10'):
+    model = Cifar10ConvNet()
+elif(args["dataset_name"] == 'cifar100'):
+    model = Cifar100ConvNet()
+
 model = model.to(device)
 train_loader = model.getTrainLoaderExtractor()
 test_loader  = model.getTestLoaderExtractor()
@@ -36,8 +59,23 @@ model_dict.update(pretrained_dict)
 model.load_state_dict(model_dict)
 
 # remove last fully-connected layer
-new_classifier = nn.Sequential(*list(model.fc.children())[:-1])
-model.fc = new_classifier
+if(args["dataset_name"] == 'mnist'):
+    new_classifier = nn.Sequential(*list(model.fc.children())[:-1])
+    model.fc = new_classifier
+elif(args["dataset_name"] == 'fashion_mnist'):
+    new_classifier = nn.Sequential(*list(model.fc1.children())[:-1])
+    model.fc1 = new_classifier
+elif(args["dataset_name"] == 'svhn'):
+    new_classifier = nn.Sequential(*list(model.fc3.children())[:-1])
+    model.fc3 = new_classifier
+elif(args["dataset_name"] == 'cifar10'):
+    new_classifier = nn.Sequential(*list(model.fc3.children())[:-1])
+    model.fc3 = new_classifier
+elif(args["dataset_name"] == 'cifar100'):
+    new_classifier = nn.Sequential(*list(model.classifier.children())[:-1])
+    model.classifier = new_classifier
+
+
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
