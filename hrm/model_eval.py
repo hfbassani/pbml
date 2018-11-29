@@ -37,6 +37,7 @@ elif(args["dataset_name"] == 'cifar10'):
 elif(args["dataset_name"] == 'cifar100'):
     model = Cifar100ConvNet()
 model = model.to(device)
+train_loader  = model.getTrainLoader()
 test_loader  = model.getTestLoader()
 
 # Loss and optimizer
@@ -51,8 +52,27 @@ model_dict = model.state_dict()
 model_dict.update(pretrained_dict)
 model.load_state_dict(model_dict)
 
-# Test the model
+# Test the model with Train Dataset
 model.eval()  # eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)
+
+f = open(param.model_path + '/' + param.dataset_name + '/log_'+ param.dataset_name + ".txt", "w+")
+param.printHyper(f)
+
+
+with torch.no_grad():
+    correct = 0
+    total = 0
+    cont = 0
+    for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
+        outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+    print('Train Accuracy of the model on the ' + str(total) + ' train images: {}%'.format(100 * correct / total))
+    f.write('Train Accuracy of the model on the ' + str(total) + ' train images: {}%'.format(100 * correct / total) + '\n')
+# Test the model with Test Dataset
 with torch.no_grad():
     correct = 0
     total = 0
@@ -64,4 +84,5 @@ with torch.no_grad():
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
-    print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))
+    print('Test Accuracy of the model on the ' + str(total) + ' test images: {}%'.format(100 * correct / total))
+    f.write('Test Accuracy of the model on the ' + str(total) + ' test images: {}%'.format(100 * correct / total) + '\n')
