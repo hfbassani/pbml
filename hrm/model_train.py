@@ -6,7 +6,9 @@ from config.hyperparameters import Hyperparameters
 import os
 from model.mnist_cnn import MnistConvNet
 from model.fashion_mnist_cnn import FashionConvNet
+from model.svhn_cnn import SvhnConvNet
 from model.cifar10_cnn import Cifar10ConvNet
+from model.cifar100_cnn import Cifar100ConvNet
 
 
 '''
@@ -30,7 +32,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 param = Hyperparameters()
 
 # Import Model
-model = FashionConvNet()
+model = Cifar10ConvNet()
 #model = MnistConvNet()
 model = model.to(device)
 train_loader = model.getTrainLoader()
