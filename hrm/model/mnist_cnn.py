@@ -10,7 +10,7 @@ class MnistConvNet(nn.Module):
     def __init__(self):
         super(MnistConvNet, self).__init__()
         # Import Hyperparameters
-        param = Hyperparameters()
+        param = Hyperparameters(dataset_name='mnist')
 
         self.layer1 = nn.Sequential(
             nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2),

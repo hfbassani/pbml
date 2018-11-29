@@ -10,8 +10,6 @@ from model.svhn_cnn import SvhnConvNet
 from model.cifar10_cnn import Cifar10ConvNet
 from model.cifar100_cnn import Cifar100ConvNet
 
-
-'''
 import argparse
  
 # construct the argument parse and parse the arguments
@@ -19,21 +17,26 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dataset_name", required=True,help="Dataset Name")
 args = vars(ap.parse_args())
  
-print(args["dataset_name"])
-testando = args["dataset_name"]
-
-exit(0)
-'''
-
 # Device configuration
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 ## Import Hyperparameters
-param = Hyperparameters()
+param = Hyperparameters(dataset_name=args["dataset_name"])
 
 # Import Model
-model = Cifar10ConvNet()
-#model = MnistConvNet()
+model = None
+
+if(args["dataset_name"] == 'mnist'):
+    model = MnistConvNet()
+elif(args["dataset_name"] == 'fashion_mnist'):
+    model = FashionConvNet()
+elif(args["dataset_name"] == 'svhn'):
+    model = SvhnConvNet()
+elif(args["dataset_name"] == 'cifar10'):
+    model = Cifar10ConvNet()
+elif(args["dataset_name"] == 'cifar100'):
+    model = Cifar100ConvNet()
+
 model = model.to(device)
 train_loader = model.getTrainLoader()
 test_loader  = model.getTestLoader()

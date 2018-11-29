@@ -11,7 +11,7 @@ class FashionConvNet(nn.Module):
     def __init__(self):
         super(FashionConvNet, self).__init__()
         # Import Hyperparameters
-        param = Hyperparameters()
+        param = Hyperparameters(dataset_name='fashion_mnist')
 
         # Convolution 1
         self.cnn1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=0)
@@ -89,11 +89,9 @@ class FashionConvNet(nn.Module):
         out = self.maxpool2(out)
         
         # Resize
-        # Original size: (100, 32, 7, 7)
-        # out.size(0): 100
-        # New out size: (100, 32*7*7)
         out = out.view(out.size(0), -1)
         out = self.dropout(out)
+        
         # Linear function (readout)
         out = self.fc1(out)
         
