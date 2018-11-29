@@ -29,13 +29,22 @@ class Hyperparameters():
 			## CIFAR100
 			self.num_classes = 100
 			self.learning_rate = 0.001
-			self.num_epochs =  50
+			self.num_epochs =  25
 
 	def printHyper(self):
-		print("" + str(self.dataset_name))
-		print("" + str(self.dataset_path))
-		print("" + str(self.model_path))
-		print("" + str(self.num_classes))
-		print("" + str(self.num_epochs))
-		print("" + str(self.batch_size))
-		print("" + str(self.learning_rate))
+		print("Dataset Name: " + str(self.dataset_name))
+		print("Dataset Path: " + str(self.dataset_path))
+		print("Model Path: " + str(self.model_path))
+		print("Num Classes: " + str(self.num_classes))
+		print("Num Epochs: " + str(self.num_epochs))
+		print("Batch Size: " + str(self.batch_size))
+		print("Learning Rate: " + str(self.learning_rate))
+
+	def printHyper(self,file):
+		file.write("Dataset Name: " + str(self.dataset_name) + '\n')
+		file.write("Dataset Path: " + str(self.dataset_path) + '\n')
+		file.write("Model Path: " + str(self.model_path) + '\n')
+		file.write("Num Classes: " + str(self.num_classes) + '\n')
+		file.write("Num Epochs: " + str(self.num_epochs) + '\n')
+		file.write("Batch Size: " + str(self.batch_size) + '\n')
+		file.write("Learning Rate: " + str(self.learning_rate) + '\n')
