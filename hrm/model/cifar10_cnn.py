@@ -14,9 +14,10 @@ class Cifar10ConvNet(nn.Module):
         self.conv1 = nn.Conv2d(3, 20, 5)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(20, 16, 5)
-        self.fc1 = nn.Linear(16 * 5 * 5, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, param.num_classes)
+        self.conv3 = nn.Conv2d(16, 8, 5,padding=2)
+        self.fc1 = nn.Linear(8 * 5 * 5, 100)
+        self.fc2 = nn.Linear(100, 64)
+        self.fc3 = nn.Linear(64, param.num_classes)
 
         # MNIST Train Dataset
         self.train_dataset = torchvision.datasets.CIFAR10(root=param.dataset_path,
@@ -52,8 +53,13 @@ class Cifar10ConvNet(nn.Module):
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
+        #print(x.size())
         x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 16 * 5 * 5)
+        x = F.relu(self.conv3(x))
+        #print(x.size())
+        x = x.view(x.size(0), -1)
+        #x = x.view(-1, 8 * 5 * 5)
+        #print(x.size())
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)

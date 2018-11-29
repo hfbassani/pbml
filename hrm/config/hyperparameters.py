@@ -1,6 +1,6 @@
 # Hyperparameters
 class Hyperparameters():
-	def __init__(self,dataset_name='svhn'):
+	def __init__(self,dataset_name='cifar10'):
 		super(Hyperparameters, self).__init__()
 
 		self.dataset_name = dataset_name
@@ -15,9 +15,11 @@ class Hyperparameters():
 		self.num_epochs = 3
 
 		## CIFAR10
-		self.num_epochs =  10
-
+		self.num_epochs =  20
+		self.learning_rate = 0.001
+		'''
 		## CIFAR100
 		self.num_classes = 100
 		self.learning_rate = 0.001
 		self.num_epochs =  50
+		'''
