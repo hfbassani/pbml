@@ -10,7 +10,7 @@ class SvhnConvNet(nn.Module):
 	def __init__(self):
 		super(SvhnConvNet, self).__init__()
 		# Import Hyperparameters
-		param = Hyperparameters()
+		param = Hyperparameters(dataset_name='svhn')
 
 		self.conv1 = nn.Conv2d(3, 20, 5)
 		self.pool = nn.MaxPool2d(2, 2)

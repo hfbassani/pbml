@@ -15,7 +15,7 @@ class Cifar100ConvNet(nn.Module):
     def __init__(self, num_classes=100):
         super(Cifar100ConvNet, self).__init__()
         # Import Hyperparameters
-        param = Hyperparameters()
+        param = Hyperparameters(dataset_name='cifar100')
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=5),
             nn.ReLU(inplace=True),
