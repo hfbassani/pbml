@@ -343,7 +343,8 @@ def plot_gammas_vs_hthresholds(file_name, save=False, plot=True):
 # ------------------------------------------------------------------- #
 
 
-if not os.path.isdir(image_path): os.mkdir(image_path)
+if not os.path.isdir(image_path):
+    os.mkdir(image_path)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='File Path', required=True)
