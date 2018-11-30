@@ -77,21 +77,16 @@ trainSorted = opt.S
 
 parameters_count = 11
 
+
 if len(testPaths) > 0:
     for i, (train, test) in enumerate(zip(inputPaths, testPaths)):
-        print(train, test)
 
-        train = "../../../Datasets/Realdata_3Times3FoldsExp_TrainS01/train_breast_x1_k1.arff"
-        test = "../../../Datasets/Realdata_3Times3FoldsExp_Test/test_breast_x1_k1.arff"
-
-        train_data = ArffDataset(train)
-
-        test_data = ArffDataset(test)
+        train_data = ArffDataset(load_path=train)
+        test_data = ArffDataset(load_path=test)
         test_loader = DataLoader(test_data,
                                  num_workers=opt.workers)
 
         for paramsSet in range(0, len(parameters), parameters_count):
-            # print (str(int(paramsSet / parameters_count)))
             sssom = SSSOM(use_cuda=use_cuda,
                           ngpu=ngpu,
                           dim=train_data.X.shape[1],

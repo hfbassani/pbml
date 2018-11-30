@@ -101,7 +101,7 @@ class LARFDSSOM(nn.Module):
         if batch_size > 1:
             self.batch_update_map(w)
         else:
-            activations = self.activation(w)
+            activations = self.activation(w)[0]
             ind_max = torch.argmax(activations)
             if activations[ind_max] < self.a_t and self.weights.size(0) < self.max_node_number:
                 self.add_node(w)
