@@ -30,7 +30,7 @@ def save_params_file(results, starting_param_name, filename):
     full_data.to_csv(join(filename, "parameters-" + filename + ".csv"), sep=',', index=False)
 
 
-def read_header(files, folder, header_rows):
+def read_header(files, folder, header_rows, save_parameters=True):
     datasets = []
     folds = []
     headers = []
@@ -52,13 +52,16 @@ def read_header(files, folder, header_rows):
                 datasets = results.iloc[0]
                 if 'a_t' in datasets.values:
                     datasets = datasets[1: datasets[datasets == "a_t"].index[0]]
-                    save_params_file(results, "a_t", folder)
+                    if save_parameters:
+                        save_params_file(results, "a_t", folder)
                 elif 'nnodes' in datasets.values:
                     datasets = datasets[1: datasets[datasets == "nnodes"].index[0]]
-                    save_params_file(results, "nnodes", folder)
+                    if save_parameters:
+                        save_params_file(results, "nnodes", folder)
                 elif 'lp' in datasets.values:
                     datasets = datasets[1: datasets[datasets == "lp"].index[0]]
-                    save_params_file(results, "lp", folder)
+                    if save_parameters:
+                        save_params_file(results, "lp", folder)
                 else:
                     datasets = datasets[1:]
 
