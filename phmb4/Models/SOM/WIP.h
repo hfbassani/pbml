@@ -47,7 +47,8 @@ public:
     int sup_win;
     int sup_create;
     int sup_else;
-    int sup_handle_new_win;
+    int sup_handle_new_win_full;
+    int sup_handle_new_win_relevances;
     int sup_handle_create;
     int sup_handle_else;
     
@@ -228,13 +229,13 @@ public:
     
     WIP& finishMapFixed(bool sorted, std::vector<int> groups, std::map<int, int> &groupLabels) {
 
-        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
+        dbgOut(2) << "Finishing map with: " << meshNodeSet.size() << endl;
         while (step!=1) { // finish the previous iteration
             runTrainingStep(sorted, groups, groupLabels);
         }
         maxNodeNumber = meshNodeSet.size(); //fix mesh max size
         
-        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
+        dbgOut(2) << "Finishing map with: " << meshNodeSet.size() << endl;
         
         //step equal to 2
         runTrainingStep(sorted, groups, groupLabels);
@@ -243,7 +244,7 @@ public:
             runTrainingStep(sorted, groups, groupLabels);
         }
         
-        dbgOut(1) << "Finishing map with: " << meshNodeSet.size() << endl;
+        dbgOut(2) << "Finishing map with: " << meshNodeSet.size() << endl;
         
         return *this;
     }
@@ -254,7 +255,6 @@ public:
         TPNodeSet::iterator itMesh = meshNodeSet.begin();
         while (itMesh != meshNodeSet.end()) {
              (*itMesh)->wins = 0;
-             (*itMesh)->count = 0;
              itMesh++;
         }
 
@@ -369,6 +369,14 @@ public:
                 } else {
                     sup_else++;
                     updateRelevances(*winner1, w, e_var);
+                    // winner1->wins++;
+                    // updateRelevances(*winner1, w, e_b);
+                    
+                    // TPNodeConnectionMap::iterator it;
+                    // for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
+                    //     TNode* node = it->first;
+                    //     updateRelevances(*node, w, e_n);
+                    // }
                 }
                 
             } else { // winner tem classe diferente da amostra
@@ -405,18 +413,24 @@ public:
             if (newWinner->region) {
                 // puxar o novo vencedor
                 updateNode(*newWinner, w, e_b);
-
+                
+//                if (newWinner->region) {
+//                    newWinner->cls = cls;
+//                    updateConnections(newWinner);
+//                }
                 TPNodeConnectionMap::iterator it;
                 for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
                     TNode* node = it->first;
                     updateNode(*node, w, e_n);
+                    // updateRelevances(*node, w, e_n);
                 }
-            } else {
-                updateRelevances(*newWinner, w, e_var);
-            }
-            
-            sup_handle_new_win++;
-            
+                
+                sup_handle_new_win_full++;
+           } else {
+               updateRelevances(*newWinner, w, e_var);
+               sup_handle_new_win_relevances++;
+           }
+           
         } else if (meshNodeSet.size() < maxNodeNumber) {
             
             // cria um novo nodo na posição da amostra
@@ -444,6 +458,12 @@ public:
             
         } else if (newWinner == NULL) {
             updateRelevances(*winner1, w, e_var);
+            
+            // TPNodeConnectionMap::iterator it;
+            // for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
+            //     TNode* node = it->first;
+            //     updateRelevances(*node, w, e_n);
+            // }
 //            updateNode(*winner1, w, -e_n);
             sup_handle_else++;
         }

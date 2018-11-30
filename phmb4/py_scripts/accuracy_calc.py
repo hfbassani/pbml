@@ -26,7 +26,7 @@ def eval(results_paths, true_path, repeat, output_path, rows, param_file=None, p
     incorrect_samples = []
     correct_samples = []
 
-    files = [f for f in listdir(true_path) if isfile(join(true_path, f)) and not f.endswith(".true")]
+    files = [f for f in listdir(true_path) if isfile(join(true_path, f)) and not f.startswith('.') and not f.endswith(".true")]
     files = sorted(files)
 
     for file in files:
