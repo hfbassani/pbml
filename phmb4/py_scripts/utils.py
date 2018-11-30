@@ -124,7 +124,7 @@ def check_directory(file_path):
 
     if os.path.isdir(file_path):
         if not file_path.endswith("/"):
-            checked_file_path += file_path + "/"
+            checked_file_path += "/"
     else:
         sys.exit("Invalid directory")
 

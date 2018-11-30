@@ -9,20 +9,22 @@ from torch.utils.data import Dataset
 
 class ArffDataset(Dataset):
 
-    def __init__(self,load_path = "",arff_path=""):
-        data = None
-        if(load_path == ""):
+    def __init__(self, load_path=None, arff_path=None):
+
+        if arff_path is not None:
             data, meta = arff.loadarff(arff_path)
             data = pd.DataFrame(data, dtype=float)
-        else: 
+        elif load_path is not None:
             data = pd.read_csv(load_path, sep=",", header=None)
             data = pd.DataFrame(data, dtype=float)
+        else:
+            raise Exception('Both load_path and arff_path are type None')
 
         self.y = data.iloc[:, -1].values
 
         self.X = data.iloc[:, :-1]
         
-        if(load_path != ""):
+        if load_path != "":
             self.y = self.y.astype(int)
 
     def __getitem__(self, index):
