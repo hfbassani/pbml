@@ -22,7 +22,8 @@ class MnistConvNet(nn.Module):
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
-        self.fc = nn.Linear(7*7*32, param.num_classes)
+        self.fc = nn.Linear(7*7*32, 32)
+        self.fc1 = nn.Linear(32, param.num_classes)
         
         # MNIST Train Dataset
         self.train_dataset = torchvision.datasets.MNIST(root=param.dataset_path,
@@ -63,6 +64,7 @@ class MnistConvNet(nn.Module):
         out = self.layer2(out)
         out = out.reshape(out.size(0), -1)
         out = self.fc(out)
+        out = self.fc1(out) 
         return out
 
 

@@ -60,8 +60,8 @@ model.load_state_dict(model_dict)
 
 # remove last fully-connected layer
 if(args["dataset_name"] == 'mnist'):
-    new_classifier = nn.Sequential(*list(model.fc.children())[:-1])
-    model.fc = new_classifier
+    new_classifier = nn.Sequential(*list(model.fc1.children())[:-1])
+    model.fc1 = new_classifier
 elif(args["dataset_name"] == 'fashion_mnist'):
     new_classifier = nn.Sequential(*list(model.fc1.children())[:-1])
     model.fc1 = new_classifier
