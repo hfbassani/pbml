@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     
     bool removeNodes = true;
     
-    int numNodes = 120;
+    int numNodes = 250;
     
     int c;
     while ((c = getopt(argc, argv, "i:t:r:p:m:N:sfScednkz")) != -1) {
@@ -244,28 +244,6 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         som.reset(clusteringSOM.getInputSize());
         
         clusteringSOM.trainSOM(som.epochs);
-
-        dbgOut(1) << "som.unsup_win:" << som.unsup_win << endl;
-        dbgOut(1) << "som.unsup_create:" << som.unsup_create << endl;
-        dbgOut(1) << "som.unsup_else:" << som.unsup_else << endl;
-        dbgOut(1) << "som.sup_win:" << som.sup_win << endl;
-        dbgOut(1) << "som.sup_create:" << som.sup_create << endl;
-        dbgOut(1) << "som.sup_else:" << som.sup_else << endl;
-        dbgOut(1) << "som.sup_handle_new_win_full:" << som.sup_handle_new_win_full << endl;
-        dbgOut(1) << "som.sup_handle_new_win_relevances:" << som.sup_handle_new_win_relevances << endl;
-        dbgOut(1) << "som.sup_handle_create:" << som.sup_handle_create << endl;
-        dbgOut(1) << "som.sup_handle_else:" << som.sup_handle_else << endl;
-        
-        som.unsup_win = 0;
-        som.unsup_create = 0;
-        som.unsup_else = 0;
-        som.sup_win = 0;
-        som.sup_create = 0;
-        som.sup_else = 0;
-        som.sup_handle_new_win_full = 0;
-        som.sup_handle_new_win_relevances = 0;
-        som.sup_handle_create = 0;
-        som.sup_handle_else = 0;
         
         som.finishMapFixed(sorted, clusteringSOM.groups, clusteringSOM.groupLabels);
         
@@ -289,7 +267,8 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         dbgOut(1) << "som.sup_handle_create:" << som.sup_handle_create << endl;
         dbgOut(1) << "som.sup_handle_else:" << som.sup_handle_else << endl;
         
-        // clusteringSOM.outAccuracy(clusteringSOM.groups, clusteringSOM.groupLabels);
+//        clusteringSOM.outAccuracy(clusteringSOM.groups, clusteringSOM.groupLabels);
+        
     }
 }
 

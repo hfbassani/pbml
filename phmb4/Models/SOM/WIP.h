@@ -63,7 +63,6 @@ public:
             float var = node->a_corrected[i] / node->ds[i];
             if (w[i] <= node->w[i] - var || w[i] >= node->w[i] + var)
                 node->region = false;
-            //node->region += (diff / (qrt(var) + 0.0000001));
         }
         
         float sum = node->ds.sum();
@@ -368,15 +367,15 @@ public:
                     sup_win++;
                 } else {
                     sup_else++;
-                    updateRelevances(*winner1, w, e_var);
-                    // winner1->wins++;
-                    // updateRelevances(*winner1, w, e_b);
+//                    updateRelevances(*winner1, w, e_var);
+                    winner1->wins++;
+                    updateRelevances(*winner1, w, e_b);
                     
-                    // TPNodeConnectionMap::iterator it;
-                    // for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
-                    //     TNode* node = it->first;
-                    //     updateRelevances(*node, w, e_n);
-                    // }
+                    TPNodeConnectionMap::iterator it;
+                    for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
+                        TNode* node = it->first;
+                        updateRelevances(*node, w, e_n);
+                    }
                 }
                 
             } else { // winner tem classe diferente da amostra
@@ -410,7 +409,7 @@ public:
             
             newWinner->wins++;
             
-            if (newWinner->region) {
+//            if (newWinner->region) {
                 // puxar o novo vencedor
                 updateNode(*newWinner, w, e_b);
                 
@@ -418,18 +417,25 @@ public:
 //                    newWinner->cls = cls;
 //                    updateConnections(newWinner);
 //                }
-                TPNodeConnectionMap::iterator it;
-                for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
-                    TNode* node = it->first;
-                    updateNode(*node, w, e_n);
-                    // updateRelevances(*node, w, e_n);
-                }
+//                TPNodeConnectionMap::iterator it;
+//                for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
+//                    TNode* node = it->first;
+////                    updateNode(*node, w, e_n);
+//                    updateRelevances(*node, w, e_n);
+//                }
                 
                 sup_handle_new_win_full++;
-           } else {
-               updateRelevances(*newWinner, w, e_var);
-               sup_handle_new_win_relevances++;
-           }
+//            } 
+//            else {
+//               updateRelevances(*newWinner, w, e_var);
+//               sup_handle_new_win_relevances++;
+//                TPNodeConnectionMap::iterator it;
+//                for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
+//                    TNode* node = it->first;
+////                    updateNode(*node, w, e_n);
+//                    updateRelevances(*node, w, e_n);
+//                }
+//            }
            
         } else if (meshNodeSet.size() < maxNodeNumber) {
             
@@ -459,11 +465,11 @@ public:
         } else if (newWinner == NULL) {
             updateRelevances(*winner1, w, e_var);
             
-            // TPNodeConnectionMap::iterator it;
-            // for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
-            //     TNode* node = it->first;
-            //     updateRelevances(*node, w, e_n);
-            // }
+            TPNodeConnectionMap::iterator it;
+            for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
+                TNode* node = it->first;
+                updateRelevances(*node, w, e_n);
+            }
 //            updateNode(*winner1, w, -e_n);
             sup_handle_else++;
         }
