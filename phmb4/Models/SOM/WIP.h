@@ -305,7 +305,7 @@ public:
                 updateRelevances(*winner1, w, e_var);
                 createNodeMap(w, noCls);
                 
-                unsup_create++;
+//                unsup_create++;
                 
             } else if (winner1->region) { // caso contrário
                 
@@ -320,9 +320,9 @@ public:
                     updateNode(*node, w, e_n);
                 }
                 
-                unsup_win++;
+//                unsup_win++;
             } else {
-                unsup_else++;
+//                unsup_else++;
                 updateRelevances(*winner1, w, e_var);
             }
         }
@@ -350,7 +350,7 @@ public:
                     updateRelevances(*winner1, w, e_var);
                     createNodeMap(w, cls);
                     
-                    sup_create++;
+//                    sup_create++;
                     
                 } else if (winner1->region){
                     winner1->wins++;
@@ -364,9 +364,9 @@ public:
                         updateNode(*node, w, e_n);
                     }
                     
-                    sup_win++;
+//                    sup_win++;
                 } else {
-                    sup_else++;
+//                    sup_else++;
 //                    updateRelevances(*winner1, w, e_var);
                     winner1->wins++;
                     updateRelevances(*winner1, w, e_b);
@@ -405,46 +405,16 @@ public:
         if (newWinner != NULL) { // novo winner de acordo com o raio de a_t
             
             // empurrar o primeiro winner que tem classe diferente da amostra
-//            updateNode(*winner1, w, -e_n);
-            
             newWinner->wins++;
             
-//            if (newWinner->region) {
-                // puxar o novo vencedor
-                updateNode(*newWinner, w, e_b);
-                
-//                if (newWinner->region) {
-//                    newWinner->cls = cls;
-//                    updateConnections(newWinner);
-//                }
-//                TPNodeConnectionMap::iterator it;
-//                for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
-//                    TNode* node = it->first;
-////                    updateNode(*node, w, e_n);
-//                    updateRelevances(*node, w, e_n);
-//                }
-                
-                sup_handle_new_win_full++;
-//            } 
-//            else {
-//               updateRelevances(*newWinner, w, e_var);
-//               sup_handle_new_win_relevances++;
-//                TPNodeConnectionMap::iterator it;
-//                for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
-//                    TNode* node = it->first;
-////                    updateNode(*node, w, e_n);
-//                    updateRelevances(*node, w, e_n);
-//                }
-//            }
+            updateNode(*newWinner, w, e_b);
+//            sup_handle_new_win_full++;
            
         } else if (meshNodeSet.size() < maxNodeNumber) {
             
             // cria um novo nodo na posição da amostra
-//            updateNode(*winner1, w, -e_n);
-//            updateRelevances(*winner1, w, e_var);
-//            createNodeMap(w, cls);
             
-            sup_handle_create++;
+//            sup_handle_create++;
             TVector wNew(winner1->w);
             TNode *nodeNew = createNodeMap(wNew, cls);
             
@@ -470,8 +440,7 @@ public:
                 TNode* node = it->first;
                 updateRelevances(*node, w, e_n);
             }
-//            updateNode(*winner1, w, -e_n);
-            sup_handle_else++;
+//            sup_handle_else++;
         }
     }
 
