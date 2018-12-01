@@ -18,11 +18,9 @@
 #include "WIPNode.h"
 #include <sys/stat.h>
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath,
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved);
 void runTrainTestExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, 
         bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved, 
-        bool removeNodes, int numNodes);
+        bool removeNodes, int numNodes, bool runTrainTest);
 void evaluate (string filePath, string somPath, bool subspaceClustering, bool filterNoise, bool sorted, bool normalize);
 
 std::vector<float> loadParametersFile(string path);
@@ -121,12 +119,8 @@ int main(int argc, char** argv) {
     std::vector<float> params = loadParametersFile(parametersFile);
 
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
-        if(!runTrainTest) {
-            runExperiments(params, inputFiles[i], resultPath, isSubspaceClustering, isFilterNoise, isSorted, normalize, keepMapSaved);
-        } else {
-            runTrainTestExperiments(params, inputFiles[i], testFiles[i], resultPath, isSubspaceClustering, 
-                    isFilterNoise, isSorted, normalize, keepMapSaved, removeNodes, numNodes);
-        }
+        runTrainTestExperiments(params, inputFiles[i], testFiles[i], resultPath, isSubspaceClustering, 
+                isFilterNoise, isSorted, normalize, keepMapSaved, removeNodes, numNodes, runTrainTest);
     }
 }
 
@@ -148,54 +142,9 @@ void evaluate (string filePath, string somPath, bool subspaceClustering, bool fi
     clusteringSOM.outClassInfo(clusteringSOM.groups, clusteringSOM.groupLabels);
 }
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, 
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved) {
-
-    WIP som(1);
-    SOM<WIPNode> *sssom = (SOM<WIPNode>*) &som;
-
-    ClusteringMeshWIP clusteringSOM(sssom);
-    clusteringSOM.readFile(filePath, normalize);
-    clusteringSOM.sorted = sorted;
-
-    clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
-    clusteringSOM.setFilterNoise(isFilterNoise);    
-    
-    int numberOfParameters = 10;
-    
-    for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
-        som.lp = params[i];
-        som.dsbeta = 1 - params[i + 1];
-        som.age_wins = params[i + 2];
-        som.e_b = params[i + 3];
-        som.e_n = params[i + 4] * som.e_b;
-        som.epsilon_ds = params[i + 5];
-        som.minwd = params[i + 6]; 
-        som.epochs = params[i + 7];
-        som.e_var = params[i + 8] * som.e_b;
-                
-        string index = std::to_string((i/numberOfParameters));
-        
-        srand(params[i + 9]);
-        
-        som.noCls = 999;
-        som.maxNodeNumber = 70;
-        som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
-        som.reset(clusteringSOM.getInputSize());
-        clusteringSOM.trainSOM(som.epochs);
-        som.finishMapFixed(sorted, clusteringSOM.groups, clusteringSOM.groupLabels);
-        
-        if (keepMapSaved) {
-            som.saveSOM(outputPath + "som_" + getFileName(filePath) + "_" + index);
-        }
-        
-        clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
-    }
-}
-
 void runTrainTestExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, 
         bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved, 
-        bool removeNodes, int numNodes) { 
+        bool removeNodes, int numNodes, bool runTrainTest) { 
     
     int numberOfParameters = 10;
     
@@ -251,21 +200,27 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
             som.saveSOM(outputPath + "som_" + getFileName(filePath) + "_" + index);
         }
 
-        clusteringSOM.cleanUpTrainingData();
-        clusteringSOM.readFile(testPath, normalize);
-        clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
         
-        dbgOut(1) << "-----------------------------" << endl;
-        dbgOut(1) << "som.unsup_win:" << som.unsup_win << endl;
-        dbgOut(1) << "som.unsup_create:" << som.unsup_create << endl;
-        dbgOut(1) << "som.unsup_else:" << som.unsup_else << endl;
-        dbgOut(1) << "som.sup_win:" << som.sup_win << endl;
-        dbgOut(1) << "som.sup_create:" << som.sup_create << endl;
-        dbgOut(1) << "som.sup_else:" << som.sup_else << endl;
-        dbgOut(1) << "som.sup_handle_new_win_full:" << som.sup_handle_new_win_full << endl;
-        dbgOut(1) << "som.sup_handle_new_win_relevances:" << som.sup_handle_new_win_relevances << endl;
-        dbgOut(1) << "som.sup_handle_create:" << som.sup_handle_create << endl;
-        dbgOut(1) << "som.sup_handle_else:" << som.sup_handle_else << endl;
+        if (runTrainTest) {
+            clusteringSOM.cleanUpTrainingData();
+            clusteringSOM.readFile(testPath, normalize);
+            clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
+        } else {
+            clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
+        }
+
+                
+//        dbgOut(1) << "-----------------------------" << endl;
+//        dbgOut(1) << "som.unsup_win:" << som.unsup_win << endl;
+//        dbgOut(1) << "som.unsup_create:" << som.unsup_create << endl;
+//        dbgOut(1) << "som.unsup_else:" << som.unsup_else << endl;
+//        dbgOut(1) << "som.sup_win:" << som.sup_win << endl;
+//        dbgOut(1) << "som.sup_create:" << som.sup_create << endl;
+//        dbgOut(1) << "som.sup_else:" << som.sup_else << endl;
+//        dbgOut(1) << "som.sup_handle_new_win_full:" << som.sup_handle_new_win_full << endl;
+//        dbgOut(1) << "som.sup_handle_new_win_relevances:" << som.sup_handle_new_win_relevances << endl;
+//        dbgOut(1) << "som.sup_handle_create:" << som.sup_handle_create << endl;
+//        dbgOut(1) << "som.sup_handle_else:" << som.sup_handle_else << endl;
         
 //        clusteringSOM.outAccuracy(clusteringSOM.groups, clusteringSOM.groupLabels);
         
