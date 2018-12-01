@@ -137,3 +137,19 @@ def check_directory(file_path):
 def get_type(type):
     if type == "numeric":
         return "real"
+
+
+def write_arff_file(arff_file_name, data, meta, output_path, labels):
+    new_file = open(join(output_path, arff_file_name), 'w+')
+    new_file.write("@relation {0}\n".format(meta.name))
+    for i in xrange(len(meta.names())):
+        attr = meta.names()[i]
+        if attr != "class":
+            new_file.write("@attribute {0} {1}\n".format(attr, get_type(meta.types()[i])))
+        else:
+            new_file.write("@attribute {0} {{".format(attr))
+            new_file.write("{0}".format(",".join(labels)))
+            new_file.write("}\n")
+    new_file.write("@data\n")
+    for _, row in data.iterrows():
+        new_file.write(",".join(map(str, row)) + "\n")

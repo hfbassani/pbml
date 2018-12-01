@@ -25,25 +25,9 @@ def create_arff(arff_file_name, folder_path, output_path, supervision_r):
             break
     data['class'] = curr_labels
     curr_labels = set(curr_labels)
-    write_file(arff_file_name, data, meta, output_path, curr_labels)
+    utils.write_arff_file(arff_file_name, data, meta, output_path, curr_labels)
     data = data[data["class"] != str(999)]
-    write_file("sup_" + arff_file_name, data, meta, output_path, saved_labels)
-
-
-def write_file(arff_file_name, data, meta, output_path, saved_labels):
-    new_file = open(join(output_path, arff_file_name), 'w+')
-    new_file.write("@relation {0}\n".format(meta.name))
-    for i in xrange(len(meta.names())):
-        attr = meta.names()[i]
-        if attr != "class":
-            new_file.write("@attribute {0} {1}\n".format(attr, utils.get_type(meta.types()[i])))
-        else:
-            new_file.write("@attribute {0} {{".format(attr))
-            new_file.write("{0}".format(",".join(saved_labels)))
-            new_file.write("}\n")
-    new_file.write("@data\n")
-    for _, row in data.iterrows():
-        new_file.write(",".join(map(str, row)) + "\n")
+    utils.write_arff_file("sup_" + arff_file_name, data, meta, output_path, saved_labels)
 
 
 def create_default(file_name, folder_path, output_path, supervision_r):
@@ -88,7 +72,11 @@ for supervision in args.s:
     if not os.path.isdir(output_path):
         os.mkdir(output_path)
 
-    for file in sorted(os.listdir(folder_path)):
+    files = [f for f in os.listdir(folder_path) if
+             os.path.isfile(join(folder_path, f)) and not f.startswith('.') and not f.endswith(".true")]
+    files = sorted(files)
+
+    for file in files:
         if file.endswith(".arff"):
             create_arff(arff_file_name=file, folder_path=folder_path,
                         output_path=output_path, supervision_r=supervision)
