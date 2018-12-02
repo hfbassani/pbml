@@ -436,7 +436,7 @@ public:
             updateRelevances(*winner1, w, e_var);
             
             TPNodeConnectionMap::iterator it;
-            for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {            
+            for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
                 TNode* node = it->first;
                 updateRelevances(*node, w, e_n);
             }
