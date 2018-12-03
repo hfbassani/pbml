@@ -6,20 +6,21 @@ import os
 import re
 import utils
 
-def create_ordered_arff(arffFilePath, trueFileName, trueFileContent, outputPath):
-    dim = int(re.findall("\d+", trueFileContent[0])[0])
+
+def create_ordered_arff(arff_file_path, true_file_name, true_file_content, output_path):
+    dim = int(re.findall("\d+", true_file_content[0])[0])
 
     all_indexes = []
-    for lines in trueFileContent[1:]:
+    for lines in true_file_content[1:]:
         line = lines.split(" ")[dim:]
         line = map(int, line)
 
         all_indexes.append(line[1:])
 
-    data, meta = arff.loadarff(open(arffFilePath, 'rb'))
+    data, meta = arff.loadarff(open(arff_file_path, 'rb'))
     data = pd.DataFrame(data)
 
-    orderedFile = open(outputPath + trueFileName.replace(".true", ".arff"), 'w+')
+    orderedFile = open(output_path + true_file_name.replace(".true", ".arff"), 'w+')
 
     labels = data['class'].unique()
     orderedData = pd.DataFrame()
@@ -39,7 +40,7 @@ def create_ordered_arff(arffFilePath, trueFileName, trueFileContent, outputPath)
             orderedFile.write("}\n")
 
     orderedFile.write("@data\n")
-    data = open(arffFilePath, 'rb+')
+    data = open(arff_file_path, 'rb+')
 
     skipLines = 1 + dim + 1 + 1
     arffData = data.readlines()[skipLines:]
@@ -47,6 +48,7 @@ def create_ordered_arff(arffFilePath, trueFileName, trueFileContent, outputPath)
     for class_indexes in all_indexes:
         for index in class_indexes:
             orderedFile.write(arffData[index])
+
 
 def create_ordered_true(trueFileName, trueFileContent, outputPath):
     dim = int(re.findall("\d+", trueFileContent[0])[0])
@@ -69,32 +71,34 @@ def create_ordered_true(trueFileName, trueFileContent, outputPath):
 
         count += ammount
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Input Directory', required=True)
 parser.add_argument('-o', help='Output Directory', required=True)
 args = parser.parse_args()
 
-filePath = args.i
-outputPath = args.o
+file_path = args.i
+output_path = args.o
 
-filePath = utils.check_directory(filePath)
-outputPath = utils.check_directory(outputPath)
+file_path = utils.check_directory(file_path)
+output_path = utils.check_directory(output_path)
 
-arffFiles = []
-trueFiles = []
-for file in os.listdir(filePath):
+arff_files = []
+true_files = []
+
+for file in os.listdir(file_path):
     if file.endswith(".arff"):
-        arffFiles.append(file)
+        arff_files.append(file)
     elif file.endswith(".true"):
-        trueFiles.append(file)
+        true_files.append(file)
 
-for trueFileName in trueFiles:
-    arffFilePath = filePath + trueFileName.replace(".true", ".arff")
-    if os.path.exists(filePath + trueFileName) and os.path.exists(arffFilePath):
-        trueFile = open(filePath + trueFileName, 'rb+')
+for true_file_name in true_files:
+    arff_file_path = file_path + true_file_name.replace(".true", ".arff")
+    if os.path.exists(file_path + true_file_name) and os.path.exists(arff_file_path):
+        trueFile = open(file_path + true_file_name, 'rb+')
         trueFileContent = trueFile.readlines()
 
-        create_ordered_arff(arffFilePath=arffFilePath, trueFileName=trueFileName,
-                            trueFileContent=trueFileContent, outputPath=outputPath)
+        create_ordered_arff(arff_file_path=arff_file_path, true_file_name=true_file_name,
+                            true_file_content=trueFileContent, output_path=output_path)
 
-        create_ordered_true(trueFileName=trueFileName, trueFileContent=trueFileContent, outputPath=outputPath)
+        create_ordered_true(trueFileName=true_file_name, trueFileContent=trueFileContent, outputPath=output_path)

@@ -32,7 +32,6 @@ public:
     float minwd;
     float e_b;
     float e_n;
-    float e_var;
     
     TNumber dsbeta; //Taxa de aprendizagem
     TNumber epsilon_ds; //Taxa de aprendizagem
@@ -86,7 +85,7 @@ public:
         return sqrt(distance);
     }
     
-    void updateRelevances(TNode &node, const TVector &w, TNumber e){
+    void updateRelevances(TNode &node, const TVector &w){
         node.count += 1;
         
         float beta = dsbeta;
@@ -115,7 +114,7 @@ public:
 
     inline void updateNode(TNode &node, const TVector &w, TNumber e) {
         
-        updateRelevances(node, w, e);
+        updateRelevances(node, w);
         
         //Passo 6.1: Atualiza o peso do vencedor
         //Atualiza o nó vencedor
@@ -302,7 +301,7 @@ public:
             //e o limite de nodos não tiver sido atingido    
             //bool belongsToWinner = winner1->represents(w);
             if (!winner1->region && (meshNodeSet.size() < maxNodeNumber)) {
-                updateRelevances(*winner1, w, e_var);
+                updateRelevances(*winner1, w);
                 createNodeMap(w, noCls);
                 
 //                unsup_create++;
@@ -323,7 +322,7 @@ public:
 //                unsup_win++;
             } else {
 //                unsup_else++;
-                updateRelevances(*winner1, w, e_var);
+                updateRelevances(*winner1, w);
             }
         }
 
@@ -347,7 +346,7 @@ public:
             if (winner1->cls == cls || winner1->cls == noCls) { // winner1 representativo e da mesma classe da amostra
                 if (!winner1->region && (meshNodeSet.size() < maxNodeNumber)) {
                     // cria um novo nodo na posição da amostra
-                    updateRelevances(*winner1, w, e_var);
+                    updateRelevances(*winner1, w);
                     createNodeMap(w, cls);
                     
 //                    sup_create++;
@@ -369,12 +368,12 @@ public:
 //                    sup_else++;
 //                    updateRelevances(*winner1, w, e_var);
                     winner1->wins++;
-                    updateRelevances(*winner1, w, e_b);
+                    updateRelevances(*winner1, w);
                     
                     TPNodeConnectionMap::iterator it;
                     for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
                         TNode* node = it->first;
-                        updateRelevances(*node, w, e_n);
+                        updateRelevances(*node, w);
                     }
                 }
                 
@@ -433,12 +432,12 @@ public:
             updateNode(*winner1, w, -e_n);
             
         } else if (newWinner == NULL) {
-            updateRelevances(*winner1, w, e_var);
+            updateRelevances(*winner1, w);
             
             TPNodeConnectionMap::iterator it;
             for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
                 TNode* node = it->first;
-                updateRelevances(*node, w, e_n);
+                updateRelevances(*node, w);
             }
 //            sup_handle_else++;
         }
