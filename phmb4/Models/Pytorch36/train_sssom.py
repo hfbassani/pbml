@@ -30,16 +30,17 @@ parser.add_argument('--workers', type=int, help='number of data loading workers'
 parser.add_argument('--batch-size', type=int, default=1, help='input batch size')
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
+parser.add_argument('--norm-type', help='Normalize', action='store_true', required=False, default=None)
 
 parser.add_argument('-i', help='Input Paths', required=True)
 parser.add_argument('-t', help='Test Paths', default="")
 parser.add_argument('-r', help='Folder to output results', required=True)
 parser.add_argument('-p', help='Parameters', required=True)
 
+parser.add_argument('-n', type=int, help='number of nodes', required=False, default=200)
 parser.add_argument('-m', help='Map Path')
 parser.add_argument('-s', help='Subspace Clustering', action='store_true', required=False)
 parser.add_argument('-f', help='Filter Noise', action='store_true', required=False)
-parser.add_argument('-n', help='Normalize', action='store_true', required=False)
 parser.add_argument('-e', help='Run Full Evaluation', action='store_true', required=False)
 parser.add_argument('-d', help='Display Map', action='store_true', required=False)
 parser.add_argument('-k', help='Keep Map', action='store_true', required=False)
@@ -68,7 +69,8 @@ parameters = read_lines(opt.p)
 
 mapPath = opt.m
 isSubspace = opt.s
-filterNoise = opt.n
+filterNoise = opt.f
+numberOfNodes = opt.n
 evaluate = opt.e
 displayMap = opt.d
 keepMap = opt.k
@@ -90,7 +92,7 @@ if len(testPaths) > 0:
             sssom = SSSOM(use_cuda=use_cuda,
                           ngpu=ngpu,
                           dim=train_data.X.shape[1],
-                          max_node_number=train_data.X.shape[0],
+                          max_node_number=numberOfNodes,
                           no_class=999,
                           a_t=float(parameters[paramsSet]),
                           lp=float(parameters[paramsSet + 1]),
