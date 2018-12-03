@@ -55,9 +55,12 @@ def create_true_file(path, file_name, data, labels):
         true_file.write(line)
 
 
-def create_xtimes_kfolds(x_times, k_folds, folder, output_folder):
-    if not os.path.isdir(output_folder + "_Train"): os.mkdir(output_folder + "_Train")
-    if not os.path.isdir(output_folder + "_Test"): os.mkdir(output_folder + "_Test")
+def create_xtimes_kfolds(x_times, k_folds, folder, output_folder, norm_type):
+    if not os.path.isdir(output_folder + "_Train"):
+        os.mkdir(output_folder + "_Train")
+
+    if not os.path.isdir(output_folder + "_Test"):
+        os.mkdir(output_folder + "_Test")
 
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
@@ -70,9 +73,6 @@ def create_xtimes_kfolds(x_times, k_folds, folder, output_folder):
             del data['class']
 
             data = np.array(data)
-            scaler = preprocessing.MinMaxScaler()
-            scaler.fit(data)
-            data = scaler.transform(data)
             labels = np.array(labels)
 
             for x in xrange(x_times):
@@ -82,21 +82,31 @@ def create_xtimes_kfolds(x_times, k_folds, folder, output_folder):
                     train_data = data[train]
                     test_data = data[test]
 
+                    if norm_type == 'minmax':
+                        min_max_scaler = preprocessing.MinMaxScaler().fit(train_data)
+                        train_data = min_max_scaler.transform(train_data)
+                        test_data = min_max_scaler.transform(test_data)
+
+                    elif norm_type == 'scaler':
+                        scaler = preprocessing.StandardScaler().fit(train_data)
+                        train_data = scaler.transform(train_data)
+                        test_data = scaler.transform(test_data)
+
                     train_labels = labels[train]
                     test_labels = labels[test]
 
-                    trainFile = pd.DataFrame(train_data)
-                    trainFile['class'] = train_labels
+                    train_file = pd.DataFrame(train_data)
+                    train_file['class'] = train_labels
                     create_arff_file(path=output_folder + "_Train", file_name="train_{0}_x{1}_k{2}.arff".format(file[:-5], x + 1, fold + 1),
-                                     data=trainFile, meta=meta)
+                                     data=train_file, meta=meta)
                     create_true_file(path=output_folder + "_Train",
                                      file_name="train_{0}_x{1}_k{2}.true".format(file[:-5], x + 1, fold + 1),
                                      data=train_data, labels=train_labels)
 
-                    testFile = pd.DataFrame(test_data)
-                    testFile['class'] = test_labels
+                    test_file = pd.DataFrame(test_data)
+                    test_file['class'] = test_labels
                     create_arff_file(path=output_folder + "_Test", file_name="test_{0}_x{1}_k{2}.arff".format(file[:-5], x + 1, fold + 1),
-                                     data=testFile, meta=meta)
+                                     data=test_file, meta=meta)
                     create_true_file(path=output_folder + "_Test",
                                      file_name="test_{0}_x{1}_k{2}.true".format(file[:-5], x + 1, fold + 1),
                                      data=test_data, labels=test_labels)
@@ -126,11 +136,13 @@ parser.add_argument('-i', help='Input Directory', required=True)
 parser.add_argument('-o', help='Output Directory', required=True)
 parser.add_argument('-x', help='X Times', required=True, type=int)
 parser.add_argument('-k', help='K Folds', required=True, type=int)
+parser.add_argument('--norm', help='Normalization Type', required=False, default='scaler')
 args = parser.parse_args()
 
 folder = args.i
-outputFolder = args.o
+output_folder = args.o
 X = args.x
 K = args.k
+norm_type = args.norm
 
-create_xtimes_kfolds(x_times=X, k_folds=K, folder=folder, output_folder=outputFolder)
+create_xtimes_kfolds(x_times=X, k_folds=K, folder=folder, output_folder=output_folder, norm_type=norm_type)

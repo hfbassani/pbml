@@ -146,7 +146,7 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved, 
         bool removeNodes, int numNodes, bool runTrainTest) { 
     
-    int numberOfParameters = 10;
+    int numberOfParameters = 9;
     
     for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
         WIP som(1);
@@ -182,8 +182,7 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         som.epsilon_ds = params[i + 5];
         som.minwd = params[i + 6]; 
         som.epochs = params[i + 7];
-        som.e_var = params[i + 8] * som.e_b;
-        srand(params[i + 9]);
+        srand(params[i + 8]);
         
         string index = std::to_string((i/numberOfParameters));
                   

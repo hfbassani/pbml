@@ -200,7 +200,6 @@ void createWIPParameters(MyParameters * params, string fileName, int qtdParamete
         file << params->epsilon_ds << "\n";
         file << params->minwd << "\n";
         file << round(params->epochs) << "\n";
-        file << params->e_var << "\n";
         file << round(params->seed) << "\n";
     }
     
