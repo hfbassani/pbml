@@ -63,8 +63,8 @@ if(args["dataset_name"] == 'mnist'):
     new_classifier = nn.Sequential(*list(model.fc1.children())[:-1])
     model.fc1 = new_classifier
 elif(args["dataset_name"] == 'fashion_mnist'):
-    new_classifier = nn.Sequential(*list(model.fc1.children())[:-1])
-    model.fc1 = new_classifier
+    new_classifier = nn.Sequential(*list(model.fc3.children())[:-1])
+    model.fc3 = new_classifier
 elif(args["dataset_name"] == 'svhn'):
     new_classifier = nn.Sequential(*list(model.fc3.children())[:-1])
     model.fc3 = new_classifier

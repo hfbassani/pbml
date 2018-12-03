@@ -16,7 +16,9 @@ class Hyperparameters():
 			self.num_epochs =  3
 		elif(dataset_name == 'fashion_mnist'):
 			## Fashion Mnist
-			self.num_epochs = 3
+			self.num_epochs = 10
+			self.learning_rate = 0.001
+			self.batch_size = 64
 		elif(dataset_name == 'svhn'):
 			## Fashion Mnist
 			self.num_epochs = 20
