@@ -14,13 +14,13 @@ class FashionConvNet(nn.Module):
         param = Hyperparameters(dataset_name='fashion_mnist')
 
         # Convolution 1
-        self.cnn1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=0)
+        self.cnn1 = nn.Conv2d(in_channels=1, out_channels=64, kernel_size=5, stride=1, padding=0)
         self.relu1 = nn.ReLU()
         # Max pool 1
         self.maxpool1 = nn.MaxPool2d(kernel_size=2)
      
         # Convolution 2
-        self.cnn2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=1, padding=0)
+        self.cnn2 = nn.Conv2d(in_channels=64, out_channels=32, kernel_size=5, stride=1, padding=0)
         self.relu2 = nn.ReLU()
         
         # Max pool 2
@@ -29,7 +29,11 @@ class FashionConvNet(nn.Module):
         self.dropout = nn.Dropout(p=0.5)
 
         # Fully connected 1 (readout)
-        self.fc1 = nn.Linear(32*4*4, param.num_classes)
+        self.fc1 = nn.Linear(512, 128)
+
+        self.fc2 = nn.Linear(128, 32)
+
+        self.fc3 = nn.Linear(32, param.num_classes)
 
         '''
         1. LOADING DATASET
@@ -94,6 +98,12 @@ class FashionConvNet(nn.Module):
         
         # Linear function (readout)
         out = self.fc1(out)
+        
+        # Linear function (readout)
+        out = self.fc2(out)
+        
+        # Linear function (readout)
+        out = self.fc3(out)
         
         return out
 
