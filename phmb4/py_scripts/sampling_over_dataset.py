@@ -12,7 +12,6 @@ def read_arff(arff_file_name, folder_path, output_path, sampling_rate):
     data, meta = arff.loadarff(open(join(folder_path, arff_file_name), 'rb'))
     data = pd.DataFrame(data)
 
-
     new_data = sample(data, sampling_rate)
 
     labels = data['class'].unique()
@@ -41,7 +40,7 @@ def sample(data, sampling_rate):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Input Directory', required=True)
-parser.add_argument('-p', help='Percentage of Supervision', nargs='+', required=True, type=float)
+parser.add_argument('-p', help='Sampling Percentage', nargs='+', required=True, type=float)
 args = parser.parse_args()
 
 folder_path = args.i
