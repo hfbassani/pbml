@@ -17,12 +17,13 @@ def create_arff(arff_file_name, folder_path, output_path, supervision_r):
 
     while True:
         rng = np.random.RandomState(random.randint(1, 20000))
-        random_unlabeled_points = rng.rand(len(labels)) > supervision_r
+        random_unlabeled_points = rng.rand(len(labels)) >= supervision_r
         curr_labels = np.copy(labels)
         curr_labels[random_unlabeled_points] = str(999)
 
-        if len(labels) - len(curr_labels[random_unlabeled_points]) > len(labels) * supervision_r:
+        if len(labels) - len(curr_labels[random_unlabeled_points]) >= len(labels) * supervision_r:
             break
+
     data['class'] = curr_labels
     curr_labels = set(curr_labels)
     utils.write_arff_file(arff_file_name, data, meta, output_path, curr_labels)
