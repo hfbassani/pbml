@@ -35,9 +35,6 @@ public:
     std::vector<int> groups;
     std::map<int, int> groupLabels; 
     
-    std::vector<int> supervisedGroup;
-    std::vector<int> reinforcementGroup;
-    
     bool isSubspaceClustering;
     bool filterNoise;
 
