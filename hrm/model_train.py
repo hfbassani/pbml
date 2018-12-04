@@ -9,6 +9,7 @@ from model.fashion_mnist_cnn import FashionConvNet
 from model.svhn_cnn import SvhnConvNet
 from model.cifar10_cnn import Cifar10ConvNet
 from model.cifar100_cnn import Cifar100ConvNet
+from model.WideResNet import WideResNet
 
 import argparse
  
@@ -33,7 +34,9 @@ elif(args["dataset_name"] == 'fashion_mnist'):
 elif(args["dataset_name"] == 'svhn'):
     model = SvhnConvNet()
 elif(args["dataset_name"] == 'cifar10'):
-    model = Cifar10ConvNet()
+    #model = Cifar10ConvNet()
+    model  = WideResNet(depth=28, num_classes=10)
+
 elif(args["dataset_name"] == 'cifar100'):
     model = Cifar100ConvNet()
 
@@ -44,6 +47,10 @@ test_loader  = model.getTestLoader()
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=param.learning_rate)
+
+scheduler = None
+if(args["dataset_name"] == 'cifar10'):
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[75, 150], gamma=0.5)
 
 # Train the model
 total_step = len(train_loader)
@@ -61,6 +68,9 @@ for epoch in range(param.num_epochs):
         loss.backward()
         optimizer.step()
         
+        if(args["dataset_name"] == 'cifar10'):
+            scheduler.step(epoch)
+
         if (i+1) % 100 == 0:
             print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}' 
                    .format(epoch+1, param.num_epochs, i+1, total_step, loss.item()))
