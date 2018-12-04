@@ -31,6 +31,8 @@ parser.add_argument('--batch-size', type=int, default=1, help='input batch size'
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
 parser.add_argument('--norm-type', help='Normalize', action='store_true', required=False, default=None)
+parser.add_argument('--start-idx', help='Start Index', type=int, required=False, default=0)
+parser.add_argument('--stop-idx', help='Stop Index', type=int, required=False, default=-1)
 
 parser.add_argument('-i', help='Input Paths', required=True)
 parser.add_argument('-t', help='Test Paths', default="")
@@ -79,6 +81,17 @@ trainSorted = opt.S
 
 parameters_count = 11
 
+start_idx = opt.start_idx
+stop_idx = opt.stop_idx
+
+max_idx = len(parameters) / parameters_count
+
+if stop_idx < 0 or stop_idx > max_idx:
+    stop_idx = max_idx
+
+if stop_idx <= start_idx:
+    start_idx = 0
+    stop_idx = max_idx
 
 if len(testPaths) > 0:
     for i, (train, test) in enumerate(zip(inputPaths, testPaths)):
@@ -88,7 +101,7 @@ if len(testPaths) > 0:
         test_loader = DataLoader(test_data,
                                  num_workers=opt.workers)
 
-        for paramsSet in range(0, len(parameters), parameters_count):
+        for paramsSet in range(start_idx * parameters_count, stop_idx * parameters_count, parameters_count):
             sssom = SSSOM(use_cuda=use_cuda,
                           ngpu=ngpu,
                           dim=train_data.X.shape[1],
