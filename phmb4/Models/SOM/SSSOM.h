@@ -49,7 +49,7 @@ public:
         }
 
         float sum = node.ds.sum();
-        return (sum / (sum + distance + 0.0000001));
+        return (sum / (sum + sqrt(distance) + 0.0000001));
     }
     
     inline float wdist(const TNode &node1, const TNode &node2) {

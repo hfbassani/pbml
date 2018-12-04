@@ -18,10 +18,10 @@
 #include "DisplaySSSOM.h"
 #include <sys/stat.h>
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath,
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved);
 void runTrainTestExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, 
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool displayMap, bool normalize, bool keepMapSaved);
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool displayMap, bool normalize,
+        bool keepMapSaved, bool removeNodes, int numNodes, bool runTrainTest);
+
 void evaluate (string filePath, string somPath, bool subspaceClustering, bool filterNoise, bool sorted, bool normalize);
 
 std::vector<float> loadParametersFile(string path);
@@ -54,8 +54,12 @@ int main(int argc, char** argv) {
     
     bool keepMapSaved = false;
     
+    bool removeNodes = true;
+    
+    int numNodes = -1;
+    
     int c;
-    while ((c = getopt(argc, argv, "i:t:r:p:m:sfScednk")) != -1) {
+    while ((c = getopt(argc, argv, "i:t:r:p:m:N:sfScednkz")) != -1) {
 
         switch (c) {
             case 'i':
@@ -72,6 +76,9 @@ int main(int argc, char** argv) {
                 break;
             case 'm':
                 mapPath.assign(optarg);
+                break;
+            case 'N':
+                numNodes = atoi(optarg);
                 break;
             case 's':
                 isSubspaceClustering = false;
@@ -97,6 +104,9 @@ int main(int argc, char** argv) {
             case 'k':
                 keepMapSaved = true;
                 break;
+            case 'z':
+                removeNodes = false;
+                break;
         }
     }
 
@@ -115,12 +125,8 @@ int main(int argc, char** argv) {
     std::vector<float> params = loadParametersFile(parametersFile);
 
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
-        if(!runTrainTest) {
-            runExperiments(params, inputFiles[i], resultPath, isSubspaceClustering, isFilterNoise, isSorted, normalize, keepMapSaved);
-        } else {
-            runTrainTestExperiments(params, inputFiles[i], testFiles[i], resultPath, 
-                    isSubspaceClustering, isFilterNoise, isSorted, displayMap, normalize, keepMapSaved);
-        }
+        runTrainTestExperiments(params, inputFiles[i], testFiles[i], resultPath, isSubspaceClustering,
+                isFilterNoise, isSorted, displayMap, normalize, keepMapSaved, removeNodes, numNodes, runTrainTest);
     }
 }
 
@@ -142,54 +148,9 @@ void evaluate (string filePath, string somPath, bool subspaceClustering, bool fi
     clusteringSOM.outClassInfo(clusteringSOM.groups, clusteringSOM.groupLabels);
 }
 
-void runExperiments (std::vector<float> params, string filePath, string outputPath, 
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool normalize, bool keepMapSaved) {
-
-    SSSOM som(1);
-    SOM<SSSOMNode> *sssom = (SOM<SSSOMNode>*) &som;
-
-    ClusteringMeshSSSOM clusteringSOM(sssom);
-    clusteringSOM.readFile(filePath, normalize);
-    clusteringSOM.sorted = sorted;
-
-    clusteringSOM.setIsSubspaceClustering(isSubspaceClustering);
-    clusteringSOM.setFilterNoise(isFilterNoise);    
-    
-    int numberOfParameters = 11;
-    
-    for (int i = 0 ; i < params.size() - 1 ; i += numberOfParameters) {
-        som.a_t = params[i];
-        som.lp = params[i + 1];
-        som.dsbeta = params[i + 2];
-        som.age_wins = params[i + 3];
-        som.e_b = params[i + 4];
-        som.e_n = params[i + 5] * som.e_b;
-        som.epsilon_ds = params[i + 6];
-        som.minwd = params[i + 7];
-        som.epochs = params[i + 8];
-        som.push_rate = params[i + 9] * som.e_b;
-                
-        string index = std::to_string((i/numberOfParameters));
-        
-        srand(params[i + 10]);
-        
-        som.noCls = 999;
-        som.maxNodeNumber = clusteringSOM.getNumSamples();
-        som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
-        som.reset(clusteringSOM.getInputSize());
-        clusteringSOM.trainSOM(som.epochs);
-        som.finishMapFixed(sorted, clusteringSOM.groups, clusteringSOM.groupLabels);
-        
-        if (keepMapSaved) {
-            som.saveSOM(outputPath + "som_" + getFileName(filePath) + "_" + index);
-        }
-        
-        clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
-    }
-}
-
 void runTrainTestExperiments (std::vector<float> params, string filePath, string testPath, string outputPath, 
-        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool displayMap, bool normalize, bool keepMapSaved) { 
+        bool isSubspaceClustering, bool isFilterNoise, bool sorted, bool displayMap, bool normalize,
+        bool keepMapSaved, bool removeNodes, int numNodes, bool runTrainTest) { 
     
     int numberOfParameters = 11;
     
@@ -205,7 +166,11 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         clusteringSOM.setFilterNoise(isFilterNoise);   
                         
         som.a_t = params[i];
-        som.lp = params[i + 1];
+        if (removeNodes) {
+            som.lp = params[i + 1];
+        } else {
+            som.lp = 0.0;            
+        }
         som.dsbeta = params[i + 2];
         som.age_wins = params[i + 3];
         som.e_b = params[i + 4];
@@ -220,7 +185,12 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
         srand(params[i + 10]);
 
         som.noCls = 999;
-        som.maxNodeNumber = clusteringSOM.getNumSamples();
+        if (numNodes < 0) {
+            som.maxNodeNumber = clusteringSOM.getNumSamples();
+        } else {
+            som.maxNodeNumber = numNodes;
+        }
+        
         som.age_wins = round(som.age_wins*clusteringSOM.getNumSamples());
         som.reset(clusteringSOM.getInputSize());
         
@@ -253,10 +223,13 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
             
             dm.displayLoop();
             
-            clusteringSOM.cleanUpTrainingData();
-            clusteringSOM.readFile(testPath, normalize);
-            clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
-        
+            if (runTrainTest) {
+                clusteringSOM.cleanUpTrainingData();
+                clusteringSOM.readFile(testPath, normalize);
+                clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
+            } else {
+                clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
+            }
             dm.setTrainingData(clusteringSOM.trainingData);
             dm.setTrueClustersData(clusteringSOM.groups);
             dm.setGroupLabels(&clusteringSOM.groupLabels);
@@ -273,9 +246,13 @@ void runTrainTestExperiments (std::vector<float> params, string filePath, string
                 som.saveSOM(outputPath + "som_" + getFileName(filePath) + "_" + index);
             }
             
-            clusteringSOM.cleanUpTrainingData();
-            clusteringSOM.readFile(testPath, normalize);
-            clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
+            if (runTrainTest) {
+                clusteringSOM.cleanUpTrainingData();
+                clusteringSOM.readFile(testPath, normalize);
+                clusteringSOM.writeClusterResults(outputPath + getFileName(testPath) + "_" + index + ".results");
+            } else {
+                clusteringSOM.writeClusterResults(outputPath + getFileName(filePath) + "_" + index + ".results");
+            }
         }
     }
 }
