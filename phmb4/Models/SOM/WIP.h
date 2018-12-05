@@ -366,15 +366,7 @@ public:
 //                    sup_win++;
                 } else {
 //                    sup_else++;
-//                    updateRelevances(*winner1, w, e_var);
-                    winner1->wins++;
                     updateRelevances(*winner1, w);
-                    
-                    TPNodeConnectionMap::iterator it;
-                    for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
-                        TNode* node = it->first;
-                        updateRelevances(*node, w);
-                    }
                 }
                 
             } else { // winner tem classe diferente da amostra
@@ -404,10 +396,20 @@ public:
         if (newWinner != NULL) { // novo winner de acordo com o raio de a_t
             
             // empurrar o primeiro winner que tem classe diferente da amostra
-            newWinner->wins++;
-            
-            updateNode(*newWinner, w, e_b);
-//            sup_handle_new_win_full++;
+            if (newWinner->region) {
+                newWinner->wins++;
+
+                updateNode(*newWinner, w, e_b);
+    //            sup_handle_new_win_full++;
+                
+                TPNodeConnectionMap::iterator it;
+                for (it = newWinner->nodeMap.begin(); it != newWinner->nodeMap.end(); it++) {
+                    TNode* node = it->first;
+                    updateNode(*node, w, e_n);
+                }
+            } else {
+                updateRelevances(*newWinner, w);
+            }
            
         } else if (meshNodeSet.size() < maxNodeNumber) {
             
@@ -433,12 +435,6 @@ public:
             
         } else if (newWinner == NULL) {
             updateRelevances(*winner1, w);
-            
-            TPNodeConnectionMap::iterator it;
-            for (it = winner1->nodeMap.begin(); it != winner1->nodeMap.end(); it++) {            
-                TNode* node = it->first;
-                updateRelevances(*node, w);
-            }
 //            sup_handle_else++;
         }
     }
