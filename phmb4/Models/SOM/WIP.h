@@ -395,9 +395,9 @@ public:
 
         if (newWinner != NULL) { // novo winner de acordo com o raio de a_t
             
+            newWinner->wins++;
             // empurrar o primeiro winner que tem classe diferente da amostra
             if (newWinner->region) {
-                newWinner->wins++;
 
                 updateNode(*newWinner, w, e_b);
     //            sup_handle_new_win_full++;
