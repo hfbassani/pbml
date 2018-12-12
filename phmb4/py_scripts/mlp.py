@@ -31,12 +31,12 @@ def run_mlp(train_x, train_y, test_x, test_y, neurons=100, hidden_layers=1, lr=0
 def run(folder, params_folder, output, supervision, sup_prefix):
     test_folder = folder.replace("_Train", "_Test")
 
-    if sup_prefix:
-        files = [f for f in listdir(folder) if isfile(join(folder, f)) and f.endswith(".arff") and
-                 not f.startswith(".") and f.startswith("sup_")]
-    else:
-        files = [f for f in listdir(folder) if isfile(join(folder, f)) and f.endswith(".arff") and
-                 not f.startswith(".") and not f.startswith("sup_")]
+    files = [f for f in listdir(folder) if isfile(join(folder, f)) and f.endswith(".arff") and not f.startswith(".")]
+
+    if sup_prefix and supervision != 1.0:
+        files = [f for f in files if f.startswith("sup_")]
+    elif not sup_prefix:
+        files = [f for f in files if not f.startswith("sup_")]
 
     files = sorted(files)
 
@@ -103,7 +103,7 @@ def run(folder, params_folder, output, supervision, sup_prefix):
         mean_value_mlp.append(np.nanmean(mlp_acc[len(mlp_acc) - 1]))
         std_value_mlp.append(np.nanstd(mlp_acc[len(mlp_acc) - 1], ddof=1))
 
-        dataset_names.append(file[:-5])
+        dataset_names.append(test_file[:-5])
 
         print "{0}\nMLP: {1}({2})[{3}]\n\n".format(file,
                                                    np.mean(mlp_acc[len(mlp_acc) - 1]),

@@ -17,8 +17,8 @@ def analyse(folder, rows, rows_add, plot, save, extension, extra_results, crop, 
     if save or plot:
         plot_graph(plot_means, plot_stds, datasets, plot, save, extension, folder, extra_results, rows_add, crop, sup)
 
-    outputFile = open(join(folder, "analysis-" + folder + ".csv"), "w+")
-    outputFile.write(line)
+    output_file = open(join(folder, "analysis-" + folder + ".csv"), "w+")
+    output_file.write(line)
 
 
 def summarize(folder, rows):
