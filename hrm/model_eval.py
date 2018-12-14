@@ -10,6 +10,7 @@ from model.svhn_cnn import SvhnConvNet
 from model.cifar10_cnn import Cifar10ConvNet
 from model.cifar100_cnn import Cifar100ConvNet
 from model.WideResNet import WideResNet
+from model.cifar10_vgg_cnn import Cifar10VggNet
 
 import argparse
  
@@ -35,7 +36,8 @@ elif(args["dataset_name"] == 'svhn'):
     model = SvhnConvNet()
 elif(args["dataset_name"] == 'cifar10'):
     #model = Cifar10ConvNet()
-    model  = WideResNet(depth=28, num_classes=10)
+    #model = WideResNet(depth=28, num_classes=10)
+    model = Cifar10VggNet()
 elif(args["dataset_name"] == 'cifar100'):
     model = Cifar100ConvNet()
 model = model.to(device)
