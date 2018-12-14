@@ -12,6 +12,7 @@ from model.cifar10_cnn import Cifar10ConvNet
 from model.cifar100_cnn import Cifar100ConvNet
 from model.WideResNet import WideResNet
 import argparse
+from model.cifar10_vgg_cnn import Cifar10VggNet
  
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -35,8 +36,8 @@ elif(args["dataset_name"] == 'svhn'):
     model = SvhnConvNet()
 elif(args["dataset_name"] == 'cifar10'):
     #model = Cifar10ConvNet()
-    #self.model = WideResNet(depth=28, num_classes=10).to(self.device)
-    model  = WideResNet(depth=28, num_classes=10)
+    #model = WideResNet(depth=28, num_classes=10)
+    model = Cifar10VggNet()
 elif(args["dataset_name"] == 'cifar100'):
     model = Cifar100ConvNet()
 
@@ -71,8 +72,8 @@ elif(args["dataset_name"] == 'svhn'):
     new_classifier = nn.Sequential(*list(model.fc3.children())[:-1])
     model.fc3 = new_classifier
 elif(args["dataset_name"] == 'cifar10'):
-    new_classifier = nn.Sequential(*list(model.fc3.children())[:-1])
-    model.fc3 = new_classifier
+    new_classifier = nn.Sequential(*list(model.classifier.children())[:-1])
+    model.classifier = new_classifier
 elif(args["dataset_name"] == 'cifar100'):
     new_classifier = nn.Sequential(*list(model.classifier.children())[:-1])
     model.classifier = new_classifier
