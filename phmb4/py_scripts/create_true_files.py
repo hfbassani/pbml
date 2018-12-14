@@ -5,6 +5,7 @@ from scipy.io import arff
 from os import listdir
 from os.path import isfile, join
 
+
 def create_true_file (path, fileName, data, labels):
     trueFile = open(join(path, fileName), 'w+')
 
@@ -24,6 +25,7 @@ def create_true_file (path, fileName, data, labels):
 
         trueFile.write(line)
 
+
 def create_true_files_from_path(folder):
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
@@ -39,6 +41,7 @@ def create_true_files_from_path(folder):
             labels = np.array(labels)
 
             create_true_file(folder, "{0}.true".format(file[:-5]), data, labels)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Input Directory', required=True)
