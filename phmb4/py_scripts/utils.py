@@ -74,8 +74,8 @@ def read_header(files, folder, header_rows, save_parameters=True):
     return datasets, folds, headers
 
 
-def get_params_and_results(file_name):
-    results = pd.read_csv(file_name, skiprows=10, header=None)
+def get_params_and_results(file_name, rows=9):
+    results = pd.read_csv(file_name, skiprows=rows + 1, header=None)
 
     first_param_idx = results.iloc[0]
 
