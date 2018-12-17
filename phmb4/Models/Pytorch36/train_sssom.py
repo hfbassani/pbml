@@ -84,7 +84,7 @@ parameters_count = 11
 start_idx = opt.start_idx
 stop_idx = opt.stop_idx
 
-max_idx = len(parameters) / parameters_count
+max_idx = int(len(parameters) / parameters_count)
 
 if stop_idx < 0 or stop_idx > max_idx:
     stop_idx = max_idx

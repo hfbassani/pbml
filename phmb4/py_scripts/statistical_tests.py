@@ -1,5 +1,4 @@
 import argparse
-import numpy as np
 from os import listdir
 from os.path import isfile, join, isdir
 from scipy.stats import wilcoxon
@@ -36,11 +35,6 @@ if not args.d and not args.f:
     parser.error("[-d directories] or [-f files] required.")
 
 test = args.t
-
-
-x = [585292.87, 35861712.63, 19572540.87, 245910755.60, 298607172.50, 1794109580.00, 2042209644.00, 3721912787.00, 3063761003.00]
-y = [665323.58, 68278548.03, 27903345.88, 331285811.30, 335398848.10, 2015596867.00, 2488404961.00, 3989410243.00, 3221495744.00]
-statistic, pvalue = wilcoxon(x, y)
 
 if isdir(args.d):
     input_files = [f for f in listdir(args.d) if isfile(join(args.d, f)) and not f.startswith('.') and f.endswith(".csv")
