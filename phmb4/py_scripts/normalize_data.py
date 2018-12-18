@@ -59,7 +59,7 @@ def normalize(train_folder, test_folder, output_train_folder, output_test_folder
             utils.write_arff_file(test, test_data, test_meta, output_test_folder, test_targets)
         else:
             train_data.to_csv(join(output_train_folder, train), sep=',', index=False, header=False)
-            test_data.to_csv(join(output_test_folder, train), sep=',', index=False, header=False)
+            test_data.to_csv(join(output_test_folder, test), sep=',', index=False, header=False)
 
 
 parser = argparse.ArgumentParser()
@@ -79,3 +79,4 @@ norm_type = args.norm
 normalize(train_folder=train_folder, test_folder=test_folder,
           output_train_folder=output_train_folder, output_test_folder=output_test_folder,
           norm_type=norm_type)
+	
