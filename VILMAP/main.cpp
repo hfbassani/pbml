@@ -21,7 +21,6 @@
 #include "VILMAP.h"
 #include "unistd.h"
 #include "TextToPhoneme.h"
-#include "MyParameters/MyParameters.h"
 #include "OutputMetrics/OutputMetrics.h"
 #include <string>
 #include <sys/stat.h>
@@ -48,8 +47,6 @@ void runStudyOfCaseAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, S
 void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp);
 void learningTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM);
 
-void createParametersFile(MyParameters *params);
-void createParametersFiles(MyParameters *params);
 
 std::vector<float> loadParametersFile(int number);
 std::vector<float> loadParametersFile();
@@ -70,7 +67,6 @@ std::vector<MatMatrix<float> > v_true[100]; //Vector of false data
 
 int main(int argc, char** argv) {
 
-    MyParameters params; //Teste de Parâmetros
     OutputMetrics outputM; //Classe que escreve a saída das métricas
     int seed = 0;
     dbgThreshold(1);
@@ -958,127 +954,6 @@ std::vector<float> loadParametersFile() {
         params.push_back(std::atof(text.c_str()));
     }
     return params;
-}
-
-void createParametersFiles(MyParameters * params) {
-    string name1 = "input/MyParameters1";
-    std::ofstream file1;
-    file1.open(name1.c_str());
-
-    string name2 = "input/MyParameters2";
-    std::ofstream file2;
-    file2.open(name2.c_str());
-
-    string name3 = "input/MyParameters3";
-    std::ofstream file3;
-    file3.open(name3.c_str());
-
-    string name4 = "input/MyParameters4";
-    std::ofstream file4;
-    file4.open(name4.c_str());
-
-    string name5 = "input/MyParameters5";
-    std::ofstream file5;
-    file5.open(name5.c_str());
-
-    string name6 = "input/MyParameters6";
-    std::ofstream file6;
-    file6.open(name6.c_str());
-    cout << *params;
-    int i = 0;
-    int experiment;
-    for (params->initLHS(params->N), experiment = 1; !params->finished(); params->setNextValues(), experiment++) {
-        if (i >= 0 && i < 17) {
-
-            file1 << params->a_t << "\n";
-            file1 << params->lp << "\n";
-            file1 << params->dsbeta << "\n";
-            file1 << params->e_b << "\n";
-            file1 << params->e_n << "\n";
-            file1 << params->epsilon_ds << "\n";
-            file1 << params->minwd << "\n";
-
-        } else if (i >= 17 && i < 34) {
-
-            file2 << params->a_t << "\n";
-            file2 << params->lp << "\n";
-            file2 << params->dsbeta << "\n";
-            file2 << params->e_b << "\n";
-            file2 << params->e_n << "\n";
-            file2 << params->epsilon_ds << "\n";
-            file2 << params->minwd << "\n";
-
-        } else if (i >= 34 && i < 51) {
-
-            file3 << params->a_t << "\n";
-            file3 << params->lp << "\n";
-            file3 << params->dsbeta << "\n";
-            file3 << params->e_b << "\n";
-            file3 << params->e_n << "\n";
-            file3 << params->epsilon_ds << "\n";
-            file3 << params->minwd << "\n";
-
-        } else if (i >= 51 && i < 68) {
-
-            file4 << params->a_t << "\n";
-            file4 << params->lp << "\n";
-            file4 << params->dsbeta << "\n";
-            file4 << params->e_b << "\n";
-            file4 << params->e_n << "\n";
-            file4 << params->epsilon_ds << "\n";
-            file4 << params->minwd << "\n";
-
-        } else if (i >= 68 && i < 85) {
-
-            file5 << params->a_t << "\n";
-            file5 << params->lp << "\n";
-            file5 << params->dsbeta << "\n";
-            file5 << params->e_b << "\n";
-            file5 << params->e_n << "\n";
-            file5 << params->epsilon_ds << "\n";
-            file5 << params->minwd << "\n";
-
-        } else if (i >= 85 && i < 100) {
-
-            file6 << params->a_t << "\n";
-            file6 << params->lp << "\n";
-            file6 << params->dsbeta << "\n";
-            file6 << params->e_b << "\n";
-            file6 << params->e_n << "\n";
-            file6 << params->epsilon_ds << "\n";
-            file6 << params->minwd << "\n";
-
-        }
-        i++;
-
-    }
-    file1.close();
-    file2.close();
-    file3.close();
-    file4.close();
-    file5.close();
-    file6.close();
-}
-
-void createParametersFile(MyParameters * params) {
-    string name1 = "/home/raphael/Desktop/MyParametersFile.txt";
-    std::ofstream file1;
-    file1.open(name1.c_str());
-    cout << *params;
-    int experiment;
-    for (params->initLHS(params->N), experiment = 1; !params->finished(); params->setNextValues(), experiment++) {
-
-        file1 << params->a_t << "\n";
-        file1 << params->lp << "\n";
-        file1 << params->dsbeta << "\n";
-        file1 << std::round(params->age_wins) << "\n";
-        file1 << params->e_b << "\n";
-        file1 << params->e_n << "\n";
-        file1 << params->epsilon_ds << "\n";
-        file1 << params->minwd << "\n";
-
-    }
-    file1.close();
 }
 
 void loadFalseDataInMemory() {

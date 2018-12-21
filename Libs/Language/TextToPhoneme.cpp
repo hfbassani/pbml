@@ -1,5 +1,6 @@
 #include "TextToPhoneme.h"
 
+#include "Defines.h"
 #include <fstream>
 #include <iostream>
 #include <cfloat>

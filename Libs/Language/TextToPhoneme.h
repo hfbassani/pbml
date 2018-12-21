@@ -1,7 +1,6 @@
 #ifndef TEXTTOPHONEME_H
 #define TEXTTOPHONEME_H
 
-#include "Defines.h"
 #include "MatMatrix.h"
 #include "MatVector.h"
 #include <iostream>

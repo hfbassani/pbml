@@ -21,8 +21,6 @@
 #include "ClusteringSOM.h"
 #include "VILMAP.h"
 #include "unistd.h"
-#include "MyParameters/MyParameters.h"
-#include "OutputMetrics/OutputMetrics.h"
 #include <string>
 #include <sys/stat.h> 
 using namespace std;
