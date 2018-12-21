@@ -48,6 +48,27 @@
         <itemPath>../Libs/Parameters/Parameters.h</itemPath>
       </logicalFolder>
     </logicalFolder>
+    <logicalFolder name="LocalLibs" displayName="LocalLibs" projectFiles="true">
+      <logicalFolder name="Cluster" displayName="Cluster" projectFiles="true">
+        <itemPath>LocalLibs/Cluster/ClusteringMetrics.cpp</itemPath>
+        <itemPath>LocalLibs/Cluster/ClusteringMetrics.h</itemPath>
+        <itemPath>LocalLibs/Cluster/ClusteringSOM.cpp</itemPath>
+        <itemPath>LocalLibs/Cluster/ClusteringSOM.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="SOM" displayName="SOM" projectFiles="true">
+        <itemPath>LocalLibs/SOM/DSNeuron.cpp</itemPath>
+        <itemPath>LocalLibs/SOM/DSNeuron.h</itemPath>
+        <itemPath>LocalLibs/SOM/DSNode.h</itemPath>
+        <itemPath>LocalLibs/SOM/LARFDSSOM.h</itemPath>
+        <itemPath>LocalLibs/SOM/Mesh.h</itemPath>
+        <itemPath>LocalLibs/SOM/Neuron.cpp</itemPath>
+        <itemPath>LocalLibs/SOM/Neuron.h</itemPath>
+        <itemPath>LocalLibs/SOM/NodeW.cpp</itemPath>
+        <itemPath>LocalLibs/SOM/NodeW.h</itemPath>
+        <itemPath>LocalLibs/SOM/SOM.h</itemPath>
+        <itemPath>LocalLibs/SOM/VILMAP.h</itemPath>
+      </logicalFolder>
+    </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Arquivos de testes"
                    projectFiles="false"
@@ -62,6 +83,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>../Libs</Elem>
+    <Elem>LocalLibs</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -134,6 +156,45 @@
       <item path="../Libs/Parameters/Parameters.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../Libs/Parameters/Parameters.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/Cluster/ClusteringMetrics.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="LocalLibs/Cluster/ClusteringMetrics.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="LocalLibs/Cluster/ClusteringSOM.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="LocalLibs/Cluster/ClusteringSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/DSNeuron.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/DSNeuron.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/DSNode.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/Mesh.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/Neuron.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/Neuron.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/NodeW.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/NodeW.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/SOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/VILMAP.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="OutputMetrics/OutputMetrics.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -217,6 +278,45 @@
       <item path="../Libs/Parameters/Parameters.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../Libs/Parameters/Parameters.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/Cluster/ClusteringMetrics.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="LocalLibs/Cluster/ClusteringMetrics.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="LocalLibs/Cluster/ClusteringSOM.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="LocalLibs/Cluster/ClusteringSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/DSNeuron.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/DSNeuron.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/DSNode.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/LARFDSSOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/Mesh.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/Neuron.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/Neuron.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/NodeW.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/NodeW.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/SOM.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="LocalLibs/SOM/VILMAP.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="OutputMetrics/OutputMetrics.h" ex="false" tool="3" flavor2="0">
       </item>

@@ -42,6 +42,11 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/8bffeb2f/MatUtils.o \
 	${OBJECTDIR}/_ext/36bbb5bc/LHSParameters.o \
 	${OBJECTDIR}/_ext/36bbb5bc/Parameters.o \
+	${OBJECTDIR}/LocalLibs/Cluster/ClusteringMetrics.o \
+	${OBJECTDIR}/LocalLibs/Cluster/ClusteringSOM.o \
+	${OBJECTDIR}/LocalLibs/SOM/DSNeuron.o \
+	${OBJECTDIR}/LocalLibs/SOM/Neuron.o \
+	${OBJECTDIR}/LocalLibs/SOM/NodeW.o \
 	${OBJECTDIR}/main.o
 
 
@@ -103,6 +108,31 @@ ${OBJECTDIR}/_ext/36bbb5bc/Parameters.o: ../Libs/Parameters/Parameters.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/36bbb5bc
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -I../Libs/MatMatrix -I../Libs/Data -I../Libs/Language -I. -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/36bbb5bc/Parameters.o ../Libs/Parameters/Parameters.cpp
+
+${OBJECTDIR}/LocalLibs/Cluster/ClusteringMetrics.o: LocalLibs/Cluster/ClusteringMetrics.cpp
+	${MKDIR} -p ${OBJECTDIR}/LocalLibs/Cluster
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I../Libs/MatMatrix -I../Libs/Data -I../Libs/Language -I. -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/Cluster/ClusteringMetrics.o LocalLibs/Cluster/ClusteringMetrics.cpp
+
+${OBJECTDIR}/LocalLibs/Cluster/ClusteringSOM.o: LocalLibs/Cluster/ClusteringSOM.cpp
+	${MKDIR} -p ${OBJECTDIR}/LocalLibs/Cluster
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I../Libs/MatMatrix -I../Libs/Data -I../Libs/Language -I. -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/Cluster/ClusteringSOM.o LocalLibs/Cluster/ClusteringSOM.cpp
+
+${OBJECTDIR}/LocalLibs/SOM/DSNeuron.o: LocalLibs/SOM/DSNeuron.cpp
+	${MKDIR} -p ${OBJECTDIR}/LocalLibs/SOM
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I../Libs/MatMatrix -I../Libs/Data -I../Libs/Language -I. -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/SOM/DSNeuron.o LocalLibs/SOM/DSNeuron.cpp
+
+${OBJECTDIR}/LocalLibs/SOM/Neuron.o: LocalLibs/SOM/Neuron.cpp
+	${MKDIR} -p ${OBJECTDIR}/LocalLibs/SOM
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I../Libs/MatMatrix -I../Libs/Data -I../Libs/Language -I. -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/SOM/Neuron.o LocalLibs/SOM/Neuron.cpp
+
+${OBJECTDIR}/LocalLibs/SOM/NodeW.o: LocalLibs/SOM/NodeW.cpp
+	${MKDIR} -p ${OBJECTDIR}/LocalLibs/SOM
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I../Libs/MatMatrix -I../Libs/Data -I../Libs/Language -I. -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/SOM/NodeW.o LocalLibs/SOM/NodeW.cpp
 
 ${OBJECTDIR}/main.o: main.cpp
 	${MKDIR} -p ${OBJECTDIR}
