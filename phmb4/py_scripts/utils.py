@@ -148,7 +148,7 @@ def write_arff_file(arff_file_name, data, meta, output_path, labels):
             new_file.write("@attribute {0} {1}\n".format(attr, get_type(meta.types()[i])))
         else:
             new_file.write("@attribute {0} {{".format(attr))
-            sorted_labels = sorted(map(int, np.unique(labels)))
+            sorted_labels = sorted(map(int, labels))
             new_file.write("{0}".format(",".join(map(str, sorted_labels))))
             new_file.write("}\n")
     new_file.write("@data\n")
