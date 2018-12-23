@@ -115,7 +115,11 @@ int main(int argc, char** argv) {
     } 
     
     std::vector<string> inputFiles = loadStringFile(inputPath);
-    std::vector<string> testFiles = loadStringFile(testPath);
+    
+    std::vector<string> testFiles = inputFiles;
+    if (testPath != "") {
+        testFiles = loadStringFile(testPath);
+    }
     std::vector<float> params = loadParametersFile(parametersFile);
 
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
@@ -237,7 +241,7 @@ std::vector<float> loadParametersFile(string path) {
     return params;
 }
 
-std::vector<string> loadStringFile(string path) {
+std::vector<string> loadStringFile(string path) {    
     std::ifstream file(path.c_str());
     std::string text;
     std::vector<string> params;
