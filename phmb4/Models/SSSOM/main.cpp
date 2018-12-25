@@ -121,7 +121,12 @@ int main(int argc, char** argv) {
     } 
     
     std::vector<string> inputFiles = loadStringFile(inputPath);
-    std::vector<string> testFiles = loadStringFile(testPath);
+    
+    std::vector<string> testFiles = inputFiles;
+    if (testPath != "") {
+        testFiles = loadStringFile(testPath);
+    }
+    
     std::vector<float> params = loadParametersFile(parametersFile);
 
     for (int i = 0 ; i < inputFiles.size() - 1 ; ++i) {
