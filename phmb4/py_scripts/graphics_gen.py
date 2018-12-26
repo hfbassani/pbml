@@ -229,7 +229,7 @@ def get_headers(file_name):
 def plot_params_results(file_name, header_rows=9, params_to_plot=None, save=False, plot=True):
 
     datasets, _, _ = utils.read_header([file_name], "", header_rows, save_parameters=False)
-    params, results = utils.get_params_and_results(file_name)
+    params, results = utils.get_params_and_results(file_name, header_rows)
 
     if params_to_plot is None:
         params_to_plot = params.columns
@@ -348,7 +348,7 @@ if not os.path.isdir(image_path):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='File Path', required=True)
-parser.add_argument('-r', help='Number of Heade Rows', required=False, type=int, default=9)
+parser.add_argument('-r', help='Number of Header Rows', required=False, type=int, default=9)
 parser.add_argument('-p', help='Parameters to plot', nargs='*', required=False, type=str, default=None)
 parser.add_argument('-s', help='Plot synthethic data', action='store_true', required=False)
 parser.add_argument('--plot', help='Normal plot', action='store_true', required=False)

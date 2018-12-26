@@ -30,13 +30,14 @@ public class ClusteringAnalysis {
     static ArrayList<String> parametersName = new ArrayList<>();
     static ArrayList<String> parameters = new ArrayList<>();
     static int repeat = 500;
+    static boolean semi_sup = false;
 
     static File inputsDirectory;
     static String inputFileNames[];
     static ArrayList<Cluster> trueClusters;
 
     static final String INPUT_MESSAGE = "Usage: 'Metrics (CE:F1Measure)' 'Datafiles directory' 'Results directory' " +
-            "'Output directory' [-t] [-e extension] [-n 'Parameter Names File'] [-p 'Parameters File'] -r 'number of experiments'";
+            "'Output directory' [-t] [-e extension] [-n 'Parameter Names File'] [-p 'Parameters File'] -r 'number of experiments' -S 'Semi-Supervised";
 
     public static void main(String[] args) {
 
@@ -83,6 +84,9 @@ public class ClusteringAnalysis {
 
                 i++;
                 repeat = Integer.valueOf(args[i]);
+            } else if (args[i].compareTo("-S") == 0) {
+                showErrorMessage(args, i);
+                semi_sup = true;
             }
         }
 
@@ -292,14 +296,10 @@ public class ClusteringAnalysis {
         int start = 0;
         int end = bestValues.size() / measureNames.length;
         for (int i = 0 ; i < measureNames.length ; ++i) {
-            line = measureNames[i];
 
             List<Double> measureValues = bestValuesSorted.subList(start, end);
 
-            line += "," + Double.toString(mean(measureValues)) + " (" + Double.toString(sample_stdev(measureValues)) + ")";
             System.out.println("\n" + measureNames[i] + " mean(std):" + Double.toString(mean(measureValues)) + " (" + Double.toString(sample_stdev(measureValues)) + ")" );
-
-            outputLines.add(line);
 
             start = end;
             end += measureValues.size();
@@ -486,6 +486,10 @@ public class ClusteringAnalysis {
         while (sc.hasNext()) {
             int index = sc.nextInt();
             int cluster = sc.nextInt();
+
+            if (semi_sup)
+                sc.nextInt(); //skip class value
+
             if (cluster>=0)
                 clusterList.get(cluster).m_objects.add(index);
         }

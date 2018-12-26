@@ -1,1 +1,0 @@
-java -jar ClusteringAnalysis.jar "CE" ../Datasets/Realdata/ Models/LARFDSSOM/test_impl Models/ LARFDSSOM_test_impl -n Parameters/parametersNameOrig -p Parameters/ParamsOrigNewRanges_0 -r 500 -t
