@@ -1155,10 +1155,10 @@ public:
             trainingData->getRow(i, sample);
 
             std::vector<int> winners;
-            std::vector<int> result;
+            std::vector<float> result;
             
             result = som->getWinnerResult(sample);
-            winners.push_back(result[0]);
+            winners.push_back((int) result[0]);
             float act = result[3];
             
             if(filterNoise && som->isNoise(act)) {
@@ -1170,7 +1170,7 @@ public:
                 file << winners[j];
                 
                 if (result.size() > 0) {
-                    file<< "\t" << result[1];
+                    file<< "\t" << (int) result[1];
                 }
                 
                 file << endl;
@@ -1189,14 +1189,14 @@ public:
             MatVector<float> sample;
             trainingData->getRow(k, sample);
 
-            std::vector<int> result = som->getWinnerResult(sample); 
+            std::vector<float> result = som->getWinnerResult(sample); 
             float act = result[3];
             
             if(filterNoise && som->isNoise(act)) {
                 continue;
             }
             
-            int cls = result[1];
+            int cls = (int) result[1];
             
             if (groups[k] == cls) {
                 hits++;
@@ -1221,10 +1221,10 @@ public:
             trainingData->getRow(k, sample);
 
             std::vector<int> winners;
-            std::vector<int> result;
+            std::vector<float> result;
             
             result = som->getWinnerResult(sample);
-            winners.push_back(result[0]);
+            winners.push_back((int) result[0]);
             float act = result[3];
             
             if(filterNoise && som->isNoise(act)) {
@@ -1289,14 +1289,14 @@ public:
             MatVector<float> sample;
             trainingData->getRow(k, sample);
 
-            std::vector<int> result = som->getWinnerResult(sample);
-            int winner = result[0];
+            std::vector<float> result = som->getWinnerResult(sample);
+            int winner = (int) result[0];
 //            MatVector<float> weights;
 //            getWeights(winner, weights);
             
 //            dbgOut(1) << groups[k] << endl;
             
-            int cls = result[1];
+            int cls = (int) result[1];
             if (fabs(groups[k] - cls) < 0.5) {
                 hits++;
                 nodeHits[winner]++;
@@ -1486,16 +1486,16 @@ public:
             trainingData->getRow(i, sample);
 
             std::vector<int> winners;
-            std::vector<int> result;
+            std::vector<float> result;
             result = som->getWinnerResult(sample);
-            winners.push_back(result[0]);        
+            winners.push_back((int) result[0]);        
 
             for (int j = 0; j < winners.size(); j++) {
                 file << i << "\t";
                 file << winners[j];
                 
                 if (result.size() > 0) {
-                    file<< "\t" << result[1];
+                    file<< "\t" << (int) result[1];
                 }
                 
                 file << endl;
@@ -1514,9 +1514,9 @@ public:
             MatVector<float> sample;
             trainingData->getRow(k, sample);
 
-            std::vector<int> result = som->getWinnerResult(sample); 
+            std::vector<float> result = som->getWinnerResult(sample); 
             
-            int cls = result[1];
+            int cls = (int) result[1];
             
             if (groups[k] == cls) {
                 hits++;
@@ -1545,9 +1545,9 @@ public:
             }
 
             std::vector<int> winners;
-            std::vector<int> result;
+            std::vector<float> result;
             result = som->getWinnerResult(sample);
-            winners.push_back(result[0]);
+            winners.push_back((int) result[0]);
             
             for (int w = 0; w < winners.size(); w++) {
                 confusionMatrix[winners[w]][groups[k]]++;
@@ -1611,15 +1611,15 @@ public:
                 continue;
             }
 
-            std::vector<int> result = som->getWinnerResult(sample);
-            int winner = result[0];
+            std::vector<float> result = som->getWinnerResult(sample);
+            int winner = (int) result[0];
             
 //            MatVector<float> weights;
 //            getWeights(winner, weights);
             
 //            dbgOut(1) << groups[k] << endl;
             
-            int cls = result[1];
+            int cls = (int) result[1];
             if (fabs(groups[k] - cls) < 0.5) {
                 hits++;
                 nodeHits[winner]++;

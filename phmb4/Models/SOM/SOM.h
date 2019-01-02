@@ -38,8 +38,8 @@ public:
         
     int noCls;
             
-    virtual inline std::vector<int> getWinnerResult(const TVector &w) { 
-        std::vector<int> vec;
+    virtual inline std::vector<float> getWinnerResult(const TVector &w) { 
+        std::vector<float> vec;
         return vec; 
     }
         
