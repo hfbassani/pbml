@@ -489,7 +489,7 @@ public:
         return winner;
     }
     
-    virtual inline std::vector<int> getWinnerResult(const TVector &w) {
+    virtual inline std::vector<float> getWinnerResult(const TVector &w) {
         TNode *winner = getFirstWinner(w);
         
         if (winner->cls == noCls) {
@@ -504,7 +504,7 @@ public:
                 winner = newWinner;
         }
         
-        std::vector<int> result;
+        std::vector<float> result;
         result.push_back(getNodeIndex(*winner));
         result.push_back(winner->cls);
         result.push_back(winner->getId());
