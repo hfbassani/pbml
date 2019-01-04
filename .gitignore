@@ -302,7 +302,6 @@ ENV/
 
 VILMAP/output*
 VILMAP/networks*
-VILMAP/input
 VILMAP/test*
 VILMAP/Test*
 
