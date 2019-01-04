@@ -238,6 +238,9 @@ def plot_params_results(file_name, header_rows=9, params_to_plot=None, save=Fals
         if "seed" in param:
             continue
 
+        # for result in results.columns:
+        #     plot_x_y(params[param], results[result], "{0} - {1}".format(param, result), save=save, plot=plot)
+
         for dataset in datasets:
             matching = [result for result in results.columns if dataset in result]
             x = []
@@ -268,7 +271,7 @@ def subplot_params_results(file_name, params_to_plot=None, save=False, plot=True
         row = 0
         col = 0
 
-        fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(7,7))
+        fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(7, 7))
         fig.suptitle(result, fontsize=14, y=0.99)
 
         for param in params_to_plot:
