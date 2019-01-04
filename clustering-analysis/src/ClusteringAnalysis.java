@@ -129,6 +129,18 @@ public class ClusteringAnalysis {
         return dir;
     }
 
+    public static void createDirectory (String path) {
+        Path folder_path = Paths.get(path);
+        if (!Files.exists(folder_path)) {
+            try {
+                Files.createDirectory(folder_path);
+                System.out.println("Directory created");
+            } catch (IOException e) {
+                System.out.println("Error creating directory: " + path);
+            }
+        }
+    }
+
     public static void runTests(String inputPath, String resultsPath) {
 
         inputsDirectory = checkDirectory(inputPath);
@@ -137,6 +149,9 @@ public class ClusteringAnalysis {
             return;
 
         }
+
+        createDirectory(outputDir);
+
         inputFileNames = inputsDirectory.list();
         Arrays.sort(inputFileNames, (Object o1, Object o2) -> ((String) o1).compareTo((String) o2));
 
