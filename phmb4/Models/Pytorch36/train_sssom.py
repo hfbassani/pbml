@@ -96,8 +96,8 @@ if stop_idx <= start_idx:
 if len(testPaths) > 0:
     for i, (train, test) in enumerate(zip(inputPaths, testPaths)):
 
-        train_data = ArffDataset(load_path=train)
-        test_data = ArffDataset(load_path=test)
+        train_data = ArffDataset(train)
+        test_data = ArffDataset(test)
         test_loader = DataLoader(test_data,
                                  num_workers=opt.workers)
 

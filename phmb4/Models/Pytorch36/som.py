@@ -59,11 +59,10 @@ class LARFDSSOM(nn.Module):
         self.step += 1
 
     def initialize_map(self, w, y=None, calculate_mean=False):
-
         batch_size = w.size(0)
 
         if not calculate_mean:
-            self.weights = torch.tensor(w, device=self.device)
+            self.weights = w.clone().detach()
         else:
             w_new, _, _ = self.group_data_by_mean(w, y)
             batch_size = w_new.size(0)
@@ -83,9 +82,8 @@ class LARFDSSOM(nn.Module):
         if y is None:
             new_w = w.mean(dim=0).unsqueeze(0)
         else:
-
-            unique_targets = torch.from_numpy(np.unique(y)).to(
-                self.device)  # there is no GPU support for unique operation
+            # there is no GPU support for unique operation
+            unique_targets = torch.from_numpy(np.unique(y)).to(self.device)
             for target in unique_targets:
                 target_occurrences = (y == target).nonzero().squeeze(1)
                 w_target = w[target_occurrences].mean(dim=0).unsqueeze(0)
@@ -128,19 +126,18 @@ class LARFDSSOM(nn.Module):
 
         if indices_geq_at is not None:
             for grouped_w, _, node in self.group_by_winner_node(indices_max[indices_geq_at], w[indices_geq_at]):
-                new_w, _, _ = self.group_data_by_mean(grouped_w)
 
                 self.wins[node] += len(grouped_w)
                 self.update_all_connections()
-                self.update_node(new_w, self.e_b, node)
+                self.update_node(grouped_w, self.e_b, node)
 
-                self.update_neighbors(new_w, node)
+                self.update_neighbors(grouped_w, node)
 
     def group_by_winner_node(self, winners, w, y=None):
         groups = None
 
-        unique_nodes = torch.from_numpy(np.unique(winners)).to(
-            self.device)  # there is no GPU support for unique operation
+        # there is no GPU support for unique operation
+        unique_nodes = torch.from_numpy(np.unique(winners)).to(self.device)
 
         for node in unique_nodes:
             node_occurrences = (winners == node).nonzero().squeeze(1)
@@ -156,20 +153,23 @@ class LARFDSSOM(nn.Module):
 
     def update_neighbors(self, w, nodes):
         if len(nodes.size()) == 0:  # len(nodes.size()) == 0 means that it is a scalar tensor
-            self.update_node_neighbors(nodes, w)
+            self.update_node_neighbors(w, nodes)
 
         else:
-            for node, w_update in zip(nodes, w):
-                self.update_node_neighbors(node, w_update)
+            # for node, w_update in zip(nodes, w):
 
-    def update_node_neighbors(self, node, w):
+            for node in zip(nodes):
+                self.update_node_neighbors(w, node)
+
+    def update_node_neighbors(self, w, node):
         # check if the node has any neighbors
         has_neighbors = self.neighbors[node].sum().nonzero().squeeze(0)
 
         if has_neighbors.size(0) > 0:
             # get neighbors
             node_neighbors = self.neighbors[node].nonzero().squeeze(1)
-            self.update_node(w, self.e_n, node_neighbors)
+            for neighbor in node_neighbors:
+                self.update_node(w, self.e_n, neighbor)
 
     def activation(self, w):
         dists = self.weighted_distance(w)
@@ -178,28 +178,31 @@ class LARFDSSOM(nn.Module):
         return torch.div(relevances_sum, torch.add(torch.add(relevances_sum, dists), 1e-7))
 
     def add_node(self, w, y=None):
-        batch_size = w.size(0)
+        add_w, add_y, _ = self.group_data_by_mean(w, y)
 
-        self.weights = torch.cat((self.weights, w), 0)
+        batch_size = add_w.size(0)
 
-        zeros = torch.zeros(batch_size, self.dim, device=self.device)
-        ones = torch.ones(batch_size, self.dim, device=self.device)
+        if self.weights.size(0) + batch_size < self.max_node_number:
+            self.weights = torch.cat((self.weights, add_w), 0)
 
-        self.moving_avg = torch.cat((self.moving_avg, zeros), 0)
-        self.relevances = torch.cat((self.relevances, ones), 0)
+            zeros = torch.zeros(batch_size, self.dim, device=self.device)
+            ones = torch.ones(batch_size, self.dim, device=self.device)
 
-        self.neighbors = torch.cat((self.neighbors,
-                                    torch.zeros(self.neighbors.size(0), batch_size, dtype=torch.uint8,
-                                                device=self.device)), 1)
-        self.neighbors = torch.cat((self.neighbors,
-                                    torch.zeros(batch_size, self.neighbors.size(1), dtype=torch.uint8,
-                                                device=self.device)), 0)
+            self.moving_avg = torch.cat((self.moving_avg, zeros), 0)
+            self.relevances = torch.cat((self.relevances, ones), 0)
 
-        # update_ind = torch.range(0, batch_size - 1, device=self.device, dtype=torch.long) + self.weights.size(0) - 1
-        # self.update_connections(update_ind)
-        self.update_all_connections()
+            self.neighbors = torch.cat((self.neighbors,
+                                        torch.zeros(self.neighbors.size(0), batch_size, dtype=torch.uint8,
+                                                    device=self.device)), 1)
+            self.neighbors = torch.cat((self.neighbors,
+                                        torch.zeros(batch_size, self.neighbors.size(1), dtype=torch.uint8,
+                                                    device=self.device)), 0)
 
-        self.wins = torch.cat((self.wins, torch.zeros(batch_size, device=self.device)))
+            # update_ind = torch.range(0, batch_size - 1, device=self.device, dtype=torch.long) + self.weights.size(0) - 1
+            # self.update_connections(update_ind)
+            self.update_all_connections()
+
+            self.wins = torch.cat((self.wins, torch.zeros(batch_size, device=self.device)))
 
     def update_connections(self, node_index):
         dists = self.relevance_distances(self.relevances[node_index], self.relevances)
@@ -209,7 +212,11 @@ class LARFDSSOM(nn.Module):
         self.neighbors[node_index] = dists_connections
 
     def update_node(self, w, lr, index):
-        distance = torch.abs(torch.sub(w, self.weights[index]))
+
+        distance = torch.abs(w - self.weights[index])
+        if len(w.size()) > 1:
+            distance = torch.abs(w - self.weights[index]).mean(dim=0)
+
         self.moving_avg[index] = torch.mul(lr * self.dsbeta, distance) + torch.mul(1 - lr * self.dsbeta,
                                                                                    self.moving_avg[index])
 
@@ -230,7 +237,10 @@ class LARFDSSOM(nn.Module):
                                                                                       torch.sub(maximum, minimum)))))
         self.relevances[self.relevances != self.relevances] = 1.  # if (max - min) == 0 then set to 1
 
-        self.weights[index] = torch.add(self.weights[index], torch.mul(lr, torch.sub(w, self.weights[index])))
+        if len(w.size()) > 1:
+            self.weights[index] = torch.add(self.weights[index], torch.mul(lr, (w - self.weights[index]).mean(dim=0)))
+        else:
+            self.weights[index] = torch.add(self.weights[index], torch.mul(lr, torch.sub(w, self.weights[index])))
 
     def remove_loosers(self, remaining_indexes=None):
 
@@ -275,7 +285,6 @@ class LARFDSSOM(nn.Module):
         return self.pairwise_distances(x1, x2)
 
     def pairwise_distances(self, x1, x2=None):
-
         x1_norm = (x1 ** 2).sum(1).view(-1, 1)
 
         x2_t = torch.transpose(x2, 0, 1)
@@ -437,31 +446,43 @@ class SSSOM(LARFDSSOM):
                 indices_lt_at = None if lt_at.size(0) == 0 else lt_at.squeeze(1)
 
                 if indices_lt_at is not None and self.weights.size(0) + indices_lt_at.size(0) < self.max_node_number:
-                    add_w, add_y, _ = self.group_data_by_mean(grouped_w[indices_lt_at], grouped_y[indices_lt_at])
-                    self.add_node(add_w, add_y)
-                # print("ADD BATCH MAP SUP")
-                if indices_geq_at is not None:  # duas amostras de rotulos diferentes ganharam pro mesmo nodo (que pode ter um rotulo, ou nao), o que fazer?
-                    new_w, new_y, new_wins = self.group_data_by_mean(grouped_w[indices_geq_at], grouped_y[indices_geq_at])
+                    self.add_node(grouped_w[indices_lt_at], grouped_y[indices_lt_at])
 
-                    if new_w.size(0) == 1:
+                if indices_geq_at is not None:
+
+                    if grouped_w[indices_geq_at].size(0) == 1:
                         self.wins[node] += len(grouped_w[indices_geq_at])
-                        self.classes[node] = new_y
+                        self.classes[node] = grouped_y[indices_geq_at]
                         self.update_all_connections()
-                        self.update_node(new_w, self.e_b, node)
-                        self.update_neighbors(new_w, node)
-                    # print("ADD NEWSIZE")
+                        self.update_node(grouped_w[indices_geq_at], self.e_b, node)
+                        self.update_neighbors(grouped_w[indices_geq_at], node)
+
                     else:
-                        instances = new_w.size(0) - 1
-                        if self.weights.size(0) + instances < self.max_node_number:
-                            new_ind = self.clone_node(node, instances)
+                        # there is no GPU support for unique operation
+                        unique_classes = torch.from_numpy(np.unique(grouped_y[indices_geq_at])).to(self.device)
 
-                            self.wins[new_ind] += new_wins
-                            self.classes[new_ind] = new_y
-                            self.update_all_connections()
-                            self.update_node(new_w, self.e_b, new_ind)
+                        for cls in unique_classes:
 
-                            self.update_neighbors(new_w, new_ind)
-            # print("!!!!!ADD BATCH MAP SUP")
+                            cls_occurrences = (grouped_y[indices_geq_at] == cls).nonzero().squeeze(1)
+                            occurrences = grouped_y[indices_geq_at][cls_occurrences]
+
+                            if self.classes[node] != cls and self.classes[node] != self.no_class \
+                                    and self.weights.size(0) < self.max_node_number:
+                                new_ind = self.clone_node(node)
+
+                                self.wins[new_ind] += len(occurrences)
+                                self.classes[new_ind] = cls
+                                self.update_all_connections()
+                                self.update_node(grouped_w[indices_geq_at][cls_occurrences], self.e_b, new_ind)
+                                self.update_neighbors(grouped_w[indices_geq_at][cls_occurrences], new_ind)
+
+                            else:
+                                self.wins[node] += len(grouped_w[indices_geq_at][cls_occurrences])
+                                self.classes[node] = cls
+                                self.update_all_connections()
+                                self.update_node(grouped_w[indices_geq_at][cls_occurrences], self.e_b, node)
+                                self.update_neighbors(grouped_w[indices_geq_at][cls_occurrences], node)
+
             different_class_nodes = (class_criterion == 0).nonzero()
             if different_class_nodes.size(0) > 0:
                 different_class_nodes = different_class_nodes.squeeze(1)
@@ -470,37 +491,28 @@ class SSSOM(LARFDSSOM):
                                             grouped_w[different_class_nodes],
                                             grouped_y[different_class_nodes])
 
-    # print("HANDLE DIFFERENT CLASS")
+    def clone_node(self, node):
+        self.add_node(self.weights[node].unsqueeze(0), self.classes[node].unsqueeze(0))
 
-    def clone_node(self, node, instances):
-        # print("CLONE NODE")
-        indices = torch.range(0, instances - 1, device=self.device, dtype=torch.long) + self.weights.size(0)
+        new_ind = self.weights.size(0) - 1
 
-        weights = torch.stack([self.weights[node]] * instances)
-        cls = self.classes[node]
+        self.moving_avg[new_ind] = self.moving_avg[node].clone().detach()
+        self.relevances[new_ind] = self.relevances[node].clone().detach()
+        self.neighbors[new_ind] = self.neighbors[node].clone().detach()
+        self.wins[new_ind] = torch.tensor(0., device=self.device)
 
-        self.add_node(weights, torch.stack([cls] * instances))
-
-        self.moving_avg[indices] = torch.tensor(self.moving_avg[node])
-        self.relevances[indices] = torch.tensor(self.relevances[node])
-        self.neighbors[indices] = torch.tensor(self.neighbors[node])
-        self.wins[indices] = torch.tensor(0., device=self.device)
-
-        return torch.cat((indices, node.unsqueeze(0))).sort()[0]
+        return torch.tensor(new_ind)
 
     def handle_different_class(self, activations, w, y):
         new_winners, wrong_winners = self.next_winners(activations, y)
         if wrong_winners is None and new_winners is None:
-            new_w, new_y, _ = self.group_data_by_mean(w, y)
-            self.add_node(new_w, new_y)
+            self.add_node(w, y)
         else:
             no_new_winners = (new_winners == -1).nonzero()
-            # print(no_new_winners, no_new_winners.size(0))
-            if no_new_winners.size(0) > 0:  # ax1xb = axb
+            if no_new_winners.size(0) > 0:
                 no_new_winners = no_new_winners.squeeze(1)
-                new_w, new_y, _ = self.group_data_by_mean(w[no_new_winners], y[no_new_winners])
-                if self.weights.size(0) + new_w.size(0) < self.max_node_number:
-                    self.add_node(new_w, new_y)
+                self.add_node(w[no_new_winners], y[no_new_winners])
+
             valid_new_winners = (new_winners != -1).nonzero()
             if valid_new_winners.size(0) > 0:
                 valid_new_winners = valid_new_winners.squeeze(1)
@@ -571,7 +583,6 @@ class SSSOM(LARFDSSOM):
         return winners, wrong_winners
 
     def initialize_map(self, w, y=None, calculate_mean=False):
-
         if not calculate_mean:
             super(SSSOM, self).initialize_map(w, y, calculate_mean)
 
@@ -589,12 +600,15 @@ class SSSOM(LARFDSSOM):
             self.classes = new_y.to(self.device)
 
     def add_node(self, w, y=None):
-        if y is None:
-            y = torch.full((w.size(0),), self.no_class, dtype=self.no_class.dtype, device=self.device)
+        add_w, add_y, _ = self.group_data_by_mean(w, y)
 
-        self.classes = torch.cat((self.classes, y.to(self.device)))
+        if self.weights.size(0) + add_w.size(0) < self.max_node_number:
+            if add_y is None:
+                add_y = torch.full((w.size(0),), self.no_class, dtype=self.no_class.dtype, device=self.device)
 
-        super(SSSOM, self).add_node(w, y)
+            self.classes = torch.cat((self.classes, add_y.to(self.device)))
+
+            super(SSSOM, self).add_node(add_w, add_y)
 
     def update_connections(self, node_index):
         dists = self.relevance_distances(self.relevances[node_index], self.relevances)
