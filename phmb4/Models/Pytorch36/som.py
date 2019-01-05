@@ -64,7 +64,7 @@ class LARFDSSOM(nn.Module):
         if not calculate_mean:
             self.weights = w.clone().detach()
         else:
-            w_new, _, _ = self.group_data_by_mean(w, y)
+            w_new, _ = self.group_data_by_mean(w, y)
             batch_size = w_new.size(0)
             self.weights = w_new.to(self.device)
 
@@ -77,7 +77,6 @@ class LARFDSSOM(nn.Module):
     def group_data_by_mean(self, w, y=None):
         new_w = None
         unique_targets = None
-        occurrences = None
 
         if y is None:
             new_w = w.mean(dim=0).unsqueeze(0)
@@ -90,12 +89,10 @@ class LARFDSSOM(nn.Module):
 
                 if new_w is None:
                     new_w = w_target
-                    occurrences = torch.tensor([len(w[target_occurrences])], device=self.device)
                 else:
                     new_w = torch.cat((new_w, w_target), 0)
-                    occurrences = torch.cat((occurrences, torch.tensor([len(w[target_occurrences])], device=self.device)), 0)
 
-        return new_w, unique_targets, occurrences
+        return new_w, unique_targets
 
     def update_map(self, w):
         batch_size = w.size(0)
@@ -178,7 +175,7 @@ class LARFDSSOM(nn.Module):
         return torch.div(relevances_sum, torch.add(torch.add(relevances_sum, dists), 1e-7))
 
     def add_node(self, w, y=None):
-        add_w, add_y, _ = self.group_data_by_mean(w, y)
+        add_w, add_y = self.group_data_by_mean(w, y)
 
         batch_size = add_w.size(0)
 
@@ -595,12 +592,12 @@ class SSSOM(LARFDSSOM):
             if y is None:
                 y = torch.full((w.size(0),), self.no_class, dtype=self.no_class.dtype, device=self.device)
 
-            new_w, new_y, _ = self.group_data_by_mean(w, y)
+            new_w, new_y = self.group_data_by_mean(w, y)
             super(SSSOM, self).initialize_map(new_w, new_y, calculate_mean=False)
             self.classes = new_y.to(self.device)
 
     def add_node(self, w, y=None):
-        add_w, add_y, _ = self.group_data_by_mean(w, y)
+        add_w, add_y = self.group_data_by_mean(w, y)
 
         if self.weights.size(0) + add_w.size(0) < self.max_node_number:
             if add_y is None:
