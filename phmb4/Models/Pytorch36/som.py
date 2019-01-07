@@ -174,8 +174,11 @@ class LARFDSSOM(nn.Module):
 
         return torch.div(relevances_sum, torch.add(torch.add(relevances_sum, dists), 1e-7))
 
-    def add_node(self, w, y=None):
-        add_w, add_y = self.group_data_by_mean(w, y)
+    def add_node(self, w, y=None, calculate_mean=True):
+        if calculate_mean:
+            add_w, add_y = self.group_data_by_mean(w, y)
+        else:
+            add_w, add_y = w, y
 
         batch_size = add_w.size(0)
 
@@ -588,24 +591,23 @@ class SSSOM(LARFDSSOM):
 
             self.classes = y.to(self.device)
         else:
+            new_w, new_y = self.group_data_by_mean(w, y)
 
             if y is None:
-                y = torch.full((w.size(0),), self.no_class, dtype=self.no_class.dtype, device=self.device)
+                new_y = torch.full((new_w.size(0),), self.no_class, dtype=self.no_class.dtype, device=self.device)
 
-            new_w, new_y = self.group_data_by_mean(w, y)
             super(SSSOM, self).initialize_map(new_w, new_y, calculate_mean=False)
             self.classes = new_y.to(self.device)
 
-    def add_node(self, w, y=None):
+    def add_node(self, w, y=None, calculate_mean=False):
         add_w, add_y = self.group_data_by_mean(w, y)
 
         if self.weights.size(0) + add_w.size(0) < self.max_node_number:
             if add_y is None:
-                add_y = torch.full((w.size(0),), self.no_class, dtype=self.no_class.dtype, device=self.device)
+                add_y = torch.full((add_w.size(0),), self.no_class, dtype=self.no_class.dtype, device=self.device)
 
             self.classes = torch.cat((self.classes, add_y.to(self.device)))
-
-            super(SSSOM, self).add_node(add_w, add_y)
+            super(SSSOM, self).add_node(add_w, add_y, calculate_mean=calculate_mean)
 
     def update_connections(self, node_index):
         dists = self.relevance_distances(self.relevances[node_index], self.relevances)
