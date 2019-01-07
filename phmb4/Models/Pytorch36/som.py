@@ -289,7 +289,7 @@ class LARFDSSOM(nn.Module):
 
         dist = x1_norm + x2_norm - 2.0 * torch.mm(x1, x2_t)
 
-        dist[dist != dist] = 0  # replace nan values with 0
+        dist[torch.isnan(dist)] = 0  # replace nan values with 0
 
         return dist
 
