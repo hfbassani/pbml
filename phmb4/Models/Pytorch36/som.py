@@ -298,7 +298,7 @@ class LARFDSSOM(nn.Module):
 
     def organization(self, dataloader):
         for epoch in range(self.epochs):
-            print("Epoch: ", epoch, " of ", self.epochs)
+            print("Epoch: ", (epoch + 1), " of ", self.epochs)
             for batch_idx, (inputs, targets) in enumerate(dataloader):
                 self.forward(inputs, targets)
         self.convergence(dataloader)
