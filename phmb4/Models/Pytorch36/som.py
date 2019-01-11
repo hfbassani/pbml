@@ -92,10 +92,10 @@ class LARFDSSOM(nn.Module):
 
                 if new_w is None:
                     new_w = w_target
-                    occurrences = torch.tensor([len(w[target_occurrences])], device=self.device)
+                    occurrences = torch.tensor([len(w[target_occurrences])], dtype=torch.float32, device=self.device)
                 else:
                     new_w = torch.cat((new_w, w_target), 0)
-                    occurrences = torch.cat((occurrences, torch.tensor([len(w[target_occurrences])], device=self.device)), 0)
+                    occurrences = torch.cat((occurrences, torch.tensor([len(w[target_occurrences])], dtype=torch.float32, device=self.device)), 0)
 
         return new_w, unique_targets, occurrences
 
