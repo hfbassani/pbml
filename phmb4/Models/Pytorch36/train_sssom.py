@@ -105,7 +105,6 @@ if len(testPaths) > 0:
             sssom = SSSOM(use_cuda=use_cuda,
                           ngpu=ngpu,
                           dim=train_data.X.shape[1],
-                          batch_size=opt.batch_size,
                           max_node_number=numberOfNodes,
                           no_class=999,
                           a_t=float(parameters[paramsSet]),
