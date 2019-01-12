@@ -54,8 +54,8 @@ OBJECTFILES= \
 CFLAGS=-std=c++0x
 
 # CC Compiler Flags
-CCFLAGS=-Wno-comment -std=c++11
-CXXFLAGS=-Wno-comment -std=c++11
+CCFLAGS=-Wno-comment -Wno-deprecated -std=c++11
+CXXFLAGS=-Wno-comment -Wno-deprecated -std=c++11
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -77,67 +77,67 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/vilmap: ${OBJECTFILES}
 ${OBJECTDIR}/_ext/a342a8fc/ArffData.o: ../Libs/Data/ArffData.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/a342a8fc
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/a342a8fc/ArffData.o ../Libs/Data/ArffData.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/a342a8fc/ArffData.o ../Libs/Data/ArffData.cpp
 
 ${OBJECTDIR}/_ext/c5140741/DebugOut.o: ../Libs/Debug/DebugOut.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/c5140741
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/c5140741/DebugOut.o ../Libs/Debug/DebugOut.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/c5140741/DebugOut.o ../Libs/Debug/DebugOut.cpp
 
 ${OBJECTDIR}/_ext/d0624b86/Defines.o: ../Libs/Defines/Defines.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/d0624b86
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/d0624b86/Defines.o ../Libs/Defines/Defines.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/d0624b86/Defines.o ../Libs/Defines/Defines.cpp
 
 ${OBJECTDIR}/_ext/b4e553aa/TextToPhoneme.o: ../Libs/Language/TextToPhoneme.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/b4e553aa
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b4e553aa/TextToPhoneme.o ../Libs/Language/TextToPhoneme.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b4e553aa/TextToPhoneme.o ../Libs/Language/TextToPhoneme.cpp
 
 ${OBJECTDIR}/_ext/8bffeb2f/MatUtils.o: ../Libs/MatMatrix/MatUtils.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/8bffeb2f
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8bffeb2f/MatUtils.o ../Libs/MatMatrix/MatUtils.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8bffeb2f/MatUtils.o ../Libs/MatMatrix/MatUtils.cpp
 
 ${OBJECTDIR}/_ext/36bbb5bc/LHSParameters.o: ../Libs/Parameters/LHSParameters.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/36bbb5bc
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/36bbb5bc/LHSParameters.o ../Libs/Parameters/LHSParameters.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/36bbb5bc/LHSParameters.o ../Libs/Parameters/LHSParameters.cpp
 
 ${OBJECTDIR}/_ext/36bbb5bc/Parameters.o: ../Libs/Parameters/Parameters.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/36bbb5bc
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/36bbb5bc/Parameters.o ../Libs/Parameters/Parameters.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/36bbb5bc/Parameters.o ../Libs/Parameters/Parameters.cpp
 
 ${OBJECTDIR}/LocalLibs/Cluster/ClusteringMetrics.o: LocalLibs/Cluster/ClusteringMetrics.cpp
 	${MKDIR} -p ${OBJECTDIR}/LocalLibs/Cluster
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/Cluster/ClusteringMetrics.o LocalLibs/Cluster/ClusteringMetrics.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/Cluster/ClusteringMetrics.o LocalLibs/Cluster/ClusteringMetrics.cpp
 
 ${OBJECTDIR}/LocalLibs/Cluster/ClusteringSOM.o: LocalLibs/Cluster/ClusteringSOM.cpp
 	${MKDIR} -p ${OBJECTDIR}/LocalLibs/Cluster
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/Cluster/ClusteringSOM.o LocalLibs/Cluster/ClusteringSOM.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/Cluster/ClusteringSOM.o LocalLibs/Cluster/ClusteringSOM.cpp
 
 ${OBJECTDIR}/LocalLibs/SOM/DSNeuron.o: LocalLibs/SOM/DSNeuron.cpp
 	${MKDIR} -p ${OBJECTDIR}/LocalLibs/SOM
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/SOM/DSNeuron.o LocalLibs/SOM/DSNeuron.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/SOM/DSNeuron.o LocalLibs/SOM/DSNeuron.cpp
 
 ${OBJECTDIR}/LocalLibs/SOM/Neuron.o: LocalLibs/SOM/Neuron.cpp
 	${MKDIR} -p ${OBJECTDIR}/LocalLibs/SOM
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/SOM/Neuron.o LocalLibs/SOM/Neuron.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/SOM/Neuron.o LocalLibs/SOM/Neuron.cpp
 
 ${OBJECTDIR}/LocalLibs/SOM/NodeW.o: LocalLibs/SOM/NodeW.cpp
 	${MKDIR} -p ${OBJECTDIR}/LocalLibs/SOM
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/SOM/NodeW.o LocalLibs/SOM/NodeW.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/LocalLibs/SOM/NodeW.o LocalLibs/SOM/NodeW.cpp
 
 ${OBJECTDIR}/main.o: main.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/SOM -I../Libs/Parameters -I../Libs/Debug -I../Libs/Defines -I../Libs/CImg -I../Libs/Cluster -I../Libs/Data -I../Libs/Language -I. -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
+	$(COMPILE.cc) -O2 -I../Libs/MatMatrix -I../Libs/Language -I../Libs/Debug -I../Libs/Defines -I../Libs/Parameters -ILocalLibs/Cluster -ILocalLibs/SOM -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
 
 # Subprojects
 .build-subprojects:

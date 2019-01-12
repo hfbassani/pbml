@@ -45,6 +45,7 @@ void runTestAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNo
 void runStudyOfCase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, int paramsNumber, std::string &featuresDict, OutputMetrics outputM);
 void runStudyOfCaseAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM);
 void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp);
+void runCompleteTestBrentDataBase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp);
 void learningTest(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM);
 
 
@@ -158,19 +159,16 @@ int main(int argc, char** argv) {
                 return 1;
         }
 
-
-    filename = "input/c1_cat.txt";
-
-    if (filename == "") {
-        dbgOut(0) << "option -f [filename] is required" << endl;
-        return -1;
-    }
-
-    std::ifstream file(filename.c_str());
-    if (!file.is_open()) {
-        dbgOut(0) << "Error openning file: " << filename << endl;
-        return false;
-    }
+//    if (filename == "") {
+//        dbgOut(0) << "option -f [filename] is required" << endl;
+//        return -1;
+//    }
+//
+//    std::ifstream file(filename.c_str());
+//    if (!file.is_open()) {
+//        dbgOut(0) << "Error openning file: " << filename << endl;
+//        return false;
+//    }
 
     dbgOut(1) << "Running VILMAP for file: " << filename << endl;
     mkdir("output/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -184,7 +182,7 @@ int main(int argc, char** argv) {
 
 
 
-    runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    //runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
     //runTestAfterTrainingTimeSeries(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
 
@@ -244,10 +242,12 @@ int main(int argc, char** argv) {
     
     
     //learningTest(&som, clusteringSOM, dssom, featuresDict, outputM);
-    
+    dbgOut(1) << "Brent Database." << endl;
+    runCompleteTestBrentDataBase(&som, clusteringSOM, dssom, featuresDict, outputM, epocs);
     
     //runStudyOfCaseAfterTrainingBrentDataBase(&som, clusteringSOM, dssom, featuresDict, outputM, epocs);
     //runTimeSeriesMotifDiscovery(&som, clusteringSOM, dssom, epocs, featuresDict, outputM);
+    
     dbgOut(1) << "Done." << endl;
 }
 
@@ -511,6 +511,93 @@ void runStudyOfCaseAfterTraining(VILMAP *som, ClusteringMeshSOM clusteringSOM, S
     outputM.outputWithParamsFiles(som, experiment, taxaTrue, taxaFalse, fileNumber);
     dbgOut(1) << std::to_string(experiment) << "% Concluido do arquivo " << fileNumber << endl;
 }
+
+void runCompleteTestBrentDataBase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp) {
+    //    Funcao criada para comparar e gerar resultados do artigo
+    int experiment = 0;
+    int fileNumber = 0;
+    std::cout << "Carregando Arquivos";
+    
+    MatMatrix<float> data = loadTrueData(6, fileNumber);
+    MatMatrix<float> dataFalse = loadFalseData(6, fileNumber);
+    
+    dbgOut(1) << "Arquivos carregados na RAM";
+    
+    std::vector<float> params = loadParametersFile();
+    
+    string filename = "c1_exp_" + std::to_string(exp) + ".txt";
+    
+    for (int i = 0; i < params.size(); i += 10)  {
+        dbgOut(1) << "f-" << fileNumber << " e-" << experiment;
+        MatMatrix<int> taxaTrue, taxaFalse; // 0 - Ativaçoes totais // 1 - Ativações reconhecidas // 2 - Ativações Não reconhecidas
+        //Testa com todos os arquivos de entrada depois que arede já foi treinada
+        //som->readSOM("networks_top1_brent/som_arq_" + std::to_string(fileNumber) + "_exp_" + std::to_string(experiment) + "_TE_" + std::to_string(6));
+        som->reset();
+        som->a_t = params[i];
+        som->lp = params[i + 1];
+        som->dsbeta = params[i + 2];
+        som->age_wins = params[i + 3];
+        som->e_b = params[i + 4];
+        som->e_n = params[i + 5];
+        som->epsilon_ds = params[i + 6];
+        som->minwd = params[i + 7];
+        float at_min = params[i + 8];
+        //experiment = (i / 7) + ((paramsNumber - 1) * 17);
+        experiment = (i / 10);
+
+        //Taxa de true positive
+
+        clusteringSOM.setData(data);
+        som->resetSize(clusteringSOM.getInputSize());
+        clusteringSOM.trainSOM(1);
+        taxaTrue.concatRows(clusteringSOM.writeClusterResultsArticle("output/result_" + std::to_string(i) + "_" + filename, data, featuresDict, dssom, at_min));
+            
+        std::ofstream file1;
+        std::string name = "article/rm/metrics_articleTRUE_" + std::to_string(experiment) + ".results";
+        file1.open(name.c_str(), std::ios_base::app);
+        for (int row = 0; row < taxaTrue.rows(); row++) {
+            int tp = taxaTrue[row][3];
+            int fp = taxaTrue[row][4];
+            int tn = taxaTrue[row][5];
+            int fn = taxaTrue[row][6];
+            float precision = tp / (tp + fp + 0.00000000001);
+            float recall = tp / (tp + fn + 0.00000000001);
+            file1 << "------------------------------------------------------------" << endl;
+            file1 << "tp = " << taxaTrue[row][3] << " | fp = " << taxaTrue[row][4] << " | tn = " << taxaTrue[row][5] << " | fn = " << taxaTrue[row][6] << std::endl;
+            file1 << "precision = " << precision << " | recall = " << recall << " | f-measure = " << (2 * precision * recall) / (precision + recall) << std::endl;
+            file1 << "at_all = " << taxaTrue[row][0] << " | at_know = " << taxaTrue[row][1] << " | at_Unknown = " << taxaTrue[row][2] << endl;
+
+        }
+        //Taxa de false negative
+
+        clusteringSOM.setData(dataFalse);
+        som->resetSize(clusteringSOM.getInputSize());
+        clusteringSOM.trainSOM(1);
+        taxaFalse.concatRows(clusteringSOM.writeClusterResultsArticle("output/false_" + std::to_string(i) + "_" + filename, dataFalse, featuresDict, dssom, at_min));
+            
+        std::ofstream file2;
+        std::string name2 = "article/rm/metrics_articleFALSE_" + std::to_string(experiment) + ".results";
+        file2.open(name2.c_str(), std::ios_base::app);
+        for (int row = 0; row < taxaFalse.rows(); row++) {
+            int tp = taxaFalse[row][3];
+            int fp = taxaFalse[row][4];
+            int tn = taxaFalse[row][5];
+            int fn = taxaFalse[row][6];
+            float precision = tp / (tp + fp + 0.00000000001);
+            float recall = tp / (tp + fn + 0.00000000001);
+            file2 << "------------------------------------------------------------" << endl;
+            file2 << "tp = " << taxaFalse[row][3] << " | fp = " << taxaFalse[row][4] << " | tn = " << taxaFalse[row][5] << " | fn = " << taxaFalse[row][6] << std::endl;
+            file2 << "precision = " << precision << " | recall = " << recall << " | f-measure = " << (2 * precision * recall) / (precision + recall) << std::endl;
+            file2 << "at_all = " << taxaFalse[row][0] << " | at_know = " << taxaFalse[row][1] << " | at_Unknown = " << taxaFalse[row][2] << endl;
+
+        }
+
+        if (experiment >= 99) {
+            break;
+        }
+    }
+}
+
 
 void runStudyOfCaseAfterTrainingBrentDataBase(VILMAP *som, ClusteringMeshSOM clusteringSOM, SOM<DSNode> *dssom, std::string &featuresDict, OutputMetrics outputM, int exp) {
     //    Funcao criada para comparar e gerar resultados do artigo
@@ -786,8 +873,9 @@ void createPhonemaData(std::string &featuresDict, MatMatrix<float> &data) {
 
 MatMatrix<float> loadFalseData(int tam, int fileNumber) {
     MatMatrix<float> mat;
-    std::ifstream inputFile("/home/raphael/git/pbml/VILMAP/input/simulated_data/false/split/flase_" + std::to_string(tam) + ".inputdata");
-
+    //std::ifstream inputFile("/home/raphael/git/pbml/VILMAP/input/simulated_data/false/split/flase_" + std::to_string(tam) + ".inputdata");
+    std::ifstream inputFile("/home/raphael/Documents/git/pbml/VILMAP/input/c1/falsedata_article");
+    
     //std::ifstream inputFile("input/falseData_" + std::to_string(tam) + "_arq_0");
     if (!inputFile.is_open()) {
         dbgOut(0) << "Error openning inputFile False. " << endl;
@@ -817,7 +905,8 @@ MatMatrix<float> loadFalseData(int tam, int fileNumber) {
 
 MatMatrix<float> loadTrueData(int tam, int fileNumber) {
     MatMatrix<float> mat;
-    std::ifstream inputFile("/home/raphael/git/pbml/VILMAP/input/simulated_data/true/split/true_" + std::to_string(tam) + ".inputdata");
+    //    //std::ifstream inputFile("/home/raphael/git/pbml/VILMAP/input/simulated_data/true/split/true_" + std::to_string(tam) + ".inputdata");
+    std::ifstream inputFile("/home/raphael/Documents/git/pbml/VILMAP/input/c1/truedata_article");
 
     //std::ifstream inputFile("input/trueData_" + std::to_string(tam) + "_arq_0");
     //std::ifstream inputFile("input/c1/trueData_"+ std::to_string(tam) +"_arq_c1");
@@ -945,7 +1034,7 @@ std::vector<float> loadParametersFile(int number) {
 }
 
 std::vector<float> loadParametersFile() {
-    string name1 = "input/20dmin_15May_0";
+    string name1 = "input/c1/rm_test_0";
     std::ifstream file(name1.c_str());
     std::string text;
     std::vector<float> params;
