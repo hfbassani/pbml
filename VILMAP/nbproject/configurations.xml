@@ -100,10 +100,9 @@
         <ccTool>
           <commandlineTool>g++</commandlineTool>
           <incDir>
-            <pElem>../Libs/MatMatrix</pElem>
             <pElem>../Libs/Data</pElem>
+            <pElem>../Libs/MatMatrix</pElem>
             <pElem>../Libs/Language</pElem>
-            <pElem>.</pElem>
             <pElem>../Libs/Debug</pElem>
             <pElem>../Libs/Defines</pElem>
             <pElem>../Libs/Parameters</pElem>
@@ -112,8 +111,11 @@
           </incDir>
           <commandLine>-Wno-comment -Wno-deprecated -std=c++11</commandLine>
         </ccTool>
+        <asmTool>
+          <developmentMode>0</developmentMode>
+        </asmTool>
         <linkerTool>
-          <commandLine>-L/usr/X11/lib -static-libstdc++ -lX11 -lpthread</commandLine>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/vilmap</output>
         </linkerTool>
       </compileType>
       <item path="../Libs/Data/ArffData.cpp" ex="false" tool="1" flavor2="0">
@@ -216,23 +218,21 @@
           <developmentMode>5</developmentMode>
           <incDir>
             <pElem>../Libs/MatMatrix</pElem>
-            <pElem>../Libs/SOM</pElem>
-            <pElem>../Libs/Parameters</pElem>
+            <pElem>../Libs/Language</pElem>
             <pElem>../Libs/Debug</pElem>
             <pElem>../Libs/Defines</pElem>
-            <pElem>../Libs/CImg</pElem>
-            <pElem>../Libs/Cluster</pElem>
-            <pElem>../Libs/Data</pElem>
-            <pElem>../Libs/Language</pElem>
-            <pElem>.</pElem>
+            <pElem>../Libs/Parameters</pElem>
+            <pElem>LocalLibs/Cluster</pElem>
+            <pElem>LocalLibs/SOM</pElem>
           </incDir>
-          <commandLine>-Wno-comment -std=c++11</commandLine>
+          <commandLine>-Wno-comment -Wno-deprecated -std=c++11</commandLine>
+          <useLinkerLibraries>false</useLinkerLibraries>
         </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <asmTool>
-          <developmentMode>5</developmentMode>
+          <developmentMode>0</developmentMode>
         </asmTool>
         <linkerTool>
           <commandLine>-L/usr/X11/lib -static-libstdc++ -lX11 -lpthread</commandLine>

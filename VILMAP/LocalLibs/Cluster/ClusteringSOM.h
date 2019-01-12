@@ -426,7 +426,7 @@ public:
 
     MatVector<int> writeClusterResultsArticle(const std::string &filename, MatMatrix<float> &data, std::string &featuresDict,
             SOM<DSNode> *som, float at_min) {
-        std::ifstream inputFile("input/c1_cat_phonems.txt");
+        std::ifstream inputFile("input/c1_phonemes.txt");
         std::string text;
         MatVector<std::string> dictOfWords;
 #ifdef SAVE_NOT_WORDS
