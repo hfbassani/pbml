@@ -1,1 +1,2 @@
-../../../Datasets/svhn/test/svhn_test_features.txt
+../../../Datasets/svhn-imgnet-test-minmax/svhn_imagenet_inception_v3_test_features.txt
+

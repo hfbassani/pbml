@@ -1,1 +1,2 @@
-../../../Datasets/svhn/train/svhn_train_features.txt
+../../../Datasets/svhn-imgnet-train-minmax/svhn_imagenet_inception_v3_train_features.txt
+
