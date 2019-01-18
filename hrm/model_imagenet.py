@@ -23,14 +23,14 @@ param = Hyperparameters(dataset_name=dataset_name)
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
 								 std=[0.229, 0.224, 0.225])
 
-ds_trans = transforms.Compose([transforms.Scale(299),
-							   transforms.CenterCrop(299),
+ds_trans = transforms.Compose([transforms.Scale(224),
+							   transforms.CenterCrop(224),
 							   transforms.ToTensor(),
 							   normalize])
 
 if(dataset_name == "mnist" or dataset_name == "fashion_mnist"):
-	ds_trans = transforms.Compose([transforms.Scale(299),
-								   transforms.CenterCrop(299),
+	ds_trans = transforms.Compose([transforms.Scale(224),
+								   transforms.CenterCrop(224),
 								   transforms.Grayscale(num_output_channels=3),
 								   transforms.ToTensor(),
 								   normalize])
@@ -129,11 +129,15 @@ model = None
 #alexnet = models.alexnet(pretrained=True)
 #vgg16 = models.vgg16(pretrained=True)
 #squeezenet = models.squeezenet1_0(pretrained=True)
-#densenet = models.densenet161(pretrained=True)
+model = models.densenet161(pretrained=True)
+
+'''
 inception_v3 = True
 if(inception_v3 == True):
 	model = models.inception_v3(pretrained=True)
 	path_to_save = path_to_save + "_imagenet_inception_v3"
+'''
+path_to_save = path_to_save + "_imagenet_densenet161"
 
 model = model.to(device)
 model.eval()
@@ -149,8 +153,8 @@ for param in model.parameters():
 
 
 
-new_classifier = nn.Sequential(*list(model.fc.children())[:-1])
-model.fc = new_classifier
+new_classifier = nn.Sequential(*list(model.classifier.children())[:-1])
+model.classifier = new_classifier
 
 
 print("Extract Train features")
