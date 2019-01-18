@@ -1,0 +1,14 @@
+@relation glass
+@attribute dim0 real
+@attribute dim1 real
+@attribute dim2 real
+@attribute dim3 real
+@attribute dim4 real
+@attribute dim5 real
+@attribute dim6 real
+@attribute dim7 real
+@attribute dim8 real
+@attribute class {0,1,2,3,5,4}
+@data
+0.803255,0.435965,0.0,0.848905,0.702087,1.0,0.156301,0.0,0.0,5
+0.463143,0.440154,0.821482,0.261477,0.80451,0.091932,0.231632,0.0,0.0,0
