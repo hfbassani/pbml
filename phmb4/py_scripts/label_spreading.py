@@ -1,28 +1,31 @@
 import argparse
 from sklearn import semi_supervised
 from sklearn import metrics
-from sklearn import preprocessing
 import pandas as pd
 import numpy as np
 from scipy.io import arff
 import os
 from os import listdir
 from os.path import isfile, join
-import random
+import utils
 
-def run_LabelSpreading(train_X, train_Y, test_X, test_Y, kernel='rbf', gamma=20, n_neighbors=7, alpha=0.2, max_iter=30):
+
+def run_label_spreading(train_x, train_y, test_x, test_y, kernel='rbf', gamma=20, n_neighbors=7, alpha=0.2, max_iter=30):
     clf = semi_supervised.LabelSpreading(kernel=kernel, gamma=gamma, n_neighbors=n_neighbors, alpha=alpha,
                                          max_iter=max_iter)
 
-    clf.fit(train_X, train_Y)
+    clf.fit(train_x, train_y)
 
-    accuracy = metrics.accuracy_score(clf.predict(test_X), test_Y)
+    accuracy = metrics.accuracy_score(clf.predict(test_x), test_y)
 
     return accuracy
 
-def run(folder, paramsFolder, output, supervision):
-    testFolder = folder.replace("_Train", "_Test")
-    files = [f for f in listdir(folder) if isfile(join(folder, f))]
+
+def run(folder, params_folder, output, supervision):
+    test_folder = folder.replace("_Train", "_Test")
+
+    files = [f for f in listdir(folder) if isfile(join(folder, f)) and f.endswith(".arff") and not f.startswith(".")]
+
     files = sorted(files)
 
     spreading_acc = []
@@ -32,110 +35,80 @@ def run(folder, paramsFolder, output, supervision):
     mean_value_spr = []
     std_value_spr = []
 
-    datasetNames = []
+    dataset_names = []
 
     for file in files:
         if file.endswith(".arff") and "sup_" not in file:
             spreading_acc.append([])
 
-            train_X, meta_trainX = arff.loadarff(open(join(folder, file), 'rb'))
-            train_X = pd.DataFrame(train_X)
-            train_Y = train_X['class']
-            del train_X['class']
+            train_x, meta_train_x = arff.loadarff(open(join(folder, file), 'rb'))
+            train_x = pd.DataFrame(train_x)
+            train_y = train_x['class']
+            del train_x['class']
 
-            train_X = np.array(train_X)
-            train_Y = np.array(train_Y)
+            train_x = np.array(train_x)
+            train_y = np.array(train_y)
 
-            testFile = file.replace("train_", "test_")
-            testFile = testFile.replace("sup_", "")
+            test_file = file.replace("train_", "test_")
+            test_file = test_file.replace("sup_", "")
 
-            if not testFolder.endswith("Test") and not testFolder.endswith("Test/"):
-                if testFolder.endswith("/"):
-                    testFolder = testFolder[:-4]
+            if not test_folder.endswith("Test") and not test_folder.endswith("Test/"):
+                if test_folder.endswith("/"):
+                    test_folder = test_folder[:-4]
                 else:
-                    testFolder = testFolder[:-3]
+                    test_folder = test_folder[:-3]
 
-            test_X, meta_testX = arff.loadarff(open(join(testFolder, testFile), 'rb'))
-            test_X = pd.DataFrame(test_X)
-            test_Y = test_X['class']
-            del test_X['class']
+            test_x, meta_test_x = arff.loadarff(open(join(test_folder, test_file), 'rb'))
+            test_x = pd.DataFrame(test_x)
+            test_y = test_x['class']
+            del test_x['class']
 
-            test_X = np.array(test_X)
-            test_Y = np.array(test_Y)
+            test_x = np.array(test_x)
+            test_y = np.array(test_y)
 
-            alldata = np.append(train_X, test_X, axis=0)
-            # scaler = preprocessing.MinMaxScaler()
-            # scaler.fit(alldata)
-            # alldata = scaler.transform(alldata)
-
-            train_X = alldata[:len(train_X)]
-            test_X = alldata[len(train_X):]
-
-            params = open(paramsFolder, 'r')
+            params = open(params_folder, 'r')
             params = np.array(params.readlines())
 
             for paramsSet in range(0, len(params), 5):
-                kernel_spreading = getKernel(int(params[paramsSet]))
+                kernel_spreading = get_kernel(int(params[paramsSet]))
                 gamma_spreading = float(params[paramsSet + 1])
                 n_neighbors_spreading = int(params[paramsSet + 2])
                 alpha_spreading = float(params[paramsSet + 3])
                 max_iter_spreading = int(params[paramsSet + 4])
 
-                rng = np.random.RandomState(random.randint(1, 200000))
-                random_unlabeled_points = rng.rand(len(train_Y)) > supervision
-                labels_spread = np.copy(train_Y)
-                labels_spread[random_unlabeled_points] = str(-1)
-                spreading_acc[len(spreading_acc) - 1].append(run_LabelSpreading(train_X, labels_spread, test_X, test_Y,
-                                                                                kernel=kernel_spreading,
-                                                                                gamma=gamma_spreading,
-                                                                                n_neighbors=n_neighbors_spreading,
-                                                                                alpha=alpha_spreading,
-                                                                                max_iter=max_iter_spreading))
+                unlabeled_points = train_y == '999'
+                labels_spread = np.copy(train_y)
+                labels_spread[unlabeled_points] = str(-1)
+                spreading_acc[len(spreading_acc) - 1].append(run_label_spreading(train_x, labels_spread, test_x, test_y,
+                                                                                 kernel=kernel_spreading,
+                                                                                 gamma=gamma_spreading,
+                                                                                 n_neighbors=n_neighbors_spreading,
+                                                                                 alpha=alpha_spreading,
+                                                                                 max_iter=max_iter_spreading))
 
-            max_values_spr.append(np.nanmax(spreading_acc[len(spreading_acc) - 1]))
-            index_set_spr.append(np.nanargmax(spreading_acc[len(spreading_acc) - 1]))
+            max_values_spr.append(np.max(spreading_acc[len(spreading_acc) - 1]))
+            index_set_spr.append(np.argmax(spreading_acc[len(spreading_acc) - 1]))
 
-            mean_value_spr.append(np.nanmean(spreading_acc[len(spreading_acc) - 1]))
-            std_value_spr.append(np.nanstd(spreading_acc[len(spreading_acc) - 1], ddof=1))
+            mean_value_spr.append(np.mean(spreading_acc[len(spreading_acc) - 1]))
+            std_value_spr.append(np.std(spreading_acc[len(spreading_acc) - 1], ddof=1))
+
+            dataset_names.append(file[:-5])
+
+            print "{0}\nSpreading: {1}({2})[{3}]\n\n".format(file,
+                                                             np.mean(spreading_acc[len(spreading_acc) - 1]),
+                                                             np.std(spreading_acc[len(spreading_acc) - 1], ddof=1),
+                                                             np.argmax(spreading_acc[len(spreading_acc) - 1]))
+
+    utils.write_general_results(output, supervision, "label-spreading", spreading_acc, max_values_spr, index_set_spr,
+                                mean_value_spr, std_value_spr, dataset_names)
 
 
-            datasetNames.append(file[:-5])
-            outputText = "{0}\nSpreading: {1}({2})[{3}]\n\n".format(file, np.nanmean(spreading_acc[len(spreading_acc) - 1]),
-                                                                    np.nanstd(spreading_acc[len(spreading_acc) - 1], ddof=1),
-                                                                    np.nanargmax(spreading_acc[len(spreading_acc) - 1]))
-            print outputText
-
-    writeResults(output, supervision, "label-spreading", spreading_acc, max_values_spr, index_set_spr, mean_value_spr,
-                 std_value_spr, datasetNames)
-
-def writeResults(outputPath, supervision, method, accs, max_values, index_set, mean_value, std_value,
-                 datasetNames):
-    if supervision == 1.0:
-        outputFile = open(join(outputPath, "{0}-l100.csv".format(method)), 'w+')
-    else:
-        outputFile = open(
-            join(outputPath, "{0}-l{1}.csv".format(method, ('%.2f' % (supervision)).split(".")[1])), 'w+')
-
-    line = "max_value," + ",".join(map(str, max_values)) + "\n"
-    line += "index_set," + ",".join(map(str, index_set)) + "\n"
-    line += "mean_value," + ",".join(map(str, mean_value)) + "\n"
-    line += "std_value," + ",".join(map(str, std_value)) + "\n\n"
-
-    line += "experiment," + ",".join(datasetNames) + "\n"
-
-    for i in range(len(accs[0])):
-        line += str(i)
-        for j in range(len(datasetNames)):
-            line += "," + str(accs[j][i])
-        line += "\n"
-
-    outputFile.write(line)
-
-def getKernel(kernel):
+def get_kernel(kernel):
     if kernel == 1:
         return 'rbf'
     else:
         return 'knn'
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', help='Train Data Directory', required=True)
@@ -149,6 +122,7 @@ params = args.p
 output = args.o
 supervision = args.s
 
-if not os.path.isdir(output): os.mkdir(output)
+if not os.path.isdir(output):
+    os.mkdir(output)
 
 run(folder, params, output, supervision)

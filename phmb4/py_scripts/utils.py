@@ -154,3 +154,26 @@ def write_arff_file(arff_file_name, data, meta, output_path, labels):
     new_file.write("@data\n")
     for _, row in data.iterrows():
         new_file.write(",".join(map(str, row)) + "\n")
+
+
+def write_general_results(output_path, supervision, method, accs, max_values, index_set, mean_value, std_value, dataset_names):
+    if supervision == 1.0:
+        output_file = open(join(output_path, "{0}-l100.csv".format(method)), 'w+')
+    else:
+        output_file = open(
+            join(output_path, "{0}-l{1}.csv".format(method, ('%.2f' % supervision).split(".")[1])), 'w+')
+
+    line = "max_value," + ",".join(map(str, max_values)) + "\n"
+    line += "index_set," + ",".join(map(str, index_set)) + "\n"
+    line += "mean_value," + ",".join(map(str, mean_value)) + "\n"
+    line += "std_value," + ",".join(map(str, std_value)) + "\n\n"
+
+    line += "experiment," + ",".join(dataset_names) + "\n"
+
+    for i in range(len(accs[0])):
+        line += str(i)
+        for j in range(len(dataset_names)):
+            line += "," + str(accs[j][i])
+        line += "\n"
+
+    output_file.write(line)

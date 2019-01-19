@@ -7,6 +7,7 @@ from scipy.io import arff
 import os
 from os import listdir
 from os.path import isfile, join
+import utils
 
 
 def run_mlp(train_x, train_y, test_x, test_y, neurons=100, hidden_layers=1, lr=0.001, momentum=0.9,
@@ -77,11 +78,6 @@ def run(folder, params_folder, output, supervision, sup_prefix):
         test_x = np.array(test_x)
         test_y = np.array(test_y)
 
-        alldata = np.append(train_x, test_x, axis=0)
-
-        train_x = alldata[:len(train_x)]
-        test_x = alldata[len(train_x):]
-
         params = open(params_folder, 'r')
         params = np.array(params.readlines())
 
@@ -97,11 +93,11 @@ def run(folder, params_folder, output, supervision, sup_prefix):
             mlp_acc[len(mlp_acc) - 1].append(run_mlp(train_x, train_y, test_x, test_y, neurons, hidden_layers, lr,
                                                      momentum, mlp_epochs, activation, lr_decay, solver))
 
-        max_values_mlp.append(np.nanmax(mlp_acc[len(mlp_acc) - 1]))
-        index_set_mlp.append(np.nanargmax(mlp_acc[len(mlp_acc) - 1]))
+        max_values_mlp.append(np.max(mlp_acc[len(mlp_acc) - 1]))
+        index_set_mlp.append(np.argmax(mlp_acc[len(mlp_acc) - 1]))
 
-        mean_value_mlp.append(np.nanmean(mlp_acc[len(mlp_acc) - 1]))
-        std_value_mlp.append(np.nanstd(mlp_acc[len(mlp_acc) - 1], ddof=1))
+        mean_value_mlp.append(np.mean(mlp_acc[len(mlp_acc) - 1]))
+        std_value_mlp.append(np.std(mlp_acc[len(mlp_acc) - 1], ddof=1))
 
         dataset_names.append(test_file[:-5])
 
@@ -110,31 +106,8 @@ def run(folder, params_folder, output, supervision, sup_prefix):
                                                    np.std(mlp_acc[len(mlp_acc) - 1], ddof=1),
                                                    np.argmax(mlp_acc[len(mlp_acc) - 1]))
 
-    write_results(output, supervision, "mlp", mlp_acc, max_values_mlp, index_set_mlp, mean_value_mlp,
-                  std_value_mlp, dataset_names)
-
-
-def write_results(output_path, supervision, method, accs, max_values, index_set, mean_value, std_value, dataset_names):
-    if supervision == 1.0:
-        output_file = open(join(output_path, "{0}-l100.csv".format(method)), 'w+')
-    else:
-        output_file = open(
-            join(output_path, "{0}-l{1}.csv".format(method, ('%.2f' % supervision).split(".")[1])), 'w+')
-
-    line = "max_value," + ",".join(map(str, max_values)) + "\n"
-    line += "index_set," + ",".join(map(str, index_set)) + "\n"
-    line += "mean_value," + ",".join(map(str, mean_value)) + "\n"
-    line += "std_value," + ",".join(map(str, std_value)) + "\n\n"
-
-    line += "experiment," + ",".join(dataset_names) + "\n"
-
-    for i in range(len(accs[0])):
-        line += str(i)
-        for j in range(len(dataset_names)):
-            line += "," + str(accs[j][i])
-        line += "\n"
-
-    output_file.write(line)
+    utils.write_general_results(output, supervision, "mlp", mlp_acc, max_values_mlp, index_set_mlp, mean_value_mlp,
+                                std_value_mlp, dataset_names)
 
 
 def get_activation(activation):

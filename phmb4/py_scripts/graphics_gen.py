@@ -160,7 +160,7 @@ def subplot_synthetic_data_graphs(file_name, save=False, plot=True):
 
 def check_plot_save (path, save, plot):
     if save:
-        plt.savefig(path)
+    	plt.savefig(path, bbox_inches='tight', pad_inches=0)
 
     if plot:
         plt.show()
