@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PARAM="../../Parameters/Propagation_0"
+PARAM="../Parameters/Propagation_0"
 TRAIN_FOLDER="../../Datasets/Realdata_3Times3FoldsExp_Train"
 RESULT_FOLDER="label-propagation-msc/"
 

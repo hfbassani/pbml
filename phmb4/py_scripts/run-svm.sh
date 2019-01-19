@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PARAM="../../Parameters/SVM_0"
+PARAM="../Parameters/SVM_0"
 TRAIN_FOLDER="../../Datasets/Realdata_3Times3FoldsExp_Train"
 RESULT_FOLDER="svm-msc/"
 

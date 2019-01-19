@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PARAM="../../Parameters/MLP_0"
+PARAM="../Parameters/MLP_0"
 TRAIN_FOLDER="../../Datasets/Realdata_3Times3FoldsExp_Train"
 RESULT_FOLDER="mlp-msc/"
 

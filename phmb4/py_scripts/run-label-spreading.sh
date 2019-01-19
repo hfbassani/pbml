@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PARAM="../../Parameters/Spreading_0"
+PARAM="../Parameters/Spreading_0"
 TRAIN_FOLDER="../../Datasets/Realdata_3Times3FoldsExp_Train"
 RESULT_FOLDER="label-spreading-msc/"
 
