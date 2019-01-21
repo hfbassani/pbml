@@ -92,7 +92,7 @@ def run(folder, params_folder, output, supervision):
             mean_value_spr.append(np.mean(spreading_acc[len(spreading_acc) - 1]))
             std_value_spr.append(np.std(spreading_acc[len(spreading_acc) - 1], ddof=1))
 
-            dataset_names.append(file[:-5])
+            dataset_names.append(test_file[:-5])
 
             print "{0}\nSpreading: {1}({2})[{3}]\n\n".format(file,
                                                              np.mean(spreading_acc[len(spreading_acc) - 1]),

@@ -92,7 +92,7 @@ def run(folder, params_folder, output, supervision, sup_prefix):
             mean_value_svm.append(np.mean(svm_acc[len(svm_acc) - 1]))
             std_value_svm.append(np.std(svm_acc[len(svm_acc) - 1], ddof=1))
 
-            dataset_names.append(file[:-5])
+            dataset_names.append(test_file[:-5])
 
             print "{0}\nSVM: {1}({2})[{3}]\n\n".format(file,
                                                        np.mean(svm_acc[len(svm_acc) - 1]),

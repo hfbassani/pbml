@@ -90,7 +90,7 @@ def run(folder, params_folder, output, supervision):
             mean_value_prop.append(np.mean(propagation_acc[len(propagation_acc) - 1]))
             std_value_prop.append(np.std(propagation_acc[len(propagation_acc) - 1], ddof=1))
 
-            dataset_names.append(file[:-5])
+            dataset_names.append(test_file[:-5])
 
             print "{0}\nPropagation: {1}({2})[{3}]\n\n".format(file,
                                                                np.mean(propagation_acc[len(propagation_acc) - 1]),
