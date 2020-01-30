@@ -21,6 +21,7 @@ class ArffDataset(Dataset):
 
 
         self.y = (data.iloc[:, -1].values * 0 + 999)
+        self.X = data.iloc[:, :-1]
 
         min_max_scaler = preprocessing.MinMaxScaler().fit(self.X )
         self.X  = min_max_scaler.transform(self.X )
