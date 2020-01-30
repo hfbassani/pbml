@@ -5,7 +5,7 @@ import pandas as pd
 
 from scipy.io import arff
 from torch.utils.data import Dataset
-
+from sklearn import preprocessing
 
 class ArffDataset(Dataset):
 
@@ -20,8 +20,13 @@ class ArffDataset(Dataset):
 
         self.y = data.iloc[:, -1].values
 
+
         self.X = data.iloc[:, :-1]
-        
+
+        min_max_scaler = preprocessing.MinMaxScaler().fit(self.X )
+        self.X  = min_max_scaler.transform(self.X )
+        self.X  = pd.DataFrame(self.X , dtype=float)
+
         if load_path != "":
             self.y = self.y.astype(int)
 
