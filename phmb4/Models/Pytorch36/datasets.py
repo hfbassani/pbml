@@ -18,9 +18,7 @@ class ArffDataset(Dataset):
             data = pd.read_csv(load_path, sep=",", header=None)
             data = pd.DataFrame(data, dtype=float)
 
-
-
-        self.y = (data.iloc[:, -1].values * 0 + 999)
+        self.y = data.iloc[:, -1].values
         self.X = data.iloc[:, :-1]
 
         min_max_scaler = preprocessing.MinMaxScaler().fit(self.X )
